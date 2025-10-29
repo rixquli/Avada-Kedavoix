@@ -1,0 +1,78 @@
+# OS files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# IDEs / editors
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnp.*
+.pnp.js
+.pnp.cjs
+.npmrc.local
+
+# Logs
+logs/
+*.log
+*.log.*
+debug.log
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+.env.test
+.env.production
+*.pem
+*.key
+
+# Build / output
+dist/
+build/
+out/
+release/
+tmp/
+temp/
+*.tsbuildinfo
+.cache/
+
+# Testing / coverage
+coverage/
+.nyc_output/
+coverage-final.json
+jest-cache/
+.vitest/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+env/
+venv/
+ENV/
+.venv/
+
+# Misc
+*.zip
+*.tar.gz
+*.7z
+*.log
+.idea/
+*.iml
+*.swp
