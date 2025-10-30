@@ -34,22 +34,6 @@ Avada-Kedavoix est un jeu multijoueur en temps réel développé en Python avec 
 
 ## 🎯 Utilisation
 
-### Démarrer le serveur
-
-Dans un premier terminal, lancez le serveur :
-
-```bash
-python server\main.py
-```
-
-Ou avec rechargement automatique lors de modifications du code :
-
-```bash
-watchmedo auto-restart --patterns="*.py" --recursive -- python server\main.py
-```
-
-Le serveur démarrera par défaut sur `localhost:12345`.
-
 ### Démarrer un ou plusieurs clients
 
 Dans un autre terminal (ou plusieurs pour simuler plusieurs joueurs), lancez le client :
@@ -155,15 +139,6 @@ Si vous trouvez un bug, veuillez ouvrir une issue avec :
 - Les étapes pour reproduire le bug
 - Le comportement attendu vs le comportement actuel
 - Votre configuration (OS, version Python, etc.)
-
-## 📜 Licence
-
-Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
-
-## 👥 Auteurs
-
-- **Théo** - Développeur principal
-- Contributeurs : Voir la liste des [contributeurs](https://github.com/rixquli/Avada-Kedavoix/contributors)
 
 ## 📞 Contact
 

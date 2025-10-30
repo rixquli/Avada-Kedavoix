@@ -81,8 +81,8 @@ def broadcast_game_state():
         time.sleep(1 / 30)  # 30 fois par seconde
 
 
-def main():
-    network.start_server()
+def start_game_server(adress=None, port=None):
+    network.start_server(adress, port)
 
     # Lance sur un autre thread la gestion des nouveauxjoueur
     start_new_thread(handle_conn, ())
@@ -91,4 +91,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    start_game_server()

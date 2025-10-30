@@ -16,12 +16,20 @@ class NetworkManager:
         self.is_server = is_server
 
     # Methodes du serveur
-    def start_server(self):
+    def start_server(self, address=None, port=None):
         if not self.is_server:
             return
 
+        server_adress = list(self.server_address)
+
+        if address is not None:
+            server_adress[0] = address
+
+        if port is not None:
+            server_adress[1] = port
+
         try:
-            self.socket.bind(self.server_address)
+            self.socket.bind(tuple(server_adress))
             self.socket.listen(5)
             print("Waiting for connection, Server Started")
 

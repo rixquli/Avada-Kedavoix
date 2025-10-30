@@ -1,6 +1,8 @@
 import os
 import sys
 
+import pygame
+
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from server.managers.playersManager import PlayersManager
