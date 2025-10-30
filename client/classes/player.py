@@ -1,5 +1,5 @@
-from typing import Tuple
-
+from typing import List, Tuple
+import pygame
 from server.classes.serializable import Serializable
 
 
@@ -48,6 +48,27 @@ class Player(Serializable):
             self.vx = speed
 
     def draw(self, surface):
-        import pygame
-
         pygame.draw.circle(surface, self.color, (int(self.x), int(self.y)), self.radius)
+
+    @staticmethod
+    def update_local_player(current_player: "Player"):
+        """
+        Met a jour le joueur avec les touches préssées
+        """
+        keys = pygame.key.get_pressed()
+        current_player.update(keys)
+
+    @staticmethod
+    def draw_all(surface, current_player: "Player", other_players: List["Player"]):
+        """
+        Dessine met a jour tout les joueurs
+        """
+        if other_players:
+            if isinstance(other_players, list):
+                for player in other_players:
+                    player.draw(surface)
+            else:
+                other_players.draw(surface)
+
+        if current_player:
+            current_player.draw(surface)

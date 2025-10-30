@@ -53,14 +53,17 @@ class EntityManager:
             return None
         return self.entities[id]
 
+    def get_except_list(self, id):
+        """
+        Renvoie une liste des élément qui ont un id différent du paramètre
+        """
+        return [e for e in self.get_list() if e.id != id]
+
     def get_all(self):
         return self.entities
 
     def get_list(self):
         return list(self.entities.values())
-
-    def get_local_entity(self):
-        return self.filter_by()
 
     def filter_by(self, **kwargs) -> List[Serializable]:
         result = []

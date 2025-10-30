@@ -36,24 +36,13 @@ class Spell(Serializable):
         pygame.draw.circle(surface, self.color, (int(self.x), int(self.y)), self.radius)
 
     @classmethod
-    def drawSpell(self, surface, all_spells: List["Spell"]):
-        # Dessine met a jour tout les spells
-        # player_spells = [s for s in all_spells if s.player_id == self.my_player_id]
-        # other_player_spells = [
-        #     s for s in all_spells if s.player_id != self.my_player_id
-        # ]
-
+    def draw_all(self, surface, all_spells: List["Spell"]):
+        """
+        Dessine tout les spells
+        """
         if all_spells:
             if isinstance(all_spells, list):
                 for spell in all_spells:
                     spell.draw(surface)
             else:
                 all_spells.draw(surface)
-
-        # if isinstance(player_spells, list):
-        #     for spell in player_spells:
-        #         spell.draw(surface)
-        #         # spell.update()
-        # else:
-        #     player_spells.draw(surface)
-        # player_spells.update()

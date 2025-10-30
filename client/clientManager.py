@@ -125,42 +125,20 @@ class ClientManager:
         self.start_local_server(max_player=1)
         self.my_player_id = self.connect_to_server()
 
-    # Draw Part
+    # Game Loop Part
 
-    def drawPlayer(self, surface, currentPlayer, otherPlayers):
-        """Dessine le joueur local et tous les autres joueurs"""
-
-        if otherPlayers:
-            if isinstance(otherPlayers, list):
-                for player in otherPlayers:
-                    player.draw(surface)
-            else:
-                otherPlayers.draw(surface)
-
-        currentPlayer.draw(surface)
-
-    def updatePlayers(self, screen):
+    def updatePlayer(self):
         # Dessine met a jour tout les joueurs
-        if self.my_player_id in self.game_manager.players.entities:
-            all_players = self.game_manager.players.get_list()
-            currentPlayer = self.game_manager.players.get(self.my_player_id)
-            otherPlayers = [
-                player for player in all_players if player.id != self.my_player_id
-            ]
-            self.drawPlayer(screen, currentPlayer, otherPlayers)
+        if self.my_player_id not in self.game_manager.players.entities:
+            return
 
-            # Met a jour le joueur avec les touches préssées
-            keys = pygame.key.get_pressed()
-            currentPlayer.update(keys)
+        current_player = self.game_manager.players.get(self.my_player_id)
 
-            # Envoyer ma position
-            self.send_my_position()
+        # Met a jour le joueur local
+        Player.update_local_player(current_player)
 
-    def send_my_spells_position(self):
-        my_spells = self.game_manager.spells.filter_by(player_id=self.my_player_id)
-        spells_dict = {spell.id: spell.to_dict() for spell in my_spells}
-        msg = Message(MessageType.PLAYER_UPDATE_SPELL, spells_dict)
-        self.network.send_message(msg)
+        # Envoyer ma position
+        self.send_my_position()
 
     def handle_event(self, event):
         # TODO: déplacer la logique dans une classe spécifique pour les actions
@@ -198,5 +176,16 @@ class ClientManager:
             case State.SOLO | State.HOST | State.INVITED:
                 # Pour eviter de mettre a jour dans le menu principal
                 # Si besoin pour plutart pour executer du code dans certains cas seulement
-                self.updatePlayers(screen)
-                Spell.drawSpell(screen, self.game_manager.spells.get_list())
+
+                # Update local player
+                self.updatePlayer(screen)
+
+                # Dessine les joueurs
+                current_player = self.get_player()
+                other_players = self.game_manager.players.get_except_list(
+                    self.my_player_id
+                )
+                Player.draw_all(screen, current_player, other_players)
+
+                # Dessine les spells
+                Spell.draw_all(screen, self.game_manager.spells.get_list())
