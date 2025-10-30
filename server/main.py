@@ -93,6 +93,7 @@ def handle_conn():
 def broadcast_game_state():
     """Thread qui diffuse l'état du jeu à tous les clients"""
     while True:
+        # TODO: Faire un update_all dans le game_manager
         for spell in list(game_manager.spells.entities.values()):
             spell.update()
 

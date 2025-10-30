@@ -1,6 +1,7 @@
 import os
 import sys
 from typing import List, Tuple, Type
+import uuid
 
 
 # To import module from other folder
@@ -12,7 +13,6 @@ class EntityManager:
     def __init__(self, entity_type: Type[Serializable]):
         self.entity_type = entity_type
         self.entities = {}
-        self.counter = 0
 
     def addEntity(
         self,
@@ -20,31 +20,33 @@ class EntityManager:
         fixed_id=None,
     ):
         if fixed_id is not None:
-            id = fixed_id
+            entity_id = str(fixed_id)
         else:
-            id = self.getId()
-        entity.id = id
-        self.entities[id] = entity
-        return id
+            entity_id = str(uuid.uuid4())
+        entity.id = entity_id
+        self.entities[entity_id] = entity
+        return entity_id
 
     def remove_local_only_entity(self, entities_from_server):
-        """Supprime les entitées qui n'existe que localement"""
-        """ex: un joueur s'est deconnecter il n'existe plus pour le serveur mais reste chez les clients"""
+        """
+        Supprime les entitées qui n'existe que localement
+        ex: un joueur s'est deconnecter il n'existe plus pour le serveur mais reste chez les clients
+        """
         if not isinstance(entities_from_server, dict):
             return
         entities_from_server_list = entities_from_server.keys()
+
+        to_delete = []
         for id, _ in self.get_all().items():
             if id not in entities_from_server_list:
-                self.remove(id)
+                to_delete.append(id)
 
-    def remove(self, id: int):
+        for id in to_delete:
+            self.remove(id)
+
+    def remove(self, id: str):
         if id in self.entities:
             del self.entities[id]
-
-    def getId(self):
-        id = self.counter
-        self.counter += 1
-        return id
 
     def get(self, id):
         if id not in self.entities:

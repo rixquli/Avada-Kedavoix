@@ -98,7 +98,7 @@ class ClientManager:
         self.start_local_server(adress, port)
 
         # Se connecter à son propre serveur
-        time.sleep(1.5)
+        time.sleep(0.5)
         self.my_player_id = self.network.connect_to_server("localhost", port)
 
         start_new_thread(self.handle_reveice_message, ())
@@ -156,42 +156,14 @@ class ClientManager:
             # Envoyer ma position
             self.send_my_position()
 
-    def drawSpell(self, surface, player_spells, other_player_spells):
-        if other_player_spells:
-            if isinstance(other_player_spells, list):
-                for spell in other_player_spells:
-                    spell.draw(surface)
-            else:
-                other_player_spells.draw(surface)
-
-        if isinstance(player_spells, list):
-            for spell in player_spells:
-                spell.draw(surface)
-                spell.update()
-        else:
-            player_spells.draw(surface)
-            player_spells.update()
-
     def send_my_spells_position(self):
         my_spells = self.game_manager.spells.filter_by(player_id=self.my_player_id)
         spells_dict = {spell.id: spell.to_dict() for spell in my_spells}
         msg = Message(MessageType.PLAYER_UPDATE_SPELL, spells_dict)
         self.network.send_message(msg)
 
-    def updateSpells(self, screen):
-        # Dessine met a jour tout les joueurs
-        all_spells = self.game_manager.spells.get_list()
-
-        player_spells = [s for s in all_spells if s.player_id == self.my_player_id]
-        other_player_spells = [
-            s for s in all_spells if s.player_id != self.my_player_id
-        ]
-        self.drawSpell(screen, player_spells, other_player_spells)
-
-        # Envoyer la position de mes sorts
-        # self.send_my_spells_position()
-
     def handle_event(self, event):
+        # TODO: déplacer la logique dans une classe spécifique pour les actions
         if event.type == pygame.MOUSEBUTTONDOWN:
             my_player = self.get_player()
             if not my_player:
@@ -224,5 +196,7 @@ class ClientManager:
     def update(self, screen):
         match self.state:
             case State.SOLO | State.HOST | State.INVITED:
+                # Pour eviter de mettre a jour dans le menu principal
+                # Si besoin pour plutart pour executer du code dans certains cas seulement
                 self.updatePlayers(screen)
-                self.updateSpells(screen)
+                Spell.drawSpell(screen, self.game_manager.spells.get_list())

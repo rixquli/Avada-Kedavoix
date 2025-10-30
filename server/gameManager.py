@@ -28,25 +28,27 @@ class GameManager:
             if not data:
                 # si le spell n'existe plus on le supprime
                 self.players.remove(id)
-            elif int(id) not in self.players.entities:
+            elif str(id) not in self.players.entities:
                 # si le joueur n'existe pas localement on l'ajoute
                 player = Player.from_dict(data)
-                self.players.addEntity(player, fixed_id=int(id))
+                self.players.addEntity(player, fixed_id=str(id))
             else:
                 # si le joueur existe localement on le met a jour
-                self.players.update(int(id), data)
-        if state.get("players", {}) != {}:
+                self.players.update(str(id), data)
+        if state.get("players", {}):
             self.players.remove_local_only_entity(state.get("players", {}))
 
         # Spells
         for id, data in state.get("spells", {}).items():
             if not data:
                 # si le spell n'existe plus on le supprime
-                self.spells.remove(int(id))
-            elif int(id) not in self.spells.entities:
+                self.spells.remove(str(id))
+            elif str(id) not in self.spells.entities:
                 # si le spell n'existe pas localement on l'ajoute
                 spell = Spell.from_dict(data)
-                self.spells.addEntity(spell, fixed_id=int(id))
+                self.spells.addEntity(spell, fixed_id=str(id))
             else:
                 # si le spell existe localement on le met a jour
-                self.spells.update(int(id), data)
+                self.spells.update(str(id), data)
+        if state.get("spells", {}):
+            self.spells.remove_local_only_entity(state.get("spells", {}))
