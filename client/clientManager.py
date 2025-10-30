@@ -1,11 +1,9 @@
 import os
 import socket
-import subprocess
 import time
 import pygame
 import sys
 from _thread import *
-from pyngrok import ngrok
 
 
 # To import module from other folder

@@ -1,6 +1,4 @@
 import os
-import threading
-import time
 import pygame
 import sys
 from _thread import *
