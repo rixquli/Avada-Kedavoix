@@ -27,6 +27,16 @@ class EntityManager:
         self.entities[id] = entity
         return id
 
+    def remove_local_only_entity(self, entities_from_server):
+        """Supprime les entitées qui n'existe que localement"""
+        """ex: un joueur s'est deconnecter il n'existe plus pour le serveur mais reste chez les clients"""
+        if not isinstance(entities_from_server, dict):
+            return
+        entities_from_server_list = entities_from_server.keys()
+        for id, _ in self.get_all().items():
+            if id not in entities_from_server_list:
+                self.remove(id)
+
     def remove(self, id: int):
         if id in self.entities:
             del self.entities[id]
@@ -37,6 +47,8 @@ class EntityManager:
         return id
 
     def get(self, id):
+        if id not in self.entities:
+            return None
         return self.entities[id]
 
     def get_all(self):
@@ -44,6 +56,9 @@ class EntityManager:
 
     def get_list(self):
         return list(self.entities.values())
+
+    def get_local_entity(self):
+        return self.filter_by()
 
     def filter_by(self, **kwargs) -> List[Serializable]:
         result = []

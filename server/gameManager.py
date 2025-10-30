@@ -35,6 +35,8 @@ class GameManager:
             else:
                 # si le joueur existe localement on le met a jour
                 self.players.update(int(id), data)
+        if state.get("players", {}) != {}:
+            self.players.remove_local_only_entity(state.get("players", {}))
 
         # Spells
         for id, data in state.get("spells", {}).items():

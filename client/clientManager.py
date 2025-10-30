@@ -54,62 +54,6 @@ class ClientManager:
                         # Met a jour les donnes de l'environnement local
                         # a partir de celles du serveur.
                         self.game_manager.apply_state(msg.data)
-                        # for player_id, player_data in msg.data["players"].items():
-                        #     # Ne pas écraser les données du joueur local
-                        #     if player_id == self.my_player_id:
-                        #         # Si le joueur local n'existe pas encore, on le crée
-                        #         if player_id not in self.game_manager.players.entities:
-                        #             player = Player(
-                        #                 player_data["x"],
-                        #                 player_data["y"],
-                        #                 player_data["color"],
-                        #                 player_data["radius"],
-                        #             )
-                        #             player.vx = player_data.get("vx", 0)
-                        #             player.vy = player_data.get("vy", 0)
-                        #             self.game_manager.players.update(player_id, player)
-                        #         # Sinon on garde la position locale (pas de mise à jour)
-                        #     else:
-                        #         # Mettre à jour les autres joueurs
-                        #         player = Player(
-                        #             player_data["x"],
-                        #             player_data["y"],
-                        #             player_data["color"],
-                        #             player_data["radius"],
-                        #         )
-                        #         player.vx = player_data.get("vx", 0)
-                        #         player.vy = player_data.get("vy", 0)
-                        #         self.game_manager.players.update(player_id, player)
-
-                        # # On traite les données des spells recues depuis le serveur
-                        # for spell_id, spell_data in msg.data["spells"].items():
-                        #     if not spell_data:
-                        #         # Sort inexistant, on le supprime
-                        #         if spell_id in self.game_manager.spells.entities:
-                        #             self.game_manager.spells.remove(spell_id)
-                        #         continue
-
-                        #     spell_player_id = spell_data.get("player_id")
-
-                        #     # Si c'est un autre joueur qui a lancé le sort alors
-                        #     # On le fait apparaitre si non existant sinon on le met a jour
-                        #     if spell_player_id != self.my_player_id:
-                        #         if spell_id not in self.game_manager.spells.entities:
-                        #             self.game_manager.spells.addEntity(
-                        #                 Spell(
-                        #                     spell_data["x"],
-                        #                     spell_data["y"],
-                        #                     spell_data["player_id"],
-                        #                     spell_data["color"],
-                        #                     spell_data["dir"],
-                        #                     spell_data["radius"],
-                        #                 )
-                        #             )
-                        #         else:
-                        #             self.game_manager.spells.update(
-                        #                 spell_id, spell_data
-                        #             )
-                    # case MessageType.PLAYER_CAST_SPELL:
 
             except Exception as e:
                 print(f"Error: {e}")
@@ -122,16 +66,10 @@ class ClientManager:
             self.network.send_message(msg)
 
     def cast_spell(self, spell):
-        spell_id = self.game_manager.spells.addEntity(
-            Spell(
-                spell.x,
-                spell.y,
-                self.my_player_id,
-                spell.color,
-                spell.dir,
-                spell.radius,
-            )
-        )
+        # Ajouter localement
+        spell_id = self.game_manager.spells.addEntity(spell)
+
+        # Envoyer au serveur pour les autres joueurs
         msg = Message(
             MessageType.PLAYER_CAST_SPELL,
             {"id": spell_id, "spell_data": spell.to_dict()},
@@ -191,7 +129,6 @@ class ClientManager:
 
     def drawPlayer(self, surface, currentPlayer, otherPlayers):
         """Dessine le joueur local et tous les autres joueurs"""
-        keys = pygame.key.get_pressed()
 
         if otherPlayers:
             if isinstance(otherPlayers, list):
@@ -200,7 +137,6 @@ class ClientManager:
             else:
                 otherPlayers.draw(surface)
 
-        currentPlayer.update(keys)
         currentPlayer.draw(surface)
 
     def updatePlayers(self, screen):
@@ -212,6 +148,10 @@ class ClientManager:
                 player for player in all_players if player.id != self.my_player_id
             ]
             self.drawPlayer(screen, currentPlayer, otherPlayers)
+
+            # Met a jour le joueur avec les touches préssées
+            keys = pygame.key.get_pressed()
+            currentPlayer.update(keys)
 
             # Envoyer ma position
             self.send_my_position()
@@ -249,7 +189,37 @@ class ClientManager:
         self.drawSpell(screen, player_spells, other_player_spells)
 
         # Envoyer la position de mes sorts
-        self.send_my_spells_position()
+        # self.send_my_spells_position()
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            my_player = self.get_player()
+            if not my_player:
+                return
+
+            # Calculer la direction normalisée vers le curseur de la souris
+            mouse_x, mouse_y = event.pos
+            dx = mouse_x - my_player.x
+            dy = mouse_y - my_player.y
+            length = (dx**2 + dy**2) ** 0.5
+
+            if length > 0:
+                dir_x = dx / length
+                dir_y = dy / length
+            else:
+                dir_x, dir_y = 1, 0
+
+            # Créer le sort localement (pour eviter les latences)
+            spell = Spell(
+                x=my_player.x,
+                y=my_player.y,
+                player_id=self.my_player_id,
+                color=(50, 150, 255),
+                dir=(dir_x, dir_y),
+                radius=8,
+            )
+
+            self.cast_spell(spell)
 
     def update(self, screen):
         match self.state:

@@ -111,6 +111,7 @@ def main():
         50,
         onTextChanged=lambda x: update_ip_address(x),
         anchor=Anchor.CENTER,
+        initial_text="127.0.0.1",
     )
     port_input = TextInput(
         "Port",
@@ -119,6 +120,7 @@ def main():
         50,
         onTextChanged=lambda x: update_port(x),
         anchor=Anchor.CENTER,
+        initial_text="12345",
     )
     join_button = Button(
         "JOIN",
@@ -142,32 +144,12 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            client_manager.handle_event(event)
             ui.handle_event(event)
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_e:
-                    player = client_manager.get_player()
-                    mouse_pos = pygame.mouse.get_pos()
-                    dx = mouse_pos[0] - player.x
-                    dy = mouse_pos[1] - player.y
-                    magnitude = (dx**2 + dy**2) ** 0.5
-                    normalized_dir = (
-                        (dx / magnitude, dy / magnitude) if magnitude != 0 else (0, 0)
-                    )
-                    client_manager.cast_spell(
-                        Spell(
-                            player.x,
-                            player.y,
-                            client_manager.my_player_id,
-                            (50, 50, 255),
-                            dir=normalized_dir,
-                            radius=5,
-                        )
-                    )
 
         screen.fill((0, 0, 0))
 
         client_manager.update(screen)
-
         ui.update()
 
         pygame.display.flip()

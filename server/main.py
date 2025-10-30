@@ -40,15 +40,12 @@ def handle_client(conn, player_id):
                     # Cas ou un joueur cast un spell
                     spell_id = msg.data["id"]
                     spell_data = msg.data["spell_data"]
+
+                    # On peut récupérer l'objet spell directement a partir du json
+                    spell = Spell.from_dict(spell_data)
+
                     game_manager.spells.addEntity(
-                        Spell(
-                            spell_data["x"],
-                            spell_data["y"],
-                            spell_data["player_id"],
-                            spell_data["color"],
-                            spell_data["dir"],
-                            spell_data["radius"],
-                        ),
+                        spell,
                         fixed_id=spell_id,
                     )
                 case MessageType.PLAYER_UPDATE_SPELL:
@@ -96,6 +93,9 @@ def handle_conn():
 def broadcast_game_state():
     """Thread qui diffuse l'état du jeu à tous les clients"""
     while True:
+        for spell in list(game_manager.spells.entities.values()):
+            spell.update()
+
         state = game_manager.get_game_state()
         msg = Message(MessageType.GAME_STATE, state)
 

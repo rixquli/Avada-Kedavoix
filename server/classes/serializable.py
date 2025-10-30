@@ -16,7 +16,6 @@ class Serializable:
             ):
                 result[key] = [v.to_dict() for v in value]
             elif isinstance(value, tuple):
-                # ✅ Convertir tuple → list pour JSON
                 result[key] = list(value)
             else:
                 result[key] = value
@@ -35,7 +34,6 @@ class Serializable:
             if param_name in data:
                 value = data[param_name]
 
-                # ✅ Restaurer les tuples (pour color, dir, etc.)
                 param_annotation = sig.parameters[param_name].annotation
                 if "Tuple" in str(param_annotation) and isinstance(value, list):
                     value = tuple(value)

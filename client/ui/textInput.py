@@ -16,6 +16,7 @@ class TextInput:
         color=(20, 20, 20),
         bg_color=(200, 200, 200),
         anchor: Anchor = Anchor.TOPLEFT,
+        initial_text="",
     ):
         self.position = position
         self.width = width
@@ -27,8 +28,8 @@ class TextInput:
         self.font_name = font_name
         self.font = pygame.font.SysFont(self.font_name, self.font_size)
         self.placeholder = self.font.render(placeholder, True, self.color)
-        self.text = ""
-        self.previousText = ""
+        self.text = initial_text
+        self.previousText = self.text
         self.textRenderer = self.font.render(self.text, True, self.color)
         self.active = False
         self.done = False
@@ -39,6 +40,9 @@ class TextInput:
         self.input_box = pygame.Rect(
             self.actual_position[0], self.actual_position[1], self.width, self.height
         )
+
+        # Si initial_text est definie on execute onTextChanged
+        self.onTextChanged(self.text)
 
     def _calculate_actual_position(self):
         """
