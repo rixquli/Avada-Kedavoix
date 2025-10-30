@@ -1,6 +1,7 @@
 import os
 import socket
 from _thread import *
+import struct
 import sys
 
 # To import module from other folder
@@ -16,7 +17,7 @@ class NetworkManager:
         self.is_server = is_server
 
     # Methodes du serveur
-    def start_server(self, address=None, port=None):
+    def start_server(self, address=None, port=None, max_player=5):
         if not self.is_server:
             return
 
@@ -30,7 +31,7 @@ class NetworkManager:
 
         try:
             self.socket.bind(tuple(server_adress))
-            self.socket.listen(5)
+            self.socket.listen(max_player)
             print("Waiting for connection, Server Started")
 
         except Exception as e:
@@ -63,11 +64,26 @@ class NetworkManager:
             except Exception as e:
                 print(f"Send error: {e}")
 
+    def extract_header(self, conn, size):
+        data = b""
+        while len(data) < size:
+            packet = conn.recv(size - len(data))
+            if not packet:
+                raise ConnectionError("Connection closed while receiving data")
+            data += packet
+        return data
+
     def receive_message(self, conn=None):
         target = conn if conn else self.socket
         if target:
             try:
-                data = target.recv(4096)
+                header = self.extract_header(target, 4)
+                if not header:
+                    return None
+
+                message_size = struct.unpack(">I", header)[0]
+
+                data = self.extract_header(target, message_size)
                 if data:
                     return Message.deserialize(data)
             except Exception as e:

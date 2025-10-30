@@ -5,6 +5,8 @@ import sys
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from client.classes.player import Player
+from client.classes.spell import Spell
 from server.NetworkManager import NetworkManager
 from server.message import Message, MessageType
 from server.gameManager import GameManager
@@ -32,14 +34,37 @@ def handle_client(conn, player_id):
                 case MessageType.PLAYER_UPDATE:
                     # Cas où le joueur envoie sa position au serveur
                     player_data = msg.data
-                    game_manager.playersManager.updatePlayer(player_id, player_data)
+                    player = Player.from_dict(player_data)
+                    game_manager.players.update(player_id, player)
+                case MessageType.PLAYER_CAST_SPELL:
+                    # Cas ou un joueur cast un spell
+                    spell_id = msg.data["id"]
+                    spell_data = msg.data["spell_data"]
+                    game_manager.spells.addEntity(
+                        Spell(
+                            spell_data["x"],
+                            spell_data["y"],
+                            spell_data["player_id"],
+                            spell_data["color"],
+                            spell_data["dir"],
+                            spell_data["radius"],
+                        ),
+                        fixed_id=spell_id,
+                    )
+                case MessageType.PLAYER_UPDATE_SPELL:
+                    # Cas ou le joueur met a jour son spell
+                    player_spells = msg.data
+                    if player_spells:
+                        for sid, spell_data in player_spells.items():
+                            spell = Spell.from_dict(spell_data)
+                            game_manager.spells.update(sid, spell)
 
         except Exception as e:
             print(f"Error with player {player_id}: {e}")
             break
 
     print(f"Lost connection with player {player_id}")
-    game_manager.playersManager.removePlayer(player_id)
+    game_manager.players.remove(player_id)
     if conn in network.player_connections:
         del network.player_connections[conn]
     conn.close()
@@ -52,13 +77,15 @@ def handle_conn():
         print(f"Connected to: {addr}")
 
         # Creer le joueur lors de sa connection
-        num_players = len(game_manager.playersManager.players)
+        num_players = len(game_manager.players.entities)
         colors = [(0, 255, 0), (255, 0, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255)]
-        player_id = game_manager.playersManager.addPlayer(
-            x=50 + num_players * 100,
-            y=50 + num_players * 50,
-            color=colors[num_players % len(colors)],
-            radius=10,
+        player_id = game_manager.players.addEntity(
+            Player(
+                x=50 + num_players * 100,
+                y=50 + num_players * 50,
+                color=colors[num_players % len(colors)],
+                radius=10,
+            )
         )
 
         network.player_connections[conn] = player_id
@@ -81,8 +108,8 @@ def broadcast_game_state():
         time.sleep(1 / 30)  # 30 fois par seconde
 
 
-def start_game_server(adress=None, port=None):
-    network.start_server(adress, port)
+def start_game_server(adress=None, port=None, max_player=5):
+    network.start_server(adress, port, max_player=max_player)
 
     # Lance sur un autre thread la gestion des nouveauxjoueur
     start_new_thread(handle_conn, ())
@@ -90,5 +117,9 @@ def start_game_server(adress=None, port=None):
     broadcast_game_state()
 
 
+def main():
+    start_game_server("localhost", 12345)
+
+
 if __name__ == "__main__":
-    start_game_server()
+    main()

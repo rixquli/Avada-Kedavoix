@@ -1,5 +1,6 @@
 from enum import Enum
 import pickle
+import struct
 
 
 class MessageType(Enum):
@@ -8,6 +9,7 @@ class MessageType(Enum):
     CONNECT = "connect"
     DISCONNECT = "disconnect"
     PLAYER_CAST_SPELL = "spell"
+    PLAYER_UPDATE_SPELL = "spell_update"
 
 
 class Message:
@@ -16,7 +18,10 @@ class Message:
         self.data = data
 
     def serialize(self) -> bytes:
-        return pickle.dumps({"type": self.type.value, "data": self.data})
+        payload = pickle.dumps({"type": self.type.value, "data": self.data})
+        size = len(payload)
+        header = struct.pack(">I", size)
+        return header + payload
 
     @staticmethod
     def deserialize(data: bytes) -> "Message":

@@ -1,7 +1,9 @@
 from typing import Tuple
 
+from server.classes.serializable import Serializable
 
-class Player:
+
+class Player(Serializable):
     def __init__(
         self,
         x: float,
@@ -10,7 +12,9 @@ class Player:
         radius: int = 10,
         vx: float = 0,
         vy: float = 0,
+        id: int = None,
     ):
+        self.id = id
         self.x = float(x)
         self.y = float(y)
         self.color = tuple(color)
@@ -43,7 +47,7 @@ class Player:
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             self.vx = speed
 
-    def draw(self, surface, keys=None):
+    def draw(self, surface):
         import pygame
 
         pygame.draw.circle(surface, self.color, (int(self.x), int(self.y)), self.radius)

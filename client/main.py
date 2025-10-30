@@ -6,6 +6,7 @@ from _thread import *
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from client.classes.spell import Spell
 from client.enums.anchor import Anchor
 from client.clientManager import ClientManager
 from client.ui.button import Button
@@ -142,6 +143,26 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
             ui.handle_event(event)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_e:
+                    player = client_manager.get_player()
+                    mouse_pos = pygame.mouse.get_pos()
+                    dx = mouse_pos[0] - player.x
+                    dy = mouse_pos[1] - player.y
+                    magnitude = (dx**2 + dy**2) ** 0.5
+                    normalized_dir = (
+                        (dx / magnitude, dy / magnitude) if magnitude != 0 else (0, 0)
+                    )
+                    client_manager.cast_spell(
+                        Spell(
+                            player.x,
+                            player.y,
+                            client_manager.my_player_id,
+                            (50, 50, 255),
+                            dir=normalized_dir,
+                            radius=5,
+                        )
+                    )
 
         screen.fill((0, 0, 0))
 
