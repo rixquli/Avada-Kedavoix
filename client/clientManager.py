@@ -178,7 +178,7 @@ class ClientManager:
                 # Si besoin pour plutart pour executer du code dans certains cas seulement
 
                 # Update local player
-                self.updatePlayer(screen)
+                self.updatePlayer()
 
                 # Dessine les joueurs
                 current_player = self.get_player()
