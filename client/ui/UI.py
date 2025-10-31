@@ -5,7 +5,7 @@ class Menu:
         self.ui_components = []
 
     def add(self, ui_components):
-        self.ui_components += ui_components
+        self.ui_components.append(ui_components)
 
     def update(self, screen):
         for comp in self.ui_components:
@@ -19,7 +19,7 @@ class Menu:
 
 
 class UI:
-    def __init__(self, screen):
+    def __init__(self, screen=None):
         self.menus = {}
         self.screen = screen
 
@@ -64,3 +64,11 @@ class UI:
     def handle_event(self, event):
         for menu_name in self.get_visible_menus():
             self.menus[menu_name].handle_event(event)
+
+    def import_menus(self, menus):
+        for menu in menus:
+            name = menu["name"]
+            is_showing = menu.get("is_showing", False)
+            self.createMenu(name, is_showing)
+            for component in menu["content"]:
+                self.addTo(name, component)

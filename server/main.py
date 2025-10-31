@@ -9,10 +9,10 @@ from client.classes.player import Player
 from client.classes.spell import Spell
 from server.NetworkManager import NetworkManager
 from server.message import Message, MessageType
-from server.gameManager import GameManager
+from server.gameState import GameState
 
 network = NetworkManager(is_server=True)
-game_manager = GameManager()
+game_manager = GameState()
 
 
 def handle_client(conn, player_id):

@@ -9,7 +9,7 @@ from client.classes.spell import Spell
 from server.managers.entityManager import EntityManager
 
 
-class GameManager:
+class GameState:
     def __init__(self):
         self.players = EntityManager(Player)
         self.spells = EntityManager(Spell)
