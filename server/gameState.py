@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 
 from client.classes.pnj import PNJ
 
@@ -30,14 +31,17 @@ class GameState:
 
     def update_all(self):
         for spell in list(self.spells.entities.values()):
-            spell.update()
+            if spell.is_expired():
+                self.spells.remove(spell.id)
+            else:
+                spell.update()
         for enemy in list(self.enemies.entities.values()):
             enemy.update()
         for pnj in list(self.pnjs.entities.values()):
             pnj.update()
 
-    # Applique les mises à jour venant du serveur
     def apply_state(self, state, my_player_id=None):
+        """Applique les mises à jour venant du serveur"""
         self.apply_state_for(state, "players", self.players, my_player_id=my_player_id)
         self.apply_state_for(state, "enemies", self.enemies)
         self.apply_state_for(state, "spells", self.spells)
@@ -76,5 +80,5 @@ class GameState:
                         entities.update(str(id), filtered_data)
                 else:
                     entities.update(str(id), data)
-        if state.get(name, {}):
-            entities.remove_local_only_entity(state.get(name, {}))
+        # Verifie si tout les elements ont bien ete supprimer cote client
+        entities.remove_local_only_entity(state.get(name, {}))

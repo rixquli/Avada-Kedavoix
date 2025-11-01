@@ -1,3 +1,4 @@
+import time
 from typing import List, Tuple
 import pygame
 
@@ -14,6 +15,7 @@ class Spell(Serializable):
         dir: Tuple[int, int],
         radius: int = 10,
         id: int = None,
+        lifetime: float = 5.0,
     ):
         self.id = id
         self.x = float(x)
@@ -22,6 +24,8 @@ class Spell(Serializable):
         self.color = tuple(color)
         self.dir = tuple(dir)
         self.radius = int(radius)
+        self.lifetime = float(lifetime)
+        self.creation_time = time.time()
 
     def move(self, x, y):
         self.x = x
@@ -30,6 +34,10 @@ class Spell(Serializable):
     def update(self):
         self.x += self.dir[0]
         self.y += self.dir[1]
+
+    def is_expired(self) -> bool:
+        """VErifie si le sort a depasse sa duree de vie"""
+        return time.time() - self.creation_time > self.lifetime
 
     def draw(self, surface, offset: Tuple[float, float]):
 
