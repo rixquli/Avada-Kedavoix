@@ -8,8 +8,9 @@ from _thread import *
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from client.classes.enemy import Enemy
 from client.classes.spell import Spell
-from server.gameManager import GameManager
+from server.gameState import GameState
 from server.NetworkManager import NetworkManager
 from server.message import Message, MessageType
 from client.classes.player import Player
@@ -27,12 +28,12 @@ class State(Enum):
 class ClientManager:
     def __init__(self):
         self.network = NetworkManager()
-        self.game_manager = GameManager()
+        self.game_state = GameState()
         self.my_player_id = None
         self.state = State.MAIN_MENU
 
     def get_player(self):
-        return self.game_manager.players.get(self.my_player_id)
+        return self.game_state.players.get(self.my_player_id)
 
     def connect_to_server(self):
         self.my_player_id = self.network.connect_to_server()
@@ -53,21 +54,21 @@ class ClientManager:
                     case MessageType.GAME_STATE:
                         # Met a jour les donnes de l'environnement local
                         # a partir de celles du serveur.
-                        self.game_manager.apply_state(msg.data)
+                        self.game_state.apply_state(msg.data)
 
             except Exception as e:
                 print(f"Error: {e}")
                 break
 
     def send_my_position(self):
-        if self.my_player_id in self.game_manager.players.entities:
-            my_player = self.game_manager.players.get(self.my_player_id)
+        if self.my_player_id in self.game_state.players.entities:
+            my_player = self.game_state.players.get(self.my_player_id)
             msg = Message(MessageType.PLAYER_UPDATE, my_player.to_dict())
             self.network.send_message(msg)
 
     def cast_spell(self, spell):
         # Ajouter localement
-        spell_id = self.game_manager.spells.addEntity(spell)
+        spell_id = self.game_state.spells.addEntity(spell)
 
         # Envoyer au serveur pour les autres joueurs
         msg = Message(
@@ -127,65 +128,9 @@ class ClientManager:
 
     # Game Loop Part
 
-    def updatePlayer(self):
-        # Dessine met a jour tout les joueurs
-        if self.my_player_id not in self.game_manager.players.entities:
-            return
-
-        current_player = self.game_manager.players.get(self.my_player_id)
-
-        # Met a jour le joueur local
-        Player.update_local_player(current_player)
-
-        # Envoyer ma position
-        self.send_my_position()
-
-    def handle_event(self, event):
-        # TODO: déplacer la logique dans une classe spécifique pour les actions
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            my_player = self.get_player()
-            if not my_player:
-                return
-
-            # Calculer la direction normalisée vers le curseur de la souris
-            mouse_x, mouse_y = event.pos
-            dx = mouse_x - my_player.x
-            dy = mouse_y - my_player.y
-            length = (dx**2 + dy**2) ** 0.5
-
-            if length > 0:
-                dir_x = dx / length
-                dir_y = dy / length
-            else:
-                dir_x, dir_y = 1, 0
-
-            # Créer le sort localement (pour eviter les latences)
-            spell = Spell(
-                x=my_player.x,
-                y=my_player.y,
-                player_id=self.my_player_id,
-                color=(50, 150, 255),
-                dir=(dir_x, dir_y),
-                radius=8,
-            )
-
-            self.cast_spell(spell)
-
-    def update(self, screen):
+    def update(self):
         match self.state:
             case State.SOLO | State.HOST | State.INVITED:
                 # Pour eviter de mettre a jour dans le menu principal
-                # Si besoin pour plutart pour executer du code dans certains cas seulement
-
-                # Update local player
-                self.updatePlayer()
-
-                # Dessine les joueurs
-                current_player = self.get_player()
-                other_players = self.game_manager.players.get_except_list(
-                    self.my_player_id
-                )
-                Player.draw_all(screen, current_player, other_players)
-
-                # Dessine les spells
-                Spell.draw_all(screen, self.game_manager.spells.get_list())
+                # Si besoin pour plus tard pour executer du code dans certains cas seulement
+                pass

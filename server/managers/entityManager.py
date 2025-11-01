@@ -79,7 +79,22 @@ class EntityManager:
         if isinstance(entity_data, Serializable):
             self.entities[entity_id] = entity_data
         elif isinstance(entity_data, dict):
-            self.entities[entity_id] = self.entity_type.from_dict(entity_data)
+            entity = self.entities[entity_id]
+
+            # Si l'entite supporte l'interpolation, utiliser set_target_position
+            if (
+                hasattr(entity, "set_target_position")
+                and "x" in entity_data
+                and "y" in entity_data
+            ):
+                entity.set_target_position(entity_data["x"], entity_data["y"])
+                # Mettre à jour les autres proprietes
+                for key, value in entity_data.items():
+                    if key not in ["x", "y"] and hasattr(entity, key):
+                        setattr(entity, key, value)
+            else:
+                # Sinon, mise à jour classique
+                self.entities[entity_id] = self.entity_type.from_dict(entity_data)
         else:
             raise TypeError(f"entity_data doit être un Spell ou un dict")
 

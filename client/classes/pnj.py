@@ -1,22 +1,23 @@
 from typing import List, Tuple
+
 import pygame
 from server.classes.serializable import Serializable
 
 
-class Player(Serializable):
+class PNJ(Serializable):
     def __init__(
         self,
         x: float,
         y: float,
         color: Tuple[int, int, int],
-        radius: int = 10,
+        size: int = 10,
         vx: float = 0,
         vy: float = 0,
         id: int = None,
     ):
         self.id = id
         self.color = tuple(color)
-        self.radius = int(radius)
+        self.size = int(size)
 
         # Vértable position envoyées au serveur
         self.x = float(x)
@@ -35,12 +36,12 @@ class Player(Serializable):
         self.target_y = float(y)
         self.interpolation_speed = 0.1
 
-    def update(self, keys=None):
-        self.handle_input(keys)
+    def update(self):
+        # TODO: Ajouter l'ia ici pour le comportement des créatures
+        # Utiliser set_target_postion pour modifier la position de la créature
 
-        self.x += self.vx
-        self.y += self.vy
         # Interpolation vers la position cible
+        # Permet d'eviter les mouvements sacadé
         self._interpolate_position()
 
     def _interpolate_position(self):
@@ -48,29 +49,18 @@ class Player(Serializable):
         self.display_x += (self.target_x - self.display_x) * self.interpolation_speed
         self.display_y += (self.target_y - self.display_y) * self.interpolation_speed
 
-    def handle_input(self, keys=None):
-        if keys is None:
-            return
-
-        speed = 5
-        self.vx = 0
-        self.vy = 0
-
-        import pygame
-
-        if keys[pygame.K_UP] or keys[pygame.K_z]:
-            self.vy = -speed
-        if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            self.vy = speed
-        if keys[pygame.K_LEFT] or keys[pygame.K_q]:
-            self.vx = -speed
-        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            self.vx = speed
-
     def draw(self, surface):
-        pygame.draw.circle(
-            surface, self.color, (int(self.display_x), int(self.display_y)), self.radius
-        )
+        # Dessine un losange (carré tourné de 45°) centré sur display_x/display_y + size/2
+        cx = self.display_x + self.size / 2
+        cy = self.display_y + self.size / 2
+        half = self.size / 2
+        points = [
+            (int(cx), int(cy - half)),  # haut
+            (int(cx + half), int(cy)),  # droite
+            (int(cx), int(cy + half)),  # bas
+            (int(cx - half), int(cy)),  # gauche
+        ]
+        pygame.draw.polygon(surface, self.color, points)
 
     def set_target_position(self, x, y):
         """
@@ -81,24 +71,13 @@ class Player(Serializable):
         self.target_y = float(y)
 
     @staticmethod
-    def update_local_player(current_player: "Player"):
+    def draw_all(surface, pnjs: List["PNJ"]):
         """
-        Met a jour le joueur avec les touches préssées
+        Dessine tout les pnj
         """
-        keys = pygame.key.get_pressed()
-        current_player.update(keys)
-
-    @staticmethod
-    def draw_all(surface, current_player: "Player", other_players: List["Player"]):
-        """
-        Dessine met a jour tout les joueurs
-        """
-        if other_players:
-            if isinstance(other_players, list):
-                for player in other_players:
-                    player.draw(surface)
+        if pnjs:
+            if isinstance(pnjs, list):
+                for pnj in pnjs:
+                    pnj.draw(surface)
             else:
-                other_players.draw(surface)
-
-        if current_player:
-            current_player.draw(surface)
+                pnjs.draw(surface)
