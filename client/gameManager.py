@@ -17,6 +17,10 @@ from client.ui.UI import UI
 
 class GameManager:
     def __new__(cls):
+        """
+        Permet de creer un singleton qui permet d'acceder aux valeurs et methodes
+        de cette classe depuis n'importe ou
+        """
         if not hasattr(cls, "instance"):
             cls.instance = super(GameManager, cls).__new__(cls)
             cls.instance.setup()
@@ -43,21 +47,20 @@ class GameManager:
         self.ui = UI(self.screen)
         self.ui.import_menus(Menus)
 
-        self.deltatime = 0
-
     def setup_pygame(self):
+        """Initialise pygame et crée la fenetre"""
         pygame.init()
         self.width, self.height = 1920 // 2, 1080 // 2
-        self.screen = pygame.display.set_mode((self.width, self.height))
+        self.screen = pygame.display.set_mode(
+            (self.width, self.height), pygame.RESIZABLE
+        )
         pygame.display.set_caption("Avada Kedavoix")
         self.clock = pygame.time.Clock()
         self.clock.tick(60)
         self.running = True
 
     def render(self):
-        """
-        Fait un rendu du jeu a executer a chaque tick
-        """
+        """Fait un rendu du jeu a executer a chaque tick"""
         if not self.running:
             pygame.quit()
             sys.exit()
@@ -68,22 +71,23 @@ class GameManager:
                 self.running = False
             self.handle_event(event)
 
-        self.screen.fill((0, 0, 0))
+        self.screen.fill((0, 0, 0))  # Dessine le fond noir
 
-        self.client_manager.update()
-        self.local_update()
-        self.ui.update()
-        self.draw_elements()
+        self.local_update()  # Met a jour les elements qui se mette a jour localement comme le joueur qui ses propres mouvements
+        self.ui.update()  # Dessine les elements des interfaces
+        self.draw_elements()  # Dessine les elements de la scene
 
-        pygame.display.flip()
-
-        self.deltatime = self.clock.tick(60) / 1000.0
+        pygame.display.flip()  # Met a jour l'ecran
 
     def handle_event(self, event):
-        self.ui.handle_event(event)
+        """
+        Gere le evennements (ex: touches claviers, souris, ...)
+        """
+        self.ui.handle_event(event)  # Gere les evenement des elements des interfaces
 
         # TODO: déplacer la logique dans une classe spécifique pour les actions
         if event.type == pygame.MOUSEBUTTONDOWN:
+            # Quand on clique ca lance un sort dans la direction de la souris
             my_player = self.client_manager.get_player()
             if not my_player:
                 return
@@ -118,14 +122,18 @@ class GameManager:
         ex: les joueurs qui gerent eux-meme leur déplacement
         """
         # Update local player
-        self.updatePlayer()
+        self.update_local_player()
 
     def get_camera_offset(self) -> Tuple[float, float]:
+        """
+        Renvoie un x et un y qui correspond au decalage pour placer le joueur au centre de la fenetre
+        """
         current_player = self.client_manager.get_player()
         if not current_player:
             return (0, 0)
 
         x, y = current_player.display_x, current_player.display_y
+        # display_x et pas x car x = position reelle et display_x la position lors du draw
         # player.x + offset = screen.width/2 => offset = screen.width/2 - player.x
         return [
             self.screen.get_width() / 2 - x,
@@ -133,7 +141,11 @@ class GameManager:
         ]
 
     def draw_elements(self):
-        # Récupère le offset (permet a la camera de suivre le joueur en le placant au milieu de l'ecran)
+        """
+        Dessine tout les elements de la scene
+        Mais en appliquant un offset a tout les element pour centrer le joueur
+        au milieu de l'ecran pour simuler une camera qui suit le joueur
+        """
         offset = self.get_camera_offset()
 
         # Dessine les joueurs
@@ -158,7 +170,7 @@ class GameManager:
             self.screen, offset, self.client_manager.game_state.pnjs.get_list()
         )
 
-    def updatePlayer(self):
+    def update_local_player(self):
         # Met a jour tout les joueurs
         if (
             self.client_manager.my_player_id

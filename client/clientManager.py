@@ -157,12 +157,3 @@ class ClientManager:
         else:
             print("Timeout: impossible de se connecter au serveur")
             return
-
-    # Game Loop Part
-
-    def update(self):
-        match self.state:
-            case State.SOLO | State.HOST | State.INVITED:
-                # Pour eviter de mettre a jour dans le menu principal
-                # Si besoin pour plus tard pour executer du code dans certains cas seulement
-                pass

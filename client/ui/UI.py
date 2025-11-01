@@ -30,16 +30,25 @@ class UI:
         return name
 
     def show(self, menu_name):
+        """
+        Affiche le menu passé en argument si present dans dans la liste des menus enregistrés
+        """
         if menu_name not in self.menus.keys():
             raise ValueError(menu_name, ": this menu do not exist")
         self.menus[menu_name].is_showing = True
 
     def hide(self, menu_name):
+        """
+        Désaffiche le menu passé en argument si present dans dans la liste des menus enregistrés
+        """
         if menu_name not in self.menus.keys():
             raise ValueError(menu_name, ": this menu do not exist")
         self.menus[menu_name].is_showing = False
 
     def toggle(self, menu_name):
+        """
+        Affiche/Désaffiche le menu passé en argument si present dans dans la liste des menus enregistrés
+        """
         if menu_name not in self.menus.keys():
             raise ValueError(menu_name, ": this menu do not exist")
         self.menus[menu_name].is_showing = not self.menus[menu_name].is_showing

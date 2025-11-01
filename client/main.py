@@ -7,6 +7,9 @@ from _thread import *
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from client.gameManager import GameManager
 
+# Le game_manager est un singleton
+# ce qui implique que dans tout le projet
+# GameManager() renverra la meme instance qu'importe ou il est appele
 game_manager = GameManager()
 
 

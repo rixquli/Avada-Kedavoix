@@ -10,9 +10,11 @@ from client.ui.button import Button
 from client.ui.text import Text
 from client.ui.textInput import TextInput
 
+# Récupere l'instance du GameManager
 game_manager = GameManager()
 
 
+# fonction auxiliaire utilisé plus bas
 def close_and_exec(menu_name, function, *params):
     """
     Exécute une fonction puis ferme un menu d'interface utilisateur.
@@ -27,6 +29,10 @@ def close_and_exec(menu_name, function, *params):
 
 
 def main_menu(menu_name):
+    """
+    Fontion qui créer le Main Menu avec tout les evennements liés aux boutons
+    """
+
     def singlePlayerButtonClicked():
         game_manager.client_manager.startSinglePlayer()
 
@@ -77,6 +83,10 @@ def main_menu(menu_name):
 
 
 def join_menu(menu_name):
+    """
+    Fontion qui créer le Join Menu avec tout les evennements liés aux boutons
+    """
+
     adress = ["", 0]
 
     def set_val(index, val):
@@ -130,8 +140,9 @@ def join_menu(menu_name):
     ]
 
 
+# Contient la liste de tout les menus accessibles dupuis GameManager().ui
+# Pour en rajouter suivre les exemples deja presents
 Menus = [
-    # Contient la liste de menus pour en rajouter suivre les exemples deja presents
     {
         "name": "MainMenu",
         "content": main_menu("MainMenu"),
