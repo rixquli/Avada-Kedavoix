@@ -1,6 +1,8 @@
 import os
 import sys
 
+from client.classes.pnj import PNJ
+
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -15,6 +17,7 @@ class GameState:
         self.players = EntityManager(Player)
         self.spells = EntityManager(Spell)
         self.enemies = EntityManager(Enemy)
+        self.pnjs = EntityManager(PNJ)
 
     def get_game_state(self):
         """Retourne l'état complet du jeu pour le broadcast"""
@@ -22,6 +25,7 @@ class GameState:
             "players": self.players.to_dict(),
             "spells": self.spells.to_dict(),
             "enemies": self.enemies.to_dict(),
+            "pnjs": self.pnjs.to_dict(),
         }
 
     def update_all(self):
@@ -29,50 +33,27 @@ class GameState:
             spell.update()
         for enemy in list(self.enemies.entities.values()):
             enemy.update()
+        for pnj in list(self.pnjs.entities.values()):
+            pnj.update()
 
     # Applique les mises à jour venant du serveur
     def apply_state(self, state):
-        # Players
-        for id, data in state.get("players", {}).items():
-            if not data:
-                # si le joueur n'existe plus on le supprime
-                self.players.remove(id)
-            elif str(id) not in self.players.entities:
-                # si le joueur n'existe pas localement on l'ajoute
-                player = Player.from_dict(data)
-                self.players.addEntity(player, fixed_id=str(id))
-            else:
-                # si le joueur existe localement on le met a jour
-                self.players.update(str(id), data)
-        if state.get("players", {}):
-            self.players.remove_local_only_entity(state.get("players", {}))
+        self.apply_state_for(state, "players", self.players)
+        self.apply_state_for(state, "enemies", self.enemies)
+        self.apply_state_for(state, "spells", self.spells)
+        self.apply_state_for(state, "pnjs", self.pnjs)
 
-        # Spells
-        for id, data in state.get("spells", {}).items():
+    def apply_state_for(self, state, name, entities):
+        for id, data in state.get(name, {}).items():
             if not data:
-                # si le spell n'existe plus on le supprime
-                self.spells.remove(str(id))
-            elif str(id) not in self.spells.entities:
-                # si le spell n'existe pas localement on l'ajoute
-                spell = Spell.from_dict(data)
-                self.spells.addEntity(spell, fixed_id=str(id))
+                # si l'entité n'existe plus on le supprime
+                entities.remove(str(id))
+            elif str(id) not in entities.entities:
+                # si l'entité n'existe pas localement on l'ajoute
+                entity = entities.entity_type.from_dict(data)
+                entities.addEntity(entity, fixed_id=str(id))
             else:
-                # si le spell existe localement on le met a jour
-                self.spells.update(str(id), data)
-        if state.get("spells", {}):
-            self.spells.remove_local_only_entity(state.get("spells", {}))
-
-        # Enemies
-        for id, data in state.get("enemies", {}).items():
-            if not data:
-                # si l'ennemi n'existe plus on le supprime
-                self.enemies.remove(str(id))
-            elif str(id) not in self.enemies.entities:
-                # si l'ennemi n'existe pas localement on l'ajoute
-                enemy = Enemy.from_dict(data)
-                self.enemies.addEntity(enemy, fixed_id=str(id))
-            else:
-                # si l'ennemi existe localement on le met a jour
-                self.enemies.update(str(id), data)
-        if state.get("enemies", {}):
-            self.enemies.remove_local_only_entity(state.get("enemies", {}))
+                # si l'entité existe localement on le met a jour
+                entities.update(str(id), data)
+        if state.get(name, {}):
+            entities.remove_local_only_entity(state.get(name, {}))

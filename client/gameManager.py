@@ -4,6 +4,7 @@ import sys
 
 from client.classes.enemy import Enemy
 from client.classes.player import Player
+from client.classes.pnj import PNJ
 
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -128,6 +129,9 @@ class GameManager:
 
         # Dessine les ennemis
         Enemy.draw_all(self.screen, self.client_manager.game_state.enemies.get_list())
+
+        # Dessine les PNJ
+        PNJ.draw_all(self.screen, self.client_manager.game_state.pnjs.get_list())
 
     def updatePlayer(self):
         # Met a jour tout les joueurs

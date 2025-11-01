@@ -3,6 +3,8 @@ from _thread import *
 import os
 import sys
 
+from client.classes.pnj import PNJ
+
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from client.classes.enemy import Enemy
@@ -113,6 +115,8 @@ def broadcast_game_state():
 def spawn_element_at_start():
     enemy1 = game_state.enemies.addEntity(Enemy(200, 200, (0, 255, 255)))
     enemy2 = game_state.enemies.addEntity(Enemy(350, 350, (0, 255, 255)))
+
+    pnj1 = game_state.pnjs.addEntity(PNJ(800, 250, (255, 0, 255)))
 
 
 def start_game_server(adress=None, port=None, max_player=5):
