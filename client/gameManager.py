@@ -43,12 +43,15 @@ class GameManager:
         self.ui = UI(self.screen)
         self.ui.import_menus(Menus)
 
+        self.deltatime = 0
+
     def setup_pygame(self):
         pygame.init()
         self.width, self.height = 1920 // 2, 1080 // 2
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption("Avada Kedavoix")
         self.clock = pygame.time.Clock()
+        self.clock.tick(60)
         self.running = True
 
     def render(self):
@@ -60,7 +63,6 @@ class GameManager:
             sys.exit()
             return
 
-        self.clock.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
@@ -74,6 +76,8 @@ class GameManager:
         self.draw_elements()
 
         pygame.display.flip()
+
+        self.deltatime = self.clock.tick(60) / 1000.0
 
     def handle_event(self, event):
         self.ui.handle_event(event)
