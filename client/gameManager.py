@@ -1,6 +1,7 @@
 # To import module from other folder
 import os
 import sys
+from typing import Tuple
 
 from client.classes.enemy import Enemy
 from client.classes.player import Player
@@ -69,8 +70,8 @@ class GameManager:
 
         self.client_manager.update()
         self.local_update()
-        self.draw_elements()
         self.ui.update()
+        self.draw_elements()
 
         pygame.display.flip()
 
@@ -85,8 +86,8 @@ class GameManager:
 
             # Calculer la direction normalisée vers le curseur de la souris
             mouse_x, mouse_y = event.pos
-            dx = mouse_x - my_player.x
-            dy = mouse_y - my_player.y
+            dx = mouse_x - (self.screen.get_width() / 2)
+            dy = mouse_y - (self.screen.get_height() / 2)
             length = (dx**2 + dy**2) ** 0.5
 
             if length > 0:
@@ -115,23 +116,43 @@ class GameManager:
         # Update local player
         self.updatePlayer()
 
+    def get_camera_offset(self) -> Tuple[float, float]:
+        current_player = self.client_manager.get_player()
+        if not current_player:
+            return (0, 0)
+
+        x, y = current_player.display_x, current_player.display_y
+        # player.x + offset = screen.width/2 => offset = screen.width/2 - player.x
+        return [
+            self.screen.get_width() / 2 - x,
+            self.screen.get_height() / 2 - y,
+        ]
+
     def draw_elements(self):
+        # Récupère le offset (permet a la camera de suivre le joueur en le placant au milieu de l'ecran)
+        offset = self.get_camera_offset()
 
         # Dessine les joueurs
         current_player = self.client_manager.get_player()
         other_players = self.client_manager.game_state.players.get_except_list(
             self.client_manager.my_player_id
         )
-        Player.draw_all(self.screen, current_player, other_players)
+        Player.draw_all(self.screen, offset, current_player, other_players)
 
         # Dessine les spells
-        Spell.draw_all(self.screen, self.client_manager.game_state.spells.get_list())
+        Spell.draw_all(
+            self.screen, offset, self.client_manager.game_state.spells.get_list()
+        )
 
         # Dessine les ennemis
-        Enemy.draw_all(self.screen, self.client_manager.game_state.enemies.get_list())
+        Enemy.draw_all(
+            self.screen, offset, self.client_manager.game_state.enemies.get_list()
+        )
 
         # Dessine les PNJ
-        PNJ.draw_all(self.screen, self.client_manager.game_state.pnjs.get_list())
+        PNJ.draw_all(
+            self.screen, offset, self.client_manager.game_state.pnjs.get_list()
+        )
 
     def updatePlayer(self):
         # Met a jour tout les joueurs

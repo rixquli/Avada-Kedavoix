@@ -54,7 +54,9 @@ class ClientManager:
                     case MessageType.GAME_STATE:
                         # Met a jour les donnes de l'environnement local
                         # a partir de celles du serveur.
-                        self.game_state.apply_state(msg.data)
+                        self.game_state.apply_state(
+                            msg.data, my_player_id=self.my_player_id
+                        )
 
             except Exception as e:
                 print(f"Error: {e}")

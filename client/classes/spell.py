@@ -31,18 +31,23 @@ class Spell(Serializable):
         self.x += self.dir[0]
         self.y += self.dir[1]
 
-    def draw(self, surface):
+    def draw(self, surface, offset: Tuple[float, float]):
 
-        pygame.draw.circle(surface, self.color, (int(self.x), int(self.y)), self.radius)
+        pygame.draw.circle(
+            surface,
+            self.color,
+            (int(self.x + offset[0]), int(self.y + offset[1])),
+            self.radius,
+        )
 
-    @classmethod
-    def draw_all(self, surface, all_spells: List["Spell"]):
+    @staticmethod
+    def draw_all(surface, offset: Tuple[float, float], all_spells: List["Spell"]):
         """
         Dessine tout les spells
         """
         if all_spells:
             if isinstance(all_spells, list):
                 for spell in all_spells:
-                    spell.draw(surface)
+                    spell.draw(surface, offset)
             else:
-                all_spells.draw(surface)
+                all_spells.draw(surface, offset)

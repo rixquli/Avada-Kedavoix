@@ -49,10 +49,10 @@ class PNJ(Serializable):
         self.display_x += (self.target_x - self.display_x) * self.interpolation_speed
         self.display_y += (self.target_y - self.display_y) * self.interpolation_speed
 
-    def draw(self, surface):
+    def draw(self, surface, offset: Tuple[float, float]):
         # Dessine un losange (carré tourné de 45°) centré sur display_x/display_y + size/2
-        cx = self.display_x + self.size / 2
-        cy = self.display_y + self.size / 2
+        cx = self.display_x + self.size / 2 + offset[0]
+        cy = self.display_y + self.size / 2 + offset[1]
         half = self.size / 2
         points = [
             (int(cx), int(cy - half)),  # haut
@@ -71,13 +71,13 @@ class PNJ(Serializable):
         self.target_y = float(y)
 
     @staticmethod
-    def draw_all(surface, pnjs: List["PNJ"]):
+    def draw_all(surface, offset: Tuple[float, float], pnjs: List["PNJ"]):
         """
         Dessine tout les pnj
         """
         if pnjs:
             if isinstance(pnjs, list):
                 for pnj in pnjs:
-                    pnj.draw(surface)
+                    pnj.draw(surface, offset)
             else:
-                pnjs.draw(surface)
+                pnjs.draw(surface, offset)

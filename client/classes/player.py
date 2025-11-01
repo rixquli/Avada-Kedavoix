@@ -67,9 +67,12 @@ class Player(Serializable):
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             self.vx = speed
 
-    def draw(self, surface):
+    def draw(self, surface, offset: Tuple[float, float]):
         pygame.draw.circle(
-            surface, self.color, (int(self.display_x), int(self.display_y)), self.radius
+            surface,
+            self.color,
+            (self.display_x + offset[0], self.display_y + offset[1]),
+            self.radius,
         )
 
     def set_target_position(self, x, y):
@@ -89,16 +92,21 @@ class Player(Serializable):
         current_player.update(keys)
 
     @staticmethod
-    def draw_all(surface, current_player: "Player", other_players: List["Player"]):
+    def draw_all(
+        surface,
+        offset: Tuple[float, float],
+        current_player: "Player",
+        other_players: List["Player"],
+    ):
         """
         Dessine met a jour tout les joueurs
         """
         if other_players:
             if isinstance(other_players, list):
                 for player in other_players:
-                    player.draw(surface)
+                    player.draw(surface, offset)
             else:
-                other_players.draw(surface)
+                other_players.draw(surface, offset)
 
         if current_player:
-            current_player.draw(surface)
+            current_player.draw(surface, offset)
