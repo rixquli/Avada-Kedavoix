@@ -26,7 +26,7 @@ class GameState:
         # Players
         for id, data in state.get("players", {}).items():
             if not data:
-                # si le spell n'existe plus on le supprime
+                # si le joueur n'existe plus on le supprime
                 self.players.remove(id)
             elif str(id) not in self.players.entities:
                 # si le joueur n'existe pas localement on l'ajoute

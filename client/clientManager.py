@@ -128,7 +128,7 @@ class ClientManager:
     # Game Loop Part
 
     def updatePlayer(self):
-        # Dessine met a jour tout les joueurs
+        # Met a jour tout les joueurs
         if self.my_player_id not in self.game_manager.players.entities:
             return
 
@@ -144,7 +144,7 @@ class ClientManager:
         match self.state:
             case State.SOLO | State.HOST | State.INVITED:
                 # Pour eviter de mettre a jour dans le menu principal
-                # Si besoin pour plutart pour executer du code dans certains cas seulement
+                # Si besoin pour plus tard pour executer du code dans certains cas seulement
 
                 # Update local player
                 self.updatePlayer()

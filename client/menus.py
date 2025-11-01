@@ -13,12 +13,29 @@ from client.ui.textInput import TextInput
 game_manager = GameManager()
 
 
-def close_and_exec(menu_name, function, **params):
-    function(params)
+def close_and_exec(menu_name, function, *params):
+    """
+    Exécute une fonction puis ferme un menu d'interface utilisateur.
+    Appelle la fonction fournie en lui passant les paramètres fournis, puis masque
+    le menu identifié par `menu_name` via game_manager.ui.hide.
+    """
+    if params:
+        function(*params)
+    else:
+        function()
     game_manager.ui.hide(menu_name)
 
 
 def main_menu(menu_name):
+    def singlePlayerButtonClicked():
+        game_manager.client_manager.startSinglePlayer()
+
+    def hostButtonClicked():
+        game_manager.client_manager.startHosting()
+
+    def joinButtonClicked():
+        game_manager.ui.show("JoinMenu")
+
     title = Text(
         "AVADA KEDAVOIX",
         (0, 50),
@@ -31,7 +48,7 @@ def main_menu(menu_name):
         250,
         50,
         (0, -100),
-        onclickFunction=lambda: game_manager.singlePlayerButtonClicked(menu_name),
+        onclickFunction=lambda: close_and_exec(menu_name, singlePlayerButtonClicked),
         anchor=Anchor.CENTER,
     )
     start_hosting_player = Button(
@@ -39,7 +56,7 @@ def main_menu(menu_name):
         250,
         50,
         (0, 0),
-        onclickFunction=lambda: game_manager.hostButtonClicked(menu_name),
+        onclickFunction=lambda: close_and_exec(menu_name, hostButtonClicked),
         anchor=Anchor.CENTER,
     )
     start_join_player = Button(
@@ -47,9 +64,7 @@ def main_menu(menu_name):
         250,
         50,
         (0, 100),
-        onclickFunction=lambda: close_and_exec(
-            menu_name, game_manager.joinButtonClicked
-        ),
+        onclickFunction=lambda: close_and_exec(menu_name, joinButtonClicked),
         anchor=Anchor.CENTER,
     )
 
@@ -66,6 +81,11 @@ def join_menu(menu_name):
 
     def set_val(index, val):
         adress[index] = val
+
+    def joinGameButtonClicked(ip, port):
+        print(ip)
+        print(port)
+        game_manager.client_manager.joinParty(ip, port)
 
     return [
         # title
@@ -102,8 +122,8 @@ def join_menu(menu_name):
             100,
             50,
             (0, 50),
-            onclickFunction=lambda: game_manager.joinGameButtonClicked(
-                menu_name, adress[0], adress[1]
+            onclickFunction=lambda: close_and_exec(
+                menu_name, joinGameButtonClicked, adress[0], adress[1]
             ),
             anchor=Anchor.CENTER,
         ),
@@ -111,7 +131,12 @@ def join_menu(menu_name):
 
 
 Menus = [
-    {"name": "MainMenu", "content": main_menu("MainMenu"), "is_showing": True},
+    # Contient la liste de menus pour en rajouter suivre les exemples deja presents
+    {
+        "name": "MainMenu",
+        "content": main_menu("MainMenu"),
+        "is_showing": True,  # permet au menu d'apparaitre au demarage de l'app de base is_showing = False
+    },
     {
         "name": "JoinMenu",
         "content": join_menu("JoinMenu"),

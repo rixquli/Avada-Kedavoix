@@ -44,6 +44,7 @@ class GameManager:
         # Setup pygame
         self.setup_pygame()
 
+        # Setup ui/menus
         from client.menus import Menus
 
         self.ui = UI(self.screen)
@@ -58,6 +59,9 @@ class GameManager:
         self.running = True
 
     def render(self):
+        """
+        Fait un rendu du jeu a executer a chaque tick
+        """
         if not self.running:
             pygame.quit()
             sys.exit()
@@ -75,22 +79,6 @@ class GameManager:
         self.ui.update()
 
         pygame.display.flip()
-
-    def singlePlayerButtonClicked(self, menu):
-        self.ui.hide(menu)
-        self.client_manager.startSinglePlayer()
-
-    def hostButtonClicked(self, menu):
-        self.ui.hide(menu)
-        self.client_manager.startHosting()
-
-    def joinButtonClicked(self, main_menu, join_menu):
-        self.ui.hide(main_menu)
-        self.ui.show(join_menu)
-
-    def joinGameButtonClicked(self, menu, ip, port):
-        self.ui.hide(menu)
-        self.client_manager.joinParty(ip, port)
 
     def handle_event(self, event):
         self.ui.handle_event(event)
