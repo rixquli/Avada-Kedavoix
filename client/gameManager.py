@@ -2,6 +2,9 @@
 import os
 import sys
 
+from client.classes.enemy import Enemy
+from client.classes.player import Player
+
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import pygame
@@ -10,18 +13,6 @@ from client.clientManager import ClientManager
 from client.ui.UI import UI
 
 
-def singleton(cls):
-    instances = {}
-
-    def get_instance(*args, **kwargs):
-        if cls not in instances:
-            instances[cls] = cls(*args, **kwargs)
-        return instances[cls]
-
-    return get_instance
-
-
-# @singleton
 class GameManager:
     def __new__(cls):
         if not hasattr(cls, "instance"):
@@ -75,7 +66,9 @@ class GameManager:
 
         self.screen.fill((0, 0, 0))
 
-        self.client_manager.update(self.screen)
+        self.client_manager.update()
+        self.local_update()
+        self.draw_elements()
         self.ui.update()
 
         pygame.display.flip()
@@ -112,3 +105,44 @@ class GameManager:
             )
 
             self.client_manager.cast_spell(spell)
+
+    def local_update(self):
+        """
+        Met a jour les elements qui ont besoin d'etre mis a jour localement
+        ex: les joueurs qui gerent eux-meme leur déplacement
+        """
+        # Update local player
+        self.updatePlayer()
+
+    def draw_elements(self):
+
+        # Dessine les joueurs
+        current_player = self.client_manager.get_player()
+        other_players = self.client_manager.game_state.players.get_except_list(
+            self.client_manager.my_player_id
+        )
+        Player.draw_all(self.screen, current_player, other_players)
+
+        # Dessine les spells
+        Spell.draw_all(self.screen, self.client_manager.game_state.spells.get_list())
+
+        # Dessine les ennemis
+        Enemy.draw_all(self.screen, self.client_manager.game_state.enemies.get_list())
+
+    def updatePlayer(self):
+        # Met a jour tout les joueurs
+        if (
+            self.client_manager.my_player_id
+            not in self.client_manager.game_state.players.entities
+        ):
+            return
+
+        current_player = self.client_manager.game_state.players.get(
+            self.client_manager.my_player_id
+        )
+
+        # Met a jour le joueur local
+        Player.update_local_player(current_player)
+
+        # Envoyer ma position
+        self.client_manager.send_my_position()

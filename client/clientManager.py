@@ -8,6 +8,7 @@ from _thread import *
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from client.classes.enemy import Enemy
 from client.classes.spell import Spell
 from server.gameState import GameState
 from server.NetworkManager import NetworkManager
@@ -27,12 +28,12 @@ class State(Enum):
 class ClientManager:
     def __init__(self):
         self.network = NetworkManager()
-        self.game_manager = GameState()
+        self.game_state = GameState()
         self.my_player_id = None
         self.state = State.MAIN_MENU
 
     def get_player(self):
-        return self.game_manager.players.get(self.my_player_id)
+        return self.game_state.players.get(self.my_player_id)
 
     def connect_to_server(self):
         self.my_player_id = self.network.connect_to_server()
@@ -53,21 +54,21 @@ class ClientManager:
                     case MessageType.GAME_STATE:
                         # Met a jour les donnes de l'environnement local
                         # a partir de celles du serveur.
-                        self.game_manager.apply_state(msg.data)
+                        self.game_state.apply_state(msg.data)
 
             except Exception as e:
                 print(f"Error: {e}")
                 break
 
     def send_my_position(self):
-        if self.my_player_id in self.game_manager.players.entities:
-            my_player = self.game_manager.players.get(self.my_player_id)
+        if self.my_player_id in self.game_state.players.entities:
+            my_player = self.game_state.players.get(self.my_player_id)
             msg = Message(MessageType.PLAYER_UPDATE, my_player.to_dict())
             self.network.send_message(msg)
 
     def cast_spell(self, spell):
         # Ajouter localement
-        spell_id = self.game_manager.spells.addEntity(spell)
+        spell_id = self.game_state.spells.addEntity(spell)
 
         # Envoyer au serveur pour les autres joueurs
         msg = Message(
@@ -127,34 +128,9 @@ class ClientManager:
 
     # Game Loop Part
 
-    def updatePlayer(self):
-        # Met a jour tout les joueurs
-        if self.my_player_id not in self.game_manager.players.entities:
-            return
-
-        current_player = self.game_manager.players.get(self.my_player_id)
-
-        # Met a jour le joueur local
-        Player.update_local_player(current_player)
-
-        # Envoyer ma position
-        self.send_my_position()
-
-    def update(self, screen):
+    def update(self):
         match self.state:
             case State.SOLO | State.HOST | State.INVITED:
                 # Pour eviter de mettre a jour dans le menu principal
                 # Si besoin pour plus tard pour executer du code dans certains cas seulement
-
-                # Update local player
-                self.updatePlayer()
-
-                # Dessine les joueurs
-                current_player = self.get_player()
-                other_players = self.game_manager.players.get_except_list(
-                    self.my_player_id
-                )
-                Player.draw_all(screen, current_player, other_players)
-
-                # Dessine les spells
-                Spell.draw_all(screen, self.game_manager.spells.get_list())
+                pass
