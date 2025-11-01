@@ -116,7 +116,7 @@ def spawn_element_at_start():
     enemy1 = game_state.enemies.addEntity(Enemy(200, 200, (0, 255, 255)))
     enemy2 = game_state.enemies.addEntity(Enemy(350, 350, (0, 255, 255)))
 
-    pnj1 = game_state.pnjs.addEntity(PNJ(800, 250, (255, 0, 255)))
+    pnj1 = game_state.pnjs.addEntity(PNJ(-150, -150, (255, 0, 255)))
 
 
 def start_game_server(adress=None, port=None, max_player=5):

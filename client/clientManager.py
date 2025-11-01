@@ -87,27 +87,39 @@ class ClientManager:
     # Start Game Part
 
     def start_local_server(self, adress=None, port=None, max_player=5):
+        self.server_ready = False
+
         def run_server():
             try:
                 print("Démarrage du serveur privé...")
                 server_main(adress=adress, port=port, max_player=max_player)
+                self.server_ready = True
             except Exception as e:
                 print(f"Erreur lors du démarrage du serveur: {e}")
+                self.server_ready = True
 
         # Démarrer le serveur dans un thread
         start_new_thread(run_server, ())
-
-        # Attendre que le serveur soit prêt
-        time.sleep(1.5)
 
     def startHosting(self, adress="0.0.0.0", port=12345):
         self.state = State.HOST
 
         self.start_local_server(adress, port)
 
-        # Se connecter à son propre serveur
-        time.sleep(0.5)
-        self.my_player_id = self.network.connect_to_server("localhost", port)
+        # Attendre que le serveur soit vraiment prêt
+        timeout = time.time() + 10
+        while time.time() < timeout:
+            try:
+                # Essaye de se connecter en boucle tant qu'il ne peut pas
+                self.my_player_id = self.network.connect_to_server("localhost", port)
+                if self.my_player_id:
+                    print("Serveur prêt et connecté!")
+                    break
+            except:
+                time.sleep(0.1)
+        else:
+            print("Timeout: impossible de se connecter au serveur")
+            return
 
         start_new_thread(self.handle_reveice_message, ())
 
@@ -131,7 +143,20 @@ class ClientManager:
     def startSinglePlayer(self):
         self.state = State.SOLO
         self.start_local_server(max_player=1)
-        self.my_player_id = self.connect_to_server()
+        # Attendre que le serveur soit vraiment prêt
+        timeout = time.time() + 10
+        while time.time() < timeout:
+            try:
+                # Essaye de se connecter en boucle tant qu'il ne peut pas
+                self.my_player_id = self.connect_to_server()
+                if self.my_player_id:
+                    print("Serveur prêt et connecté!")
+                    break
+            except:
+                time.sleep(0.1)
+        else:
+            print("Timeout: impossible de se connecter au serveur")
+            return
 
     # Game Loop Part
 
