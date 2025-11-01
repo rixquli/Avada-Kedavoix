@@ -32,6 +32,8 @@ class ClientManager:
         self.my_player_id = None
         self.state = State.MAIN_MENU
 
+        self.old_player_pos = None
+
     def get_player(self):
         return self.game_state.players.get(self.my_player_id)
 
@@ -54,7 +56,9 @@ class ClientManager:
                     case MessageType.GAME_STATE:
                         # Met a jour les donnes de l'environnement local
                         # a partir de celles du serveur.
-                        self.game_state.apply_state(msg.data)
+                        self.game_state.apply_state(
+                            msg.data, my_player_id=self.my_player_id
+                        )
 
             except Exception as e:
                 print(f"Error: {e}")
@@ -63,8 +67,11 @@ class ClientManager:
     def send_my_position(self):
         if self.my_player_id in self.game_state.players.entities:
             my_player = self.game_state.players.get(self.my_player_id)
-            msg = Message(MessageType.PLAYER_UPDATE, my_player.to_dict())
-            self.network.send_message(msg)
+            player_pos = [my_player.x, my_player.y]
+            if self.old_player_pos != player_pos:
+                msg = Message(MessageType.PLAYER_UPDATE, my_player.to_dict())
+                self.network.send_message(msg)
+                self.old_player_pos = player_pos
 
     def cast_spell(self, spell):
         # Ajouter localement

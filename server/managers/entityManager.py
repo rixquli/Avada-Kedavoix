@@ -79,6 +79,11 @@ class EntityManager:
         if isinstance(entity_data, Serializable):
             self.entities[entity_id] = entity_data
         elif isinstance(entity_data, dict):
+            if entity_id not in self.entities:
+                # Si l'entité n'existe pas, la créer
+                self.entities[entity_id] = self.entity_type.from_dict(entity_data)
+                return
+
             entity = self.entities[entity_id]
 
             # Si l'entite supporte l'interpolation, utiliser set_target_position
@@ -87,14 +92,23 @@ class EntityManager:
                 and "x" in entity_data
                 and "y" in entity_data
             ):
-                entity.set_target_position(entity_data["x"], entity_data["y"])
-                # Mettre à jour les autres proprietes
+                # Mettre à jour les autres propriétés d'abord (sauf position et vélocité)
                 for key, value in entity_data.items():
-                    if key not in ["x", "y"] and hasattr(entity, key):
+                    if hasattr(entity, key):
                         setattr(entity, key, value)
+
+                # Ensuite, définir la position cible pour l'interpolation (affichage fluide)
+                # Cela met à jour target_x et target_y pour l'interpolation visuelle
+                entity.set_target_position(entity_data["x"], entity_data["y"])
             else:
-                # Sinon, mise à jour classique
-                self.entities[entity_id] = self.entity_type.from_dict(entity_data)
+                # Sinon, mise à jour classique en replacant les ancienne valeur par les nouvelles
+                # mais seulement si elles sont présente dans la nouvelle version sinon on garde
+                # les données locales
+                old_entity_data = entity.to_dict()
+                for key, value in entity_data.items():
+                    if key in old_entity_data:
+                        old_entity_data[key] = value
+                self.entities[entity_id] = self.entity_type.from_dict(old_entity_data)
         else:
             raise TypeError(f"entity_data doit être un Spell ou un dict")
 

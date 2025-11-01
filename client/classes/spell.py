@@ -1,3 +1,4 @@
+import time
 from typing import List, Tuple
 import pygame
 
@@ -14,6 +15,7 @@ class Spell(Serializable):
         dir: Tuple[int, int],
         radius: int = 10,
         id: int = None,
+        lifetime: float = 5.0,
     ):
         self.id = id
         self.x = float(x)
@@ -22,6 +24,8 @@ class Spell(Serializable):
         self.color = tuple(color)
         self.dir = tuple(dir)
         self.radius = int(radius)
+        self.lifetime = float(lifetime)
+        self.creation_time = time.time()
 
     def move(self, x, y):
         self.x = x
@@ -31,18 +35,27 @@ class Spell(Serializable):
         self.x += self.dir[0]
         self.y += self.dir[1]
 
-    def draw(self, surface):
+    def is_expired(self) -> bool:
+        """VErifie si le sort a depasse sa duree de vie"""
+        return time.time() - self.creation_time > self.lifetime
 
-        pygame.draw.circle(surface, self.color, (int(self.x), int(self.y)), self.radius)
+    def draw(self, surface, offset: Tuple[float, float]):
 
-    @classmethod
-    def draw_all(self, surface, all_spells: List["Spell"]):
+        pygame.draw.circle(
+            surface,
+            self.color,
+            (int(self.x + offset[0]), int(self.y + offset[1])),
+            self.radius,
+        )
+
+    @staticmethod
+    def draw_all(surface, offset: Tuple[float, float], all_spells: List["Spell"]):
         """
         Dessine tout les spells
         """
         if all_spells:
             if isinstance(all_spells, list):
                 for spell in all_spells:
-                    spell.draw(surface)
+                    spell.draw(surface, offset)
             else:
-                all_spells.draw(surface)
+                all_spells.draw(surface, offset)

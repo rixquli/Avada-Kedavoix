@@ -49,11 +49,16 @@ class Enemy(Serializable):
         self.display_x += (self.target_x - self.display_x) * self.interpolation_speed
         self.display_y += (self.target_y - self.display_y) * self.interpolation_speed
 
-    def draw(self, surface):
+    def draw(self, surface, offset: Tuple[float, float]):
         pygame.draw.rect(
             surface,
             self.color,
-            pygame.Rect(self.display_x, self.display_y, self.size, self.size),
+            pygame.Rect(
+                self.display_x + offset[0],
+                self.display_y + offset[1],
+                self.size,
+                self.size,
+            ),
         )
 
     def set_target_position(self, x, y):
@@ -65,13 +70,13 @@ class Enemy(Serializable):
         self.target_y = float(y)
 
     @staticmethod
-    def draw_all(surface, enemies: List["Enemy"]):
+    def draw_all(surface, offset: Tuple[float, float], enemies: List["Enemy"]):
         """
         Dessine tout les ennemi
         """
         if enemies:
             if isinstance(enemies, list):
                 for enemy in enemies:
-                    enemy.draw(surface)
+                    enemy.draw(surface, offset)
             else:
-                enemies.draw(surface)
+                enemies.draw(surface, offset)
