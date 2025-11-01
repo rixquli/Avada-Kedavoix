@@ -37,7 +37,7 @@ class ClientManager:
     def get_player(self):
         return self.game_state.players.get(self.my_player_id)
 
-    def connect_to_server(self):
+    def connect_to_solo_server(self):
         self.my_player_id = self.network.connect_to_server()
         start_new_thread(self.handle_reveice_message, ())
         return self.my_player_id
@@ -148,7 +148,7 @@ class ClientManager:
         while time.time() < timeout:
             try:
                 # Essaye de se connecter en boucle tant qu'il ne peut pas
-                self.my_player_id = self.connect_to_server()
+                self.my_player_id = self.connect_to_solo_server()
                 if self.my_player_id:
                     print("Serveur prêt et connecté!")
                     break
