@@ -1,3 +1,4 @@
+from typing import Tuple
 import pygame
 
 from client.enums.anchor import Anchor
@@ -8,7 +9,7 @@ class Text:
     def __init__(
         self,
         text,
-        position,
+        position: Tuple[float, float],
         font_size=35,
         font_name="Corbel",
         background=False,
@@ -18,8 +19,6 @@ class Text:
         bg_color=(200, 200, 200),
         anchor: Anchor = Anchor.TOPLEFT,
     ):
-        self.width = width
-        self.height = height
         self.position = position
         self.color = color
         self.bg_color = bg_color
@@ -29,6 +28,16 @@ class Text:
         self.text = self.font.render(text, True, self.color)
         self.background = background
         self.anchor = anchor
+
+        # si la width et la heigth sont definit on s'en sert
+        # sinon on prend la taille du texte
+        if self.background and self.width and self.height:
+            self.width = width
+            self.height = height
+        else:
+            text_rect = self.text.get_rect()
+            self.width = text_rect.width
+            self.height = text_rect.height
 
         # self.position = position par rapport au point d'ancrage
         # actual_position = la position du rendu de l'objet dans le monde
