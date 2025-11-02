@@ -1,43 +1,7 @@
 from typing import List, Tuple
 import pygame
+from client.classes.hitbox import HitBox
 from server.classes.serializable import Serializable
-
-
-class HitBox(pygame.sprite.Sprite):
-    def __init__(self, x, y, w, h, debug=False):
-        super().__init__()
-        self.w = w
-        self.h = h
-        self.x = x
-        self.y = y
-        self.image = pygame.Surface((w, h))
-        self.image.fill((0, 255, 0))
-        self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
-
-        self.debug = debug
-
-        from client.gameManager import GameManager
-
-        self.game_manager = GameManager()
-
-    def update(self, x, y):
-        self.rect.center = (x, y)
-
-    def draw(self, surface, offset=(0, 0)):
-        if self.debug:
-            # Dessiner le rectangle de la hitbox en vert
-            pygame.draw.rect(
-                surface,
-                (0, 255, 0),  # Vert
-                (self.rect.x + offset[0], self.rect.y + offset[1], self.w, self.h),
-                2,  # Épaisseur du contour (2 pixels)
-            )
-
-    def get_collided(self):
-        return pygame.sprite.spritecollide(
-            self, self.game_manager.groups["obstacle"], False
-        )
 
 
 class Player(Serializable):
@@ -73,7 +37,11 @@ class Player(Serializable):
         self.interpolation_speed = 0.5
         self.min_threshold = 0.1
 
-        self.hitbox = HitBox(x, y, 25, 25)
+        # Pour gerer les collisions
+        #! Attention hibox_size sera envoyé au serveur mais pas hitbox (qui correspond a l'objet pygame de l'hitbox)
+        self.hitbox_size = (25, 25)
+
+        self.hitbox = HitBox(x, y, self.hitbox_size[0], self.hitbox_size[1])
 
     def update(self, keys=None):
         self.handle_input(keys)
@@ -186,11 +154,3 @@ class Player(Serializable):
 
         if current_player:
             current_player.draw(surface, offset)
-
-    def to_dict(self):
-        """Override pour exclure la hitbox de la sérialisation"""
-        data = super().to_dict()
-        # Supprimer hitbox avant d'envoyer au serveur
-        if "hitbox" in data:
-            del data["hitbox"]
-        return data
