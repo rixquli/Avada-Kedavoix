@@ -64,11 +64,14 @@ class GameManager:
         self.groups = {"obstacle": pygame.sprite.Group()}
 
         # TODO: a enlever juste pour tester
-        wall1 = Wall(0, 100, 500, 200)
-        wall2 = Wall(0, 500, 100, 1000)
-        self.walls = [wall1, wall2]
-        self.groups["obstacle"].add(wall1)
-        self.groups["obstacle"].add(wall2)
+        self.walls = [
+            Wall(-500, -500, 1000, 50),
+            Wall(-500, 500, 1050, 50),
+            Wall(-500, -500, 50, 1000),
+            Wall(500, -500, 50, 1000),
+        ]
+        for wall in self.walls:
+            self.groups["obstacle"].add(wall)
 
     def render(self):
         """Fait un rendu du jeu a executer a chaque tick"""

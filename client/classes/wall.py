@@ -16,7 +16,9 @@ class Wall(pygame.sprite.Sprite):
         pass
 
     def draw(self, surface: pygame.Surface, offset=(0, 0)):
-        surface.blit(self.image, (self.x + offset[0], self.y + offset[1]))
+        x = self.x + offset[0]
+        y = self.y + offset[1]
+        surface.blit(self.image, (x, y))
 
     @staticmethod
     def draw_all(surface, offset: Tuple[float, float], walls: List["Wall"]):
