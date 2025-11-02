@@ -70,7 +70,8 @@ class Player(Serializable):
         # Pour l'interpolation
         self.target_x = float(x)
         self.target_y = float(y)
-        self.interpolation_speed = 0.2
+        self.interpolation_speed = 0.5
+        self.min_threshold = 0.1
 
         self.hitbox = HitBox(x, y, 25, 25)
 
@@ -109,8 +110,17 @@ class Player(Serializable):
 
     def _interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
-        self.display_x += (self.target_x - self.display_x) * self.interpolation_speed
-        self.display_y += (self.target_y - self.display_y) * self.interpolation_speed
+        x_diff = self.target_x - self.display_x
+        y_diff = self.target_y - self.display_y
+
+        if abs(x_diff) > self.min_threshold:
+            self.display_x += x_diff * self.interpolation_speed
+        else:
+            self.display_x = self.target_x
+        if abs(y_diff) > self.min_threshold:
+            self.display_y += y_diff * self.interpolation_speed
+        else:
+            self.display_y = self.target_y
 
     def handle_input(self, keys=None):
         if keys is None:
