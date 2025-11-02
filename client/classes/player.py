@@ -3,6 +3,43 @@ import pygame
 from server.classes.serializable import Serializable
 
 
+class HitBox(pygame.sprite.Sprite):
+    def __init__(self, x, y, w, h, debug=False):
+        super().__init__()
+        self.w = w
+        self.h = h
+        self.x = x
+        self.y = y
+        self.image = pygame.Surface((w, h))
+        self.image.fill((0, 255, 0))
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+
+        self.debug = debug
+
+        from client.gameManager import GameManager
+
+        self.game_manager = GameManager()
+
+    def update(self, x, y):
+        self.rect.center = (x, y)
+
+    def draw(self, surface, offset=(0, 0)):
+        if self.debug:
+            # Dessiner le rectangle de la hitbox en vert
+            pygame.draw.rect(
+                surface,
+                (0, 255, 0),  # Vert
+                (self.rect.x + offset[0], self.rect.y + offset[1], self.w, self.h),
+                2,  # Épaisseur du contour (2 pixels)
+            )
+
+    def get_collided(self):
+        return pygame.sprite.spritecollide(
+            self, self.game_manager.groups["obstacle"], False
+        )
+
+
 class Player(Serializable):
     def __init__(
         self,
@@ -33,13 +70,40 @@ class Player(Serializable):
         # Pour l'interpolation
         self.target_x = float(x)
         self.target_y = float(y)
-        self.interpolation_speed = 0.1
+        self.interpolation_speed = 0.2
+
+        self.hitbox = HitBox(x, y, 25, 25)
 
     def update(self, keys=None):
         self.handle_input(keys)
 
-        self.x += self.vx
-        self.y += self.vy
+        """
+        Pour gerer les collision on va regarder les collision a la prochaine position sans l'appliquer a l'objet:
+        Si on est dans un objet comme un mur alors on applique pas le mouvement dans cette direction
+        Sinon si aucune collision n'est détectée a la prochaine position alors on applique le mouvement
+        """
+        # Appliquer le mouvement horizontal
+        self.hitbox.update(self.x + self.vx, self.y)
+
+        # Vérifier les collisions horizontales
+        collided = self.hitbox.get_collided()
+        if not collided:
+            self.x += self.vx
+
+        # Appliquer le mouvement vertical
+        self.hitbox.update(self.x, self.y + self.vy)
+
+        # Vérifier les collisions verticales
+        collided = self.hitbox.get_collided()
+        if not collided:
+            self.y += self.vy
+
+        # Mettre à jour la hitbox à la position finale
+        self.hitbox.update(self.x, self.y)
+
+        # Defini la target pour calculer l'interpolation
+        self.set_target_position(self.x, self.y)
+
         # Interpolation vers la position cible
         self._interpolate_position()
 
@@ -74,6 +138,8 @@ class Player(Serializable):
             (self.display_x + offset[0], self.display_y + offset[1]),
             self.radius,
         )
+
+        self.hitbox.draw(surface, offset)
 
     def set_target_position(self, x, y):
         """
@@ -110,3 +176,11 @@ class Player(Serializable):
 
         if current_player:
             current_player.draw(surface, offset)
+
+    def to_dict(self):
+        """Override pour exclure la hitbox de la sérialisation"""
+        data = super().to_dict()
+        # Supprimer hitbox avant d'envoyer au serveur
+        if "hitbox" in data:
+            del data["hitbox"]
+        return data

@@ -6,6 +6,7 @@ from typing import Tuple
 from client.classes.enemy import Enemy
 from client.classes.player import Player
 from client.classes.pnj import PNJ
+from client.classes.wall import Wall
 
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -59,6 +60,16 @@ class GameManager:
         self.clock.tick(60)
         self.running = True
 
+        # Group pour gerer les collisions
+        self.groups = {"obstacle": pygame.sprite.Group()}
+
+        # TODO: a enlever juste pour tester
+        wall1 = Wall(0, 100, 500, 200)
+        wall2 = Wall(0, 500, 100, 1000)
+        self.walls = [wall1, wall2]
+        self.groups["obstacle"].add(wall1)
+        self.groups["obstacle"].add(wall2)
+
     def render(self):
         """Fait un rendu du jeu a executer a chaque tick"""
         if not self.running:
@@ -78,6 +89,8 @@ class GameManager:
         self.draw_elements()  # Dessine les elements de la scene
 
         pygame.display.flip()  # Met a jour l'ecran
+
+        self.deltatime = self.clock.tick(60)
 
     def handle_event(self, event):
         """
@@ -146,10 +159,15 @@ class GameManager:
         Mais en appliquant un offset a tout les element pour centrer le joueur
         au milieu de l'ecran pour simuler une camera qui suit le joueur
         """
+        current_player = self.client_manager.get_player()
+        if (
+            not current_player
+        ):  # si le joueur n'existe pas alors la partie n'est pas lancé
+            return
+
         offset = self.get_camera_offset()
 
         # Dessine les joueurs
-        current_player = self.client_manager.get_player()
         other_players = self.client_manager.game_state.players.get_except_list(
             self.client_manager.my_player_id
         )
@@ -170,6 +188,9 @@ class GameManager:
             self.screen, offset, self.client_manager.game_state.pnjs.get_list()
         )
 
+        # Dessine les murs
+        Wall.draw_all(self.screen, offset, self.walls)
+
     def update_local_player(self):
         # Met a jour tout les joueurs
         if (
@@ -181,7 +202,6 @@ class GameManager:
         current_player = self.client_manager.game_state.players.get(
             self.client_manager.my_player_id
         )
-
         # Met a jour le joueur local
         Player.update_local_player(current_player)
 

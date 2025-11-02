@@ -104,11 +104,9 @@ class EntityManager:
                 # Sinon, mise à jour classique en replacant les ancienne valeur par les nouvelles
                 # mais seulement si elles sont présente dans la nouvelle version sinon on garde
                 # les données locales
-                old_entity_data = entity.to_dict()
                 for key, value in entity_data.items():
-                    if key in old_entity_data:
-                        old_entity_data[key] = value
-                self.entities[entity_id] = self.entity_type.from_dict(old_entity_data)
+                    if hasattr(entity, key):
+                        setattr(entity, key, value)
         else:
             raise TypeError(f"entity_data doit être un Spell ou un dict")
 
