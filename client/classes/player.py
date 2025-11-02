@@ -1,5 +1,6 @@
 from typing import List, Tuple
 import pygame
+from client.classes.hitbox import HitBox
 from server.classes.serializable import Serializable
 
 
@@ -33,20 +34,61 @@ class Player(Serializable):
         # Pour l'interpolation
         self.target_x = float(x)
         self.target_y = float(y)
-        self.interpolation_speed = 0.1
+        self.interpolation_speed = 0.5
+        self.min_threshold = 0.1
+
+        # Pour gerer les collisions
+        #! Attention hibox_size sera envoyé au serveur mais pas hitbox (qui correspond a l'objet pygame de l'hitbox)
+        self.hitbox_size = (25, 25)
+
+        self.hitbox = HitBox(x, y, self.hitbox_size[0], self.hitbox_size[1])
 
     def update(self, keys=None):
         self.handle_input(keys)
 
-        self.x += self.vx
-        self.y += self.vy
+        """
+        Pour gerer les collision on va regarder les collision a la prochaine position sans l'appliquer a l'objet:
+        Si on est dans un objet comme un mur alors on applique pas le mouvement dans cette direction
+        Sinon si aucune collision n'est détectée a la prochaine position alors on applique le mouvement
+        """
+        # Appliquer le mouvement horizontal
+        self.hitbox.update(self.x + self.vx, self.y)
+
+        # Vérifier les collisions horizontales
+        collided = self.hitbox.get_collided()
+        if not collided:
+            self.x += self.vx
+
+        # Appliquer le mouvement vertical
+        self.hitbox.update(self.x, self.y + self.vy)
+
+        # Vérifier les collisions verticales
+        collided = self.hitbox.get_collided()
+        if not collided:
+            self.y += self.vy
+
+        # Mettre à jour la hitbox à la position finale
+        self.hitbox.update(self.x, self.y)
+
+        # Defini la target pour calculer l'interpolation
+        self.set_target_position(self.x, self.y)
+
         # Interpolation vers la position cible
         self._interpolate_position()
 
     def _interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
-        self.display_x += (self.target_x - self.display_x) * self.interpolation_speed
-        self.display_y += (self.target_y - self.display_y) * self.interpolation_speed
+        x_diff = self.target_x - self.display_x
+        y_diff = self.target_y - self.display_y
+
+        if abs(x_diff) > self.min_threshold:
+            self.display_x += x_diff * self.interpolation_speed
+        else:
+            self.display_x = self.target_x
+        if abs(y_diff) > self.min_threshold:
+            self.display_y += y_diff * self.interpolation_speed
+        else:
+            self.display_y = self.target_y
 
     def handle_input(self, keys=None):
         if keys is None:
@@ -74,6 +116,8 @@ class Player(Serializable):
             (self.display_x + offset[0], self.display_y + offset[1]),
             self.radius,
         )
+
+        self.hitbox.draw(surface, offset)
 
     def set_target_position(self, x, y):
         """

@@ -81,8 +81,8 @@ def handle_conn():
         colors = [(0, 255, 0), (255, 0, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255)]
         player_id = game_state.players.addEntity(
             Player(
-                x=50 + num_players * 100,
-                y=50 + num_players * 50,
+                x=num_players * 100,
+                y=num_players * 50,
                 color=colors[num_players % len(colors)],
                 radius=10,
             )

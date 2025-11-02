@@ -1,26 +1,37 @@
 import inspect
+import json
+from typing import Any, Dict
 
 
 class Serializable:
-    def to_dict(self):
-        result = {}
+    def to_dict(self) -> Dict[str, Any]:
+        """Convertit l'objet en dictionnaire, en excluant les attributs non-sérialisables"""
+        data = {}
+
+        # Attributs à toujours exclure (objets Pygame, etc.)
+        exclude = {
+            "hitbox",  # HitBox (objet Pygame)
+            "game_manager",  # Singleton GameManager
+            "image",  # Surface Pygame
+            "rect",  # Rect Pygame
+        }
 
         for key, value in self.__dict__.items():
-            if key.startswith("_"):
-                continue
+            # Ignorer les attributs privés et ceux à exclure
+            if not key.startswith("_") and key not in exclude:
+                # Vérifier si la valeur est sérialisable
+                if self._is_serializable(value):
+                    data[key] = value
 
-            if isinstance(value, Serializable):
-                result[key] = value.to_dict()
-            elif (
-                isinstance(value, list) and value and isinstance(value[0], Serializable)
-            ):
-                result[key] = [v.to_dict() for v in value]
-            elif isinstance(value, tuple):
-                result[key] = list(value)
-            else:
-                result[key] = value
+        return data
 
-        return result
+    def _is_serializable(self, value):
+        """Vérifie si une valeur peut être sérialisée en JSON"""
+        try:
+            json.dumps(value)
+            return True
+        except (TypeError, ValueError):
+            return False
 
     @classmethod
     def from_dict(cls, data):
