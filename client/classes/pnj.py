@@ -35,6 +35,7 @@ class PNJ(Serializable):
         self.target_x = float(x)
         self.target_y = float(y)
         self.interpolation_speed = 0.1
+        self.min_threshold = 0.1
 
     def update(self):
         # TODO: Ajouter l'ia ici pour le comportement des créatures
@@ -42,12 +43,21 @@ class PNJ(Serializable):
 
         # Interpolation vers la position cible
         # Permet d'eviter les mouvements sacadé
-        self._interpolate_position()
+        self.interpolate_position()
 
-    def _interpolate_position(self):
+    def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
-        self.display_x += (self.target_x - self.display_x) * self.interpolation_speed
-        self.display_y += (self.target_y - self.display_y) * self.interpolation_speed
+        x_diff = self.target_x - self.display_x
+        y_diff = self.target_y - self.display_y
+
+        if abs(x_diff) > self.min_threshold:
+            self.display_x += x_diff * self.interpolation_speed
+        else:
+            self.display_x = self.target_x
+        if abs(y_diff) > self.min_threshold:
+            self.display_y += y_diff * self.interpolation_speed
+        else:
+            self.display_y = self.target_y
 
     def draw(self, surface, offset: Tuple[float, float]):
         # Dessine un losange (carré tourné de 45°) centré sur display_x/display_y + size/2
