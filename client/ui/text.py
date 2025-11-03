@@ -1,13 +1,15 @@
+from typing import Tuple
 import pygame
 
 from client.enums.anchor import Anchor
+from client.ui.uiUtils import UIUtils
 
 
 class Text:
     def __init__(
         self,
         text,
-        position,
+        position: Tuple[float, float],
         font_size=35,
         font_name="Corbel",
         background=False,
@@ -17,8 +19,6 @@ class Text:
         bg_color=(200, 200, 200),
         anchor: Anchor = Anchor.TOPLEFT,
     ):
-        self.width = width
-        self.height = height
         self.position = position
         self.color = color
         self.bg_color = bg_color
@@ -29,7 +29,21 @@ class Text:
         self.background = background
         self.anchor = anchor
 
-        self._calculate_actual_position()
+        # si la width et la heigth sont definit on s'en sert
+        # sinon on prend la taille du texte
+        if self.background and self.width and self.height:
+            self.width = width
+            self.height = height
+        else:
+            text_rect = self.text.get_rect()
+            self.width = text_rect.width
+            self.height = text_rect.height
+
+        # self.position = position par rapport au point d'ancrage
+        # actual_position = la position du rendu de l'objet dans le monde
+        self.actual_position = UIUtils.calculate_position_with_anchor(
+            self.width, self.height, self.anchor, self.position
+        )
 
         if background:
             self.backgroundRect = pygame.Rect(
@@ -37,73 +51,6 @@ class Text:
             )
         else:
             self.backgroundRect = None
-
-    def _calculate_actual_position(self):
-        """
-        Calcule la position réelle (topleft) en fonction de l'ancrage par rapport à l'écran.
-        Si screen_size est fourni, utilise les positions d'ancrage relatives à l'écran.
-        """
-        text_rect = self.text.get_rect()
-
-        if self.background and self.width and self.height:
-            rect_width = self.width
-            rect_height = self.height
-        else:
-            rect_width = text_rect.width
-            rect_height = text_rect.height
-
-        # Extraire la valeur string de l'Enum
-        anchor_value = (
-            self.anchor.value if isinstance(self.anchor, Anchor) else self.anchor
-        )
-
-        if pygame.display.get_surface().get_size():
-            screen_width, screen_height = pygame.display.get_surface().get_size()
-
-            temp_rect = pygame.Rect(0, 0, rect_width, rect_height)
-
-            screen_anchor_pos = self._get_screen_anchor_position(
-                anchor_value, screen_width, screen_height
-            )
-
-            setattr(temp_rect, anchor_value, screen_anchor_pos)
-
-            self.actual_position = (temp_rect.left, temp_rect.top)
-        else:
-            temp_rect = pygame.Rect(0, 0, rect_width, rect_height)
-            setattr(temp_rect, anchor_value, self.position)
-            self.actual_position = (temp_rect.left, temp_rect.top)
-
-    def _get_screen_anchor_position(self, anchor_value, screen_width, screen_height):
-        """
-        Retourne la position du point d'ancrage sur l'écran.
-
-        Args:
-            anchor_value: Nom du point d'ancrage (ex: "midtop", "center")
-            screen_width: Largeur de l'écran
-            screen_height: Hauteur de l'écran
-
-        Returns:
-            Tuple (x, y) de la position d'ancrage sur l'écran
-        """
-        anchor_positions = {
-            "topleft": (0, 0),
-            "midtop": (screen_width // 2, 0),
-            "topright": (screen_width, 0),
-            "midleft": (0, screen_height // 2),
-            "center": (screen_width // 2, screen_height // 2),
-            "midright": (screen_width, screen_height // 2),
-            "bottomleft": (0, screen_height),
-            "midbottom": (screen_width // 2, screen_height),
-            "bottomright": (screen_width, screen_height),
-        }
-
-        base_x, base_y = anchor_positions.get(anchor_value, (0, 0))
-        offset_x, offset_y = (
-            self.position if isinstance(self.position, tuple) else (0, 0)
-        )
-
-        return (base_x + offset_x, base_y + offset_y)
 
     def draw(self, window):
         if self.background:

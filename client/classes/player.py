@@ -74,9 +74,9 @@ class Player(Serializable):
         self.set_target_position(self.x, self.y)
 
         # Interpolation vers la position cible
-        self._interpolate_position()
+        self.interpolate_position()
 
-    def _interpolate_position(self):
+    def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
         x_diff = self.target_x - self.display_x
         y_diff = self.target_y - self.display_y
