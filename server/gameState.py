@@ -34,11 +34,11 @@ class GameState:
             if spell.is_expired():
                 self.spells.remove(spell.id)
             else:
-                spell.update()
+                spell.server_update()
         for enemy in list(self.enemies.entities.values()):
-            enemy.update()
+            enemy.server_update()
         for pnj in list(self.pnjs.entities.values()):
-            pnj.update()
+            pnj.server_update()
 
     def apply_state(self, state, my_player_id=None):
         """Applique les mises à jour venant du serveur"""
