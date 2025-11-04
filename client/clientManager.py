@@ -38,7 +38,7 @@ class ClientManager:
         return self.game_state.players.get(self.my_player_id)
 
     def connect_to_solo_server(self):
-        self.my_player_id = self.network.connect_to_server()
+        self.my_player_id = self.network.connect_to_server(host="localhost")
         start_new_thread(self.handle_reveice_message, ())
         return self.my_player_id
 
@@ -86,13 +86,15 @@ class ClientManager:
 
     # Start Game Part
 
-    def start_local_server(self, adress=None, port=None, max_player=5):
+    def start_local_server(self, adress=None, port=None, max_player=5, is_solo=False):
         self.server_ready = False
 
         def run_server():
             try:
                 print("Démarrage du serveur privé...")
-                server_main(adress=adress, port=port, max_player=max_player)
+                server_main(
+                    adress=adress, port=port, max_player=max_player, is_solo=is_solo
+                )
                 self.server_ready = True
             except Exception as e:
                 print(f"Erreur lors du démarrage du serveur: {e}")
@@ -142,7 +144,7 @@ class ClientManager:
 
     def startSinglePlayer(self):
         self.state = State.SOLO
-        self.start_local_server(max_player=1)
+        self.start_local_server(max_player=1, is_solo=True)
         # Attendre que le serveur soit vraiment prêt
         timeout = time.time() + 10
         while time.time() < timeout:

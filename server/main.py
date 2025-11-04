@@ -119,8 +119,8 @@ def spawn_element_at_start():
     pnj1 = game_state.pnjs.addEntity(PNJ(-150, -150, (255, 0, 255)))
 
 
-def start_game_server(adress=None, port=None, max_player=5):
-    network.start_server(adress, port, max_player=max_player)
+def start_game_server(adress=None, port=None, max_player=5, is_solo=False):
+    network.start_server(adress, port, max_player=max_player, is_solo=is_solo)
 
     # Lance sur un autre thread la gestion des nouveauxjoueur
     start_new_thread(handle_conn, ())
@@ -133,7 +133,7 @@ def start_game_server(adress=None, port=None, max_player=5):
 
 
 def main():
-    start_game_server("localhost", 12345)
+    start_game_server("0.0.0.0", 12345)
 
 
 if __name__ == "__main__":
