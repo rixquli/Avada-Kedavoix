@@ -1,3 +1,11 @@
+"""
+UIUtils contient une liste de fonction utile pour les interfaces
+et permet d'etre utilisé de n'importe où tant que la classe est importée
+Ex:
+    UIUtils.calculate_position_with_anchor(...)
+    UIUtils.get_screen_anchor_position(...)
+"""
+
 from typing import Tuple
 import pygame
 

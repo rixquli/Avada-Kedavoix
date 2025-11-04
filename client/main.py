@@ -1,3 +1,7 @@
+"""
+Script d'entré qui lance tout le reste nottament le GameManager
+"""
+
 import os
 import sys
 from _thread import *

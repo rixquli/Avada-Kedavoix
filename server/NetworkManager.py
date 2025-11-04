@@ -1,3 +1,8 @@
+"""
+Classe qui s'occupe du serveur sockets, la partie server
+et aussi connect_to_server permettant de se connecter a celui-ci
+"""
+
 import os
 import socket
 from _thread import *

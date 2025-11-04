@@ -1,3 +1,7 @@
+"""
+Classe pour la gestion des ennemis
+"""
+
 from typing import List, Tuple
 
 import pygame

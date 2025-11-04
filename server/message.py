@@ -1,3 +1,10 @@
+"""
+Message permet d'encapsuler les requetes entre les clients et le serveur
+Elle permet de simplement trier les requetes par type (MessageType)
+
+Une requete possede alors un type et un payload (données envoyées)
+"""
+
 from enum import Enum
 import pickle
 import struct

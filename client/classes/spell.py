@@ -1,3 +1,7 @@
+"""
+Classe pour la gestion des spells (sorts)
+"""
+
 import time
 from typing import List, Tuple
 import pygame

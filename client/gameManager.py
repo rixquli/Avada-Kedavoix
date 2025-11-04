@@ -1,4 +1,15 @@
-# To import module from other folder
+"""
+Classe principale pour le coté client elle correspond à la gestion de toute la partie
+GameManager est un singloton c'est a dire que de n'importe ou dans le projet:
+GameManager() renverra la meme chose donc GameManager().ui permet de n'importe d'acceder au menus/interfaces
+
+Elle gere:
+    - l'initialisation de pygame
+    - le rendu de tout les objets (dont logique de la camera)
+    - la gestion de tous les evenements ex: clique souris ou touche du clavier
+    - la mise a jour des element locaux comme le joueur
+"""
+
 import os
 import sys
 from typing import Tuple
@@ -9,6 +20,7 @@ from client.classes.pnj import PNJ
 from client.classes.wall import Wall
 
 
+# To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import pygame
 from client.classes.spell import Spell
@@ -43,10 +55,7 @@ class GameManager:
         self.setup_pygame()
 
         # Setup ui/menus
-        from client.menus import Menus
-
         self.ui = UI(self.screen)
-        self.ui.import_menus(Menus)
 
     def setup_pygame(self):
         """Initialise pygame et crée la fenetre"""

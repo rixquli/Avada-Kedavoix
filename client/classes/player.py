@@ -1,3 +1,9 @@
+"""
+Classe pour la gestion des joueurs
+gestion de l'objet afficher a l'ecran
+et de la gestion des déplacement pour le joueur local
+"""
+
 from typing import List, Tuple
 import pygame
 from client.classes.hitbox import HitBox

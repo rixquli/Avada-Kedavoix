@@ -1,8 +1,20 @@
-# To import module from other folder
+"""
+Pour simplifier l'utilisation des menus/interfaces,
+tous les menus et interfaces doivent etre dans la liste Menus
+
+Pour en rajouter suivre les exemples deja present
+ATTENTION: "content": fonction_qui_renvoie_la_liste_des_elements("NomDuMenu")
+
+Ex:
+    game_manager=GameManager()
+    game_manager.ui.show("MainMenu") # affiche le menu principal present dans Menus
+"""
+
 import os
 import sys
 
 
+# To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from client.enums.anchor import Anchor
 from client.gameManager import GameManager
@@ -92,10 +104,28 @@ def join_menu(menu_name):
     def set_val(index, val):
         adress[index] = val
 
-    def joinGameButtonClicked(ip, port):
-        print(ip)
-        print(port)
-        game_manager.client_manager.joinParty(ip, port)
+    # Text d'erreur vide au depart
+    error_text = Text(
+        "",  # texte vide -> pas d'affichage initial
+        (0, -50),
+        color=(255, 0, 0),
+        anchor=Anchor.MIDBOTTOM,
+    )
+
+    def joinGameButtonClicked():
+        ip = adress[0]
+        port = adress[1]
+        have_joined = game_manager.client_manager.joinParty(ip, port)
+
+        if have_joined:
+            # Remet un text vierge au cas ou
+            error_text.change_text("")
+            game_manager.ui.hide(menu_name)
+        else:
+            # Met à jour le texte d'erreur
+            error_text.change_text(f"Error, can not join {ip}:{port}")
+            # Rafraichir l'ui avec l'element d'erreur
+            game_manager.ui.refresh(menu_name)
 
     return [
         # title
@@ -132,11 +162,11 @@ def join_menu(menu_name):
             100,
             50,
             (0, 50),
-            onclickFunction=lambda: close_and_exec(
-                menu_name, joinGameButtonClicked, adress[0], adress[1]
-            ),
+            onclickFunction=lambda: joinGameButtonClicked(),
             anchor=Anchor.CENTER,
         ),
+        # text d'erreur réutilisable
+        error_text,
     ]
 
 
@@ -150,6 +180,6 @@ Menus = [
     },
     {
         "name": "JoinMenu",
-        "content": join_menu("JoinMenu"),
+        "content": join_menu("JoinMenu"),  # Version sans le message d'erreur
     },
 ]
