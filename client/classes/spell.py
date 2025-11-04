@@ -64,7 +64,7 @@ class Spell(Serializable):
         self.y += self.dir[1]
 
     def is_expired(self) -> bool:
-        """VErifie si le sort a depasse sa duree de vie"""
+        """Verifie si le sort a depasse sa duree de vie"""
         return time.time() - self.creation_time > self.lifetime
 
     def draw(self, surface, offset: Tuple[float, float]):
