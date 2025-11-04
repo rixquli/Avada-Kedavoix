@@ -1,3 +1,9 @@
+"""
+Classe pour la gestion des hitbox mais local
+Elle permet de gérer seulement les collisions
+Exemple: gestion des collision entre le joueur et les murs
+"""
+
 import pygame
 
 

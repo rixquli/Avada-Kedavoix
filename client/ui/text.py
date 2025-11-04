@@ -1,3 +1,7 @@
+"""
+Element graphique permet la creation de Texte
+"""
+
 from typing import Tuple
 import pygame
 

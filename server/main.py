@@ -1,3 +1,11 @@
+"""
+Point d'entrée du serveur et gere les different client en receptionnant les requete et en envoyant
+une copie du monde a tout les clients
+
+De plus,
+"python server/main.py" permet de lancer juste un serveur rejoingnable en entrant son ip local
+"""
+
 import time
 from _thread import *
 import os

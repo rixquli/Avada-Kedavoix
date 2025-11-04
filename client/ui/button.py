@@ -1,3 +1,8 @@
+"""
+Element graphique permet la creation de boutons
+et la gestion des evenements lors du clique
+"""
+
 import pygame
 
 from client.enums.anchor import Anchor

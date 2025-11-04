@@ -1,3 +1,8 @@
+"""
+Element graphique permet la creation d'input text (champ de text)
+et la gestion des touches enregistrer lorsqu'il est selectionné
+"""
+
 import pygame
 
 from client.enums.anchor import Anchor

@@ -1,12 +1,28 @@
+"""
+GameState ou WorldState correspond aux données du monde gerées par le serveur et envoyées aux clients.
+Il y as plusieurs GameState durant une partie qui sont utilisées:
+    - Une appartient au serveur
+    - Chaque joueur possede une copie du monde qui est mise a jour par le serveur
+
+GameState contient tous les jour tout les pnjs,...
+Elle permet au serveur de mettre a jour toutes les entités puis d'envoyer les nouvelles données aux clients:
+
+Ex:
+    Le serveur a dans son gameState un ennemi que le joueur n'a pas encore dans son gameState local
+    le serveur va envoyé son gameState avec ce nouvel ennemi
+    le client/joueur va remarquer que dans sa copie du monde cet ennemi n'existe pas il va donc le rejouter dans son monde local
+    si le joueur avait deja enregistrer cet ennemi il va le mettre a jour et faire en sorte que sa copie local soit la meme que celle du serveur
+
+Pour résumer GameState = Une copie du monde partagée entre clients et serveur
+"""
+
 import os
 import sys
-import time
-
-from client.classes.pnj import PNJ
 
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from client.classes.pnj import PNJ
 from client.classes.enemy import Enemy
 from client.classes.player import Player
 from client.classes.spell import Spell
@@ -29,6 +45,7 @@ class GameState:
             "pnjs": self.pnjs.to_dict(),
         }
 
+    # Executer cote serveur
     def update_all(self):
         for spell in list(self.spells.entities.values()):
             if spell.is_expired():
@@ -40,6 +57,7 @@ class GameState:
         for pnj in list(self.pnjs.entities.values()):
             pnj.server_update()
 
+    # Executer coté client
     def apply_state(self, state, my_player_id=None):
         """Applique les mises à jour venant du serveur"""
         self.apply_state_for(state, "players", self.players, my_player_id=my_player_id)

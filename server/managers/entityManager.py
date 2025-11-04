@@ -1,3 +1,8 @@
+"""
+Classe qui gere tout un type d'entité comme les joueurs ou les njs (voir gameState.py)
+elle permet de gerer/mettre a jour toutes les entités du meme type et auusi d'en rajouter/supprimer
+"""
+
 import os
 import sys
 from typing import List, Tuple, Type

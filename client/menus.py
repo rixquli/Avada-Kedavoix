@@ -1,8 +1,20 @@
-# To import module from other folder
+"""
+Pour simplifier l'utilisation des menus/interfaces,
+tous les menus et interfaces doivent etre dans la liste Menus
+
+Pour en rajouter suivre les exemples deja present
+ATTENTION: "content": fonction_qui_renvoie_la_liste_des_elements("NomDuMenu")
+
+Ex:
+    game_manager=GameManager()
+    game_manager.ui.show("MainMenu") # affiche le menu principal present dans Menus
+"""
+
 import os
 import sys
 
 
+# To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from client.enums.anchor import Anchor
 from client.gameManager import GameManager

@@ -1,3 +1,14 @@
+"""
+Chaque classe doit hériter de Serializable cela permet de convertir plus simplement les données
+du joueur ou du pnj en dictionnaire pour les envoyer au serveur ou au client.
+Cela permet de ne pas envoyer des données inutiles elle agit aussi comme un filtre
+en empechant d'envoyer des objet pygame complexe au serveur qui ne ferait que ralentir le serveur
+
+Ex:
+    joueur = Player(...)
+    dico = joueur.to_dict()
+"""
+
 import inspect
 import json
 from typing import Any, Dict

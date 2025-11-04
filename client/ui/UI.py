@@ -1,3 +1,20 @@
+"""
+UI est la classe permettant de gerer toute les interface/menu du jeu accessible depuis le game_manager
+Ex:
+    game_manager.ui.show("MainMenu")
+
+Menu est la classe correspondant a un menu/interface elle est utilisé dans UI et gere/affiche tout les element du menu
+Ex:
+    menu_name = game_manager.ui.createMenu("Nom")                     # Creer le menu
+    game_manager.ui.addTo(menu_name, Text("AVADA KEDAVOIX",(0, 50)))  # Ajoute des elements dans le menu
+
+!ATTENTION:
+    Pour simplifier le processus tous les menus/interfaces doivent etre dans client/menus.py
+    voir exemple por en rajouter, cela permet un acces plus rapide
+!ATTENTION
+"""
+
+
 class Menu:
     def __init__(self, name, is_showing):
         self.name = name
@@ -5,7 +22,11 @@ class Menu:
         self.ui_components = []
 
     def add(self, ui_components):
-        self.ui_components.append(ui_components)
+        if isinstance(ui_components, list):
+            for ui_element in ui_components:
+                self.ui_components.append(ui_element)
+        else:
+            self.ui_components.append(ui_components)
 
     def update(self, screen):
         for comp in self.ui_components:
