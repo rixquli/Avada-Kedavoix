@@ -55,10 +55,7 @@ class GameManager:
         self.setup_pygame()
 
         # Setup ui/menus
-        from client.menus import Menus
-
         self.ui = UI(self.screen)
-        self.ui.import_menus(Menus)
 
     def setup_pygame(self):
         """Initialise pygame et crée la fenetre"""

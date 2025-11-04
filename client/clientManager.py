@@ -135,17 +135,22 @@ class ClientManager:
         print(f"Partie hébergée sur {local_ip}:{port}")
         print(f"Les autres joueurs peuvent rejoindre avec cette IP")
 
-    def joinParty(self, host_ip, port=12345):
-        self.state = State.INVITED
+    def joinParty(self, host_ip, port=12345) -> bool:
+        try:
+            self.state = State.INVITED
 
-        self.my_player_id = self.network.connect_to_server(host_ip, int(port))
+            self.my_player_id = self.network.connect_to_server(host_ip, int(port))
 
-        if self.my_player_id:
-            print(f"Connecté à la partie de {host_ip}:{port}")
-            start_new_thread(self.handle_reveice_message, ())
-        else:
-            print(f"Impossible de rejoindre {host_ip}:{port}")
-            self.state = State.MAIN_MENU
+            if self.my_player_id:
+                print(f"Connecté à la partie de {host_ip}:{port}")
+                start_new_thread(self.handle_reveice_message, ())
+            else:
+                print(f"Impossible de rejoindre {host_ip}:{port}")
+                self.state = State.MAIN_MENU
+                return False
+            return True
+        except:
+            return False
 
     def startSinglePlayer(self):
         self.state = State.SOLO

@@ -43,6 +43,10 @@ class UI:
     def __init__(self, screen=None):
         self.menus = {}
         self.screen = screen
+        from client.menus import Menus
+
+        self.imported_menus = Menus
+        self.import_menus(self.imported_menus)
 
     def createMenu(self, name, is_showing=True):
         if name in self.menus:
@@ -78,6 +82,37 @@ class UI:
         if menu_name not in self.menus.keys():
             raise ValueError(menu_name, ": this menu do not exist")
         self.menus[menu_name].add(ui_components)
+
+    def refresh(self, menu_name):
+        """
+        Ecrase le menu donné avec le meme
+        Permet de le rafraichir si des valeurs ont changées
+        """
+        for menu_def in self.imported_menus:
+            if menu_def["name"] != menu_name:
+                continue
+
+            # conserver l'état d'affichage actuel si présent
+            existing = self.menus.get(menu_name)
+            is_showing = (
+                existing.is_showing if existing else menu_def.get("is_showing", False)
+            )
+
+            # créer nouvel objet Menu
+            new_menu = Menu(menu_name, is_showing)
+
+            # résoudre le contenu (accepte callable(menu_name) ou callable())
+            content = menu_def.get("content", [])
+            components = content
+
+            # ajouter les composants (ignorer None)
+            for comp in components:
+                if comp is None:
+                    continue
+                new_menu.add(comp)
+
+            self.menus[menu_name] = new_menu
+            return
 
     def get_visible_menus(self):
         res = []
