@@ -10,14 +10,14 @@ from server.message import Message, MessageType
 
 
 class NetworkManager:
-    def __init__(self, address="localhost", port=12345, is_server=False):
+    def __init__(self, address="0.0.0.0", port=12345, is_server=False):
         self.server_address = (address, port)
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.player_connections = {}
         self.is_server = is_server
 
     # Methodes du serveur
-    def start_server(self, address=None, port=None, max_player=5):
+    def start_server(self, address=None, port=None, max_player=5, is_solo=False):
         if not self.is_server:
             return
 
@@ -33,12 +33,17 @@ class NetworkManager:
             self.socket.bind(tuple(server_adress))
             self.socket.listen(max_player)
             print("Waiting for connection, Server Started")
+            print(
+                f"Serveur accessible localement à: {server_adress[0]}:{server_adress[1]}"
+            )
 
         except Exception as e:
             print(f"Error connecting to server: {e}")
 
+        return tuple(server_adress)
+
     # Méthode du client
-    def connect_to_server(self, host="localhost", port=12345):
+    def connect_to_server(self, host="0.0.0.0", port=12345):
         my_player_id = None
         try:
             self.socket.settimeout(5)
