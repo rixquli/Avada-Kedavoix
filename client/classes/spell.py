@@ -27,11 +27,39 @@ class Spell(Serializable):
         self.lifetime = float(lifetime)
         self.creation_time = time.time()
 
-    def move(self, x, y):
-        self.x = x
-        self.y = y
+        # Position affiché
+        self.display_x = float(x)
+        self.display_y = float(y)
 
-    def update(self):
+        # Pour l'interpolation
+        self.target_x = float(x)
+        self.target_y = float(y)
+        self.interpolation_speed = 1
+        self.min_threshold = 0.01
+
+    def interpolate_position(self):
+        """Interpolation du mouvement vers le point cible"""
+        x_diff = self.target_x - self.display_x
+        y_diff = self.target_y - self.display_y
+
+        if abs(x_diff) > self.min_threshold:
+            self.display_x += x_diff * self.interpolation_speed
+        else:
+            self.display_x = self.target_x
+        if abs(y_diff) > self.min_threshold:
+            self.display_y += y_diff * self.interpolation_speed
+        else:
+            self.display_y = self.target_y
+
+    def set_target_position(self, x, y):
+        """
+        Applique une interpolation lors de l'application des positions recu du serveur
+        permettant d'éviter des mouvements sacadés
+        """
+        self.target_x = float(x)
+        self.target_y = float(y)
+
+    def server_update(self):
         self.x += self.dir[0]
         self.y += self.dir[1]
 
@@ -40,11 +68,14 @@ class Spell(Serializable):
         return time.time() - self.creation_time > self.lifetime
 
     def draw(self, surface, offset: Tuple[float, float]):
+        # Interpolation vers la position cible
+        # Permet d'eviter les mouvements sacadé
+        self.interpolate_position()
 
         pygame.draw.circle(
             surface,
             self.color,
-            (int(self.x + offset[0]), int(self.y + offset[1])),
+            (int(self.display_x + offset[0]), int(self.display_y + offset[1])),
             self.radius,
         )
 

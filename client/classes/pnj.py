@@ -37,7 +37,7 @@ class PNJ(Serializable):
         self.interpolation_speed = 0.1
         self.min_threshold = 0.1
 
-    def update(self):
+    def server_update(self):
         # TODO: Ajouter l'ia ici pour le comportement des créatures
         # Utiliser set_target_postion pour modifier la position de la créature
 
