@@ -41,6 +41,8 @@ class Spell(Serializable):
         self.interpolation_speed = 1
         self.min_threshold = 0.01
 
+        self.hitbox_size = (10, 10)
+
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
         x_diff = self.target_x - self.display_x
