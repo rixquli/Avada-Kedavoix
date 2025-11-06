@@ -72,7 +72,7 @@ class Enemy(Serializable):
         # TODO: Ajouter l'ia ici pour le comportement des créatures
         # Utiliser set_target_postion pour modifier la position de la créature
         dir = tuple(self.dir_target())
-        self.set_target_position(self.display_x+dir[0], self.display_y+dir[1])
+        self.set_target_position(self.display_x+dir[0]*10, self.display_y+dir[1]*10)
 
         # Interpolation vers la position cible
         # Permet d'eviter les mouvements sacadé
