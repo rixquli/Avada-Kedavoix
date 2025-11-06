@@ -52,7 +52,7 @@ class PNJ(Serializable):
     def server_update(self):
         # TODO: Ajouter l'ia ici pour le comportement des créatures
         # Utiliser set_target_postion pour modifier la position de la créature
-        if abs(self.x_target - self.display_x) < 1 and self.y_target - self.display_y < 1:
+        if abs(self.x_target - self.display_x) < 1 and abs(self.y_target - self.display_y) < 1:
             self.x_target = randint(int(self.display_x-100), int(self.display_x+100))
             self.y_target = randint(int(self.display_y-100), int(self.display_y+100))
             self.dist = ((self.x_target - self.display_x)**2 + (self.y_target - self.display_y)**2)**0.5

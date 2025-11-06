@@ -47,6 +47,7 @@ class Enemy(Serializable):
         self.game_manager = GameManager()
 
     def get_players_pos(self):
+        #renvois les posistion de tous les joueurs
         players = self.game_manager.client_manager.game_state.players.get_all()
         pos = []
         for player in players:
@@ -54,6 +55,7 @@ class Enemy(Serializable):
         return pos
 
     def dir_target(self):
+        # renvois la direction du joueurs le plus proche
         dist_min = 1000000000000
         pos0 = self.x
         pos1 = self.y
