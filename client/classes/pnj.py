@@ -6,6 +6,7 @@ from typing import List, Tuple
 
 import pygame
 from server.classes.serializable import Serializable
+from random import randint
 
 
 class PNJ(Serializable):
@@ -41,9 +42,27 @@ class PNJ(Serializable):
         self.interpolation_speed = 0.1
         self.min_threshold = 0.1
 
+        # Pour IA
+        self.x_target = float(x)
+        self.y_target = float(y)
+        self.dist = 0
+        self.dir_x = 0
+        self.dir_y = 0
+
     def server_update(self):
         # TODO: Ajouter l'ia ici pour le comportement des créatures
         # Utiliser set_target_postion pour modifier la position de la créature
+        if abs(self.x_target - self.display_x) < 1 and abs(self.y_target - self.display_y) < 1:
+            self.x_target = randint(int(self.display_x-100), int(self.display_x+100))
+            self.y_target = randint(int(self.display_y-100), int(self.display_y+100))
+            self.dist = ((self.x_target - self.display_x)**2 + (self.y_target - self.display_y)**2)**0.5
+            if self.dist == 0:
+                self.dir_x = 0
+                self.dir_y = 0
+            else:
+                self.dir_x = (self.x_target - self.display_x)/self.dist
+                self.dir_y = (self.y_target - self.display_y)/self.dist
+        self.set_target_position(self.display_x + self.dir_x*10,self.display_y + self.dir_y*10)
 
         # Interpolation vers la position cible
         # Permet d'eviter les mouvements sacadé
