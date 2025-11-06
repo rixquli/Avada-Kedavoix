@@ -22,6 +22,7 @@ import sys
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from server.managers.collisionManager import CollisionManager
 from client.classes.pnj import PNJ
 from client.classes.enemy import Enemy
 from client.classes.player import Player
@@ -31,10 +32,13 @@ from server.managers.entityManager import EntityManager
 
 class GameState:
     def __init__(self):
+        self.collision_manager = CollisionManager(self)
+
         self.players = EntityManager(Player)
         self.spells = EntityManager(Spell)
         self.enemies = EntityManager(Enemy)
         self.pnjs = EntityManager(PNJ)
+        self.all_entities_manager = [self.players, self.spells, self.enemies, self.pnjs]
 
     def get_game_state(self):
         """Retourne l'état complet du jeu pour le broadcast"""
@@ -46,6 +50,12 @@ class GameState:
         }
 
     # Executer cote serveur
+    def get_entities_list(self):
+        res = []
+        for entities_manager in self.all_entities_manager:
+            res.append((entities_manager.entity_type, entities_manager.get_list()))
+        return res
+
     def update_all(self):
         for spell in list(self.spells.entities.values()):
             if spell.is_expired():
@@ -56,6 +66,8 @@ class GameState:
             enemy.server_update()
         for pnj in list(self.pnjs.entities.values()):
             pnj.server_update()
+
+        self.collision_manager.handle_collision(entity_list=self.get_entities_list())
 
     # Executer coté client
     def apply_state(self, state, my_player_id=None):
