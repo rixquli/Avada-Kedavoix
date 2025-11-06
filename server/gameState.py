@@ -4,7 +4,7 @@ Il y as plusieurs GameState durant une partie qui sont utilisées:
     - Une appartient au serveur
     - Chaque joueur possede une copie du monde qui est mise a jour par le serveur
 
-GameState contient tous les jour tout les pnjs,...
+GameState contient tous les joueur tout les pnjs,...
 Elle permet au serveur de mettre a jour toutes les entités puis d'envoyer les nouvelles données aux clients:
 
 Ex:

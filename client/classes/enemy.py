@@ -42,10 +42,37 @@ class Enemy(Serializable):
         self.min_threshold = 0.1
 
         self.hitbox_size = (25, 25)
+        #pour interagir avec le reste
+        from client.gameManager import GameManager
+        self.game_manager = GameManager()
+
+    def get_players_pos(self):
+        players = self.game_manager.client_manager.game_state.players.get_all()
+        pos = []
+        for player in players:
+            pos.append((players[player].display_x,players[player].display_y))
+        return pos
+
+    def dir_target(self):
+        dist_min = 1000000000000
+        pos0 = self.x
+        pos1 = self.y
+        for pos in self.get_players_pos():
+            dist = (pos[0]-self.display_x)**2 + (pos[1]-self.display_y)**2
+            if dist < dist_min:
+                dist_min = dist
+                pos0 = pos[0]
+                pos1 = pos[1]
+        dist_min = dist_min**0.5
+        pos0 = (pos0 - self.display_x)/dist_min
+        pos1 = (pos1 - self.display_y)/dist_min
+        return pos0, pos1
 
     def server_update(self):
         # TODO: Ajouter l'ia ici pour le comportement des créatures
         # Utiliser set_target_postion pour modifier la position de la créature
+        dir = tuple(self.dir_target())
+        self.set_target_position(self.display_x+dir[0], self.display_y+dir[1])
 
         # Interpolation vers la position cible
         # Permet d'eviter les mouvements sacadé
