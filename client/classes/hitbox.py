@@ -40,5 +40,9 @@ class HitBox(pygame.sprite.Sprite):
 
     def get_collided(self):
         return pygame.sprite.spritecollide(
-            self, self.game_manager.groups["obstacle"], False
+            self,
+            self.game_manager.client_manager.game_state.collision_manager.client_collider_groups.get(
+                "obstacle"
+            ),
+            False,
         )
