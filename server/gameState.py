@@ -63,9 +63,15 @@ class GameState:
             else:
                 spell.server_update()
         for enemy in list(self.enemies.entities.values()):
-            enemy.server_update()
+            if enemy.is_dead():
+                self.enemies.remove(enemy.id)
+            else:
+                enemy.server_update()
         for pnj in list(self.pnjs.entities.values()):
-            pnj.server_update()
+            if pnj.is_dead():
+                self.pnjs.remove(pnj.id)
+            else:
+                pnj.server_update()
 
         self.collision_manager.handle_collision(entity_list=self.get_entities_list())
 

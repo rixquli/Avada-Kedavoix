@@ -19,6 +19,7 @@ class PNJ(Serializable):
         vx: float = 0,
         vy: float = 0,
         id: int = None,
+        hp: int = 1,
     ):
         self.id = id
         self.color = tuple(color)
@@ -48,6 +49,13 @@ class PNJ(Serializable):
         self.dist = 0
         self.dir_x = 0
         self.dir_y = 0
+
+        # Pour gerer le systeme vie/degat
+        self.hp = hp
+
+    def is_dead(self) -> bool:
+        return self.hp <= 0
+
 
     def server_update(self):
         # TODO: Ajouter l'ia ici pour le comportement des créatures
