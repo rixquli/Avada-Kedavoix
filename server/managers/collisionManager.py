@@ -68,5 +68,6 @@ class CollisionManager:
                 if handler is not None:
                     for entity1 in entities1:
                         for entity2 in entities2:
+                            print("collision between {} and {} is handled and is {}".format((entity1.x,entity1.y), (entity2.x,entity2.y), self.do_collide(entity1, entity2)))
                             if self.do_collide(entity1, entity2):
                                 handler(self, entity1, entity2)

@@ -51,6 +51,9 @@ class Enemy(Serializable):
         from client.gameManager import GameManager
         self.game_manager = GameManager()
 
+    def take_dmg(self,dmg: int) -> None:
+        self.hp -= dmg
+
     def is_dead(self) -> bool:
         return self.hp <= 0
 
