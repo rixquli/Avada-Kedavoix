@@ -38,7 +38,7 @@ class Spell(Serializable):
         # Pour l'interpolation
         self.target_x = float(x)
         self.target_y = float(y)
-        self.interpolation_speed = 1
+        self.interpolation_speed = 0.1
         self.min_threshold = 0.01
 
         self.hitbox_size = (10, 10)

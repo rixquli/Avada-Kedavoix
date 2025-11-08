@@ -122,6 +122,15 @@ class GameState:
                     if filtered_data:
                         entities.update(str(id), filtered_data)
                 else:
-                    entities.update(str(id), data)
+                    filtered_data = {
+                        k: v
+                        for k, v in data.items()
+                        if k
+                           not in [
+                               "display_x",
+                               "display_y",
+                           ]
+                    }
+                    entities.update(str(id), filtered_data)
         # Verifie si tout les elements ont bien ete supprimer cote client
         entities.remove_local_only_entity(state.get(name, {}))
