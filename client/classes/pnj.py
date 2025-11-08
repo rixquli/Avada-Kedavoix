@@ -62,11 +62,8 @@ class PNJ(Serializable):
             else:
                 self.dir_x = (self.x_target - self.display_x)/self.dist
                 self.dir_y = (self.y_target - self.display_y)/self.dist
-        self.set_target_position(self.display_x + self.dir_x*10,self.display_y + self.dir_y*10)
-
-        # Interpolation vers la position cible
-        # Permet d'eviter les mouvements sacadé
-        self.interpolate_position()
+        self.x += self.dir_x
+        self.y += self.dir_y
 
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
@@ -83,6 +80,10 @@ class PNJ(Serializable):
             self.display_y = self.target_y
 
     def draw(self, surface, offset: Tuple[float, float]):
+        # Interpolation vers la position cible
+        # Permet d'eviter les mouvements sacadé
+        self.interpolate_position()
+
         # Dessine un losange (carré tourné de 45°) centré sur display_x/display_y + size/2
         cx = self.display_x + self.size / 2 + offset[0]
         cy = self.display_y + self.size / 2 + offset[1]

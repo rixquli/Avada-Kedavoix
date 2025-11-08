@@ -122,6 +122,7 @@ class GameState:
                     if filtered_data:
                         entities.update(str(id), filtered_data)
                 else:
+                    #on met tout a jour sauf les display (evites des problemes de syncronisation de position d'image)
                     filtered_data = {
                         k: v
                         for k, v in data.items()
