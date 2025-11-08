@@ -11,6 +11,8 @@ from _thread import *
 import os
 import sys
 
+from client.classes.wall import Wall
+
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -126,6 +128,15 @@ def spawn_element_at_start():
 
     pnj1 = game_state.pnjs.addEntity(PNJ(-150, -150, (255, 0, 255)))
     pnj2 = game_state.pnjs.addEntity(PNJ(-100, -100, (255, 0, 255)))
+
+    walls = [
+        Wall(-500, -500, 1000, 50),
+        Wall(-500, 500, 1050, 50),
+        Wall(-500, -500, 50, 1000),
+        Wall(500, -500, 50, 1000),
+    ]
+    for wall in walls:
+        game_state.walls.addEntity(wall)
 
 
 def start_game_server(adress=None, port=None, max_player=5, is_solo=False):

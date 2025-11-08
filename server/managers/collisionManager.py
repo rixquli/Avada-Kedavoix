@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Callable, List, Tuple, Type
 
+import pygame
+
 from server.classes.serializable import Serializable
 
 
@@ -25,6 +27,20 @@ class CollisionManager:
             self.add_collision(
                 collision["entity1"], collision["entity2"], collision["handler"]
             )
+
+        """Contient la liste des objets que le joueurs peut toucher/ne pas traverser"""
+        self.client_collider_groups = {"obstacle": pygame.sprite.Group()}
+
+    def update_collision_group(self, group_name, entities_list):
+        group = self.client_collider_groups.get(group_name)
+        if group is None:
+            return
+        group.empty()
+        for entity in entities_list:
+            entity_list = entity.get_list()
+            if entity_list:
+                for e in entity_list:
+                    group.add(e)
 
     def add_collision(self, entity1_type, entity2_type, handler):
         self.handled_collisions.append((entity1_type, entity2_type, handler))
@@ -68,6 +84,5 @@ class CollisionManager:
                 if handler is not None:
                     for entity1 in entities1:
                         for entity2 in entities2:
-                            print("collision between {} and {} is handled and is {}".format((entity1.x,entity1.y), (entity2.x,entity2.y), self.do_collide(entity1, entity2)))
                             if self.do_collide(entity1, entity2):
                                 handler(self, entity1, entity2)
