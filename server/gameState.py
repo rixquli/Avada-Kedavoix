@@ -22,6 +22,7 @@ import sys
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from client.classes.wall import Wall
 from server.managers.collisionManager import CollisionManager
 from client.classes.pnj import PNJ
 from client.classes.enemy import Enemy
@@ -38,7 +39,15 @@ class GameState:
         self.spells = EntityManager(Spell)
         self.enemies = EntityManager(Enemy)
         self.pnjs = EntityManager(PNJ)
-        self.all_entities_manager = [self.players, self.spells, self.enemies, self.pnjs]
+        self.walls = EntityManager(Wall)
+
+        self.all_entities_manager = [
+            self.players,
+            self.spells,
+            self.enemies,
+            self.pnjs,
+            self.walls,
+        ]
 
     def get_game_state(self):
         """Retourne l'état complet du jeu pour le broadcast"""
@@ -47,6 +56,7 @@ class GameState:
             "spells": self.spells.to_dict(),
             "enemies": self.enemies.to_dict(),
             "pnjs": self.pnjs.to_dict(),
+            "walls": self.walls.to_dict(),
         }
 
     # Executer cote serveur
@@ -76,6 +86,9 @@ class GameState:
         self.apply_state_for(state, "enemies", self.enemies)
         self.apply_state_for(state, "spells", self.spells)
         self.apply_state_for(state, "pnjs", self.pnjs)
+        self.apply_state_for(state, "walls", self.walls)
+
+        self.collision_manager.update_collision_group("obstacle", [self.walls])
 
     def apply_state_for(self, state, name, entities, my_player_id=None):
         for id, data in state.get(name, {}).items():
@@ -109,6 +122,16 @@ class GameState:
                     if filtered_data:
                         entities.update(str(id), filtered_data)
                 else:
-                    entities.update(str(id), data)
+                    #on met tout a jour sauf les display (evites des problemes de syncronisation de position d'image)
+                    filtered_data = {
+                        k: v
+                        for k, v in data.items()
+                        if k
+                           not in [
+                               "display_x",
+                               "display_y",
+                           ]
+                    }
+                    entities.update(str(id), filtered_data)
         # Verifie si tout les elements ont bien ete supprimer cote client
         entities.remove_local_only_entity(state.get(name, {}))

@@ -201,7 +201,9 @@ class GameManager:
         )
 
         # Dessine les murs
-        Wall.draw_all(self.screen, offset, self.walls)
+        Wall.draw_all(
+            self.screen, offset, self.client_manager.game_state.walls.get_list()
+        )
 
     def update_local_player(self):
         # Met a jour tout les joueurs
