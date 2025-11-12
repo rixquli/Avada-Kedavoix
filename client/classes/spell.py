@@ -7,6 +7,7 @@ from typing import List, Tuple
 import pygame
 
 from server.classes.serializable import Serializable
+from client.classes.hitbox import HitBox
 
 
 class Spell(Serializable):
@@ -42,6 +43,8 @@ class Spell(Serializable):
         self.min_threshold = 0.01
 
         self.hitbox_size = (10, 10)
+        self.hitbox = HitBox(x, y, self.hitbox_size[0], self.hitbox_size[1])
+
 
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
@@ -68,6 +71,8 @@ class Spell(Serializable):
     def server_update(self):
         self.x += self.dir[0]
         self.y += self.dir[1]
+
+        self.hitbox.update(self.x, self.y)
 
     def is_expired(self) -> bool:
         """Verifie si le sort a depasse sa duree de vie"""

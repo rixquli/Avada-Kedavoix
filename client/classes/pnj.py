@@ -7,6 +7,7 @@ from typing import List, Tuple
 import pygame
 from server.classes.serializable import Serializable
 from random import randint
+from client.classes.hitbox import HitBox
 
 
 class PNJ(Serializable):
@@ -49,6 +50,9 @@ class PNJ(Serializable):
         self.dir_x = 0
         self.dir_y = 0
 
+        self.hitbox_size = (10, 10)
+        self.hitbox = HitBox(x, y, self.hitbox_size[0], self.hitbox_size[1])
+
     def server_update(self):
         # TODO: Ajouter l'ia ici pour le comportement des créatures
         # Utiliser set_target_postion pour modifier la position de la créature
@@ -63,6 +67,8 @@ class PNJ(Serializable):
                 self.dir_x = (self.x_target - self.display_x)/self.dist
                 self.dir_y = (self.y_target - self.display_y)/self.dist
         self.set_target_position(self.display_x + self.dir_x*10,self.display_y + self.dir_y*10)
+
+        self.hitbox.update(self.x, self.y)
 
         # Interpolation vers la position cible
         # Permet d'eviter les mouvements sacadé

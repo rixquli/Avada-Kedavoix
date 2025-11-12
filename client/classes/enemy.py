@@ -6,6 +6,7 @@ from typing import List, Tuple
 
 import pygame
 from server.classes.serializable import Serializable
+from client.classes.hitbox import HitBox
 
 
 class Enemy(Serializable):
@@ -42,6 +43,8 @@ class Enemy(Serializable):
         self.min_threshold = 0.1
 
         self.hitbox_size = (25, 25)
+        self.hitbox = HitBox(x, y, self.hitbox_size[0], self.hitbox_size[1])
+
         #pour interagir avec le reste
         from client.gameManager import GameManager
         self.game_manager = GameManager()
@@ -75,6 +78,8 @@ class Enemy(Serializable):
         # Utiliser set_target_postion pour modifier la position de la créature
         dir = tuple(self.dir_target())
         self.set_target_position(self.display_x+dir[0]*10, self.display_y+dir[1]*10)
+
+        self.hitbox.update(self.display_x, self.display_y)
 
         # Interpolation vers la position cible
         # Permet d'eviter les mouvements sacadé

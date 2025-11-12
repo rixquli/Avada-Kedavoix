@@ -4,6 +4,7 @@ Classe pour la gestion des murs
 
 from typing import List, Tuple
 import pygame
+from client.classes.hitbox import HitBox
 
 
 class Wall(pygame.sprite.Sprite):
@@ -15,6 +16,7 @@ class Wall(pygame.sprite.Sprite):
         self.image.fill((100, 100, 100))
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
+
 
     def server_update(self):
         pass
