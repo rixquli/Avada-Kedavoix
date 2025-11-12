@@ -19,6 +19,7 @@ class Enemy(Serializable):
         vx: float = 0,
         vy: float = 0,
         id: int = None,
+        hp: int = 1,
     ):
         self.id = id
         self.color = tuple(color)
@@ -45,9 +46,18 @@ class Enemy(Serializable):
         self.hitbox_size = (25, 25)
         self.hitbox = HitBox(x, y, self.hitbox_size[0], self.hitbox_size[1])
 
+        # Pour gerer le systeme vie/degat
+        self.hp = hp
+
         #pour interagir avec le reste
         from client.gameManager import GameManager
         self.game_manager = GameManager()
+
+    def take_dmg(self,dmg: int) -> None:
+        self.hp -= dmg
+
+    def is_dead(self) -> bool:
+        return self.hp <= 0
 
     def get_players_pos(self):
         #renvois les posistion de tous les joueurs

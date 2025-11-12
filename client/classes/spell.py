@@ -21,6 +21,7 @@ class Spell(Serializable):
         radius: int = 10,
         id: int = None,
         lifetime: float = 5.0,
+        dmg: int = 1
     ):
         self.id = id
         self.x = float(x)
@@ -45,6 +46,9 @@ class Spell(Serializable):
         self.hitbox_size = (10, 10)
         self.hitbox = HitBox(x, y, self.hitbox_size[0], self.hitbox_size[1])
 
+
+        # Pour gerer le systeme vie/degat
+        self.dmg = int(dmg)
 
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""

@@ -14,8 +14,8 @@ if TYPE_CHECKING:
 
 def spell_enemy(collision_manager: "CollisionManager", spell: Spell, enemy: Enemy):
     # TODO: enemy.take_damage(spell.attack_damage)
-    collision_manager.game_state.enemies.remove(enemy.id)
     collision_manager.game_state.spells.remove(spell.id)
+    enemy.take_dmg(spell.dmg)
 
 
 CollisionsList = [{"entity1": Spell, "entity2": Enemy, "handler": spell_enemy}]

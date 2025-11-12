@@ -127,6 +127,7 @@ def spawn_element_at_start():
     enemy2 = game_state.enemies.addEntity(Enemy(350, 350, (0, 255, 255)))
 
     pnj1 = game_state.pnjs.addEntity(PNJ(-150, -150, (255, 0, 255)))
+    pnj2 = game_state.pnjs.addEntity(PNJ(-100, -100, (255, 0, 255)))
 
     walls = [
         Wall(-500, -500, 1000, 50),

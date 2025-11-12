@@ -114,7 +114,7 @@ class ClientManager:
         self.start_local_server(adress, port)
 
         # Attendre que le serveur soit vraiment prêt
-        timeout = time.time() + 10
+        timeout = time.time() + 1
         while time.time() < timeout:
             try:
                 # Essaye de se connecter en boucle tant qu'il ne peut pas
