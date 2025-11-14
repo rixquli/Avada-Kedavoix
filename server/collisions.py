@@ -6,6 +6,7 @@ CollisionsList contient la liste des evenements quand entity1 touche entity2 cel
 from typing import TYPE_CHECKING, Dict, List
 from client.classes.enemy import Enemy
 from client.classes.spell import Spell
+from client.classes.wall import Wall
 
 
 if TYPE_CHECKING:
@@ -17,5 +18,8 @@ def spell_enemy(collision_manager: "CollisionManager", spell: Spell, enemy: Enem
     collision_manager.game_state.spells.remove(spell.id)
     enemy.take_dmg(spell.dmg)
 
+def spell_wall(collision_manager: "CollisionManager", spell: Spell,wall: Wall):
+    collision_manager.game_state.spells.remove(spell.id)
 
-CollisionsList = [{"entity1": Spell, "entity2": Enemy, "handler": spell_enemy}]
+
+CollisionsList = [{"entity1": Spell, "entity2": Enemy, "handler": spell_enemy}, {"entity1": Spell, "entity2": Wall, "handler": spell_wall}]
