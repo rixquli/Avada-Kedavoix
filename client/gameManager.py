@@ -137,6 +137,7 @@ class GameManager:
                 color=(50, 150, 255),
                 dir=(dir_x, dir_y),
                 radius=8,
+                thrower=my_player.THROWER_TYPE
             )
 
             self.client_manager.cast_spell(spell)

@@ -21,7 +21,9 @@ class Spell(Serializable):
         radius: int = 10,
         id: int = None,
         lifetime: float = 5.0,
-        dmg: int = 1
+        dmg: int = 1,
+        thrower: str = "Enemy",
+        speed: float = 1.0,
     ):
         self.id = id
         self.x = float(x)
@@ -32,6 +34,7 @@ class Spell(Serializable):
         self.radius = int(radius)
         self.lifetime = float(lifetime)
         self.creation_time = time.time()
+        self.speed = float(speed)
 
         # Position affiché
         self.display_x = float(x)
@@ -43,12 +46,15 @@ class Spell(Serializable):
         self.interpolation_speed = 0.1
         self.min_threshold = 0.01
 
-        self.hitbox_size = (10, 10)
+        self.hitbox_size = (radius, radius)
         self.hitbox = HitBox(x, y, self.hitbox_size[0], self.hitbox_size[1])
 
 
         # Pour gerer le systeme vie/degat
         self.dmg = int(dmg)
+
+        #pour savoir a qui ne pas infliger de degat
+        self.thrower = thrower
 
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
@@ -73,8 +79,8 @@ class Spell(Serializable):
         self.target_y = float(y)
 
     def server_update(self):
-        self.x += self.dir[0]
-        self.y += self.dir[1]
+        self.x += self.dir[0] * self.speed
+        self.y += self.dir[1] * self.speed
 
         self.hitbox.update(self.x, self.y)
 

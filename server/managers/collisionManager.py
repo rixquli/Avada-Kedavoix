@@ -50,26 +50,6 @@ class CollisionManager:
         AABB vs. AABB collision
         https://developer.mozilla.org/en-US/docs/Games/Techniques/3D_collision_detection#aabb_vs._aabb
         """
-        """
-        x1, y1 = entity1.x, entity1.y
-        w1, h1 = entity1.hitbox_size
-        x2, y2 = entity2.x, entity2.y
-        w2, h2 = entity2.hitbox_size  # (x_size, y_size)
-
-        x_min_1 = x1 - (w1 / 2)
-        x_max_1 = x1 + (w1 / 2)
-        y_min_1 = y1 - (h1 / 2)
-        y_max_1 = y1 + (h1 / 2)
-
-        x_min_2 = x2 - (w2 / 2)
-        x_max_2 = x2 + (w2 / 2)
-        y_min_2 = y2 - (h2 / 2)
-        y_max_2 = y2 + (h2 / 2)
-
-        return (x_min_1 <= x_max_2 and x_max_1 >= x_min_2) and (
-            y_min_1 <= y_max_2 and y_max_1 >= y_min_2
-        )
-        """
         return entity1.hitbox.collide(entity2)
 
     def get_handler_collision_between(self, entity_type1, entity_type2):
