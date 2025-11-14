@@ -74,9 +74,24 @@ class PNJ(Serializable):
             else:
                 self.dir_x = (self.x_target - self.display_x)/self.dist
                 self.dir_y = (self.y_target - self.display_y)/self.dist
-        self.x += self.dir_x
-        self.y += self.dir_y
 
+        # Appliquer le mouvement horizontal
+        self.hitbox.update(self.x + self.dir_x, self.y)
+
+        # Vérifier les collisions horizontales
+        collided = self.hitbox.get_collided()
+        if not collided:
+            self.x += self.dir_x
+
+        # Appliquer le mouvement vertical
+        self.hitbox.update(self.x, self.y + self.dir_y)
+
+        # Vérifier les collisions verticales
+        collided = self.hitbox.get_collided()
+        if not collided:
+            self.y += self.dir_y
+
+        # Mettre à jour la hitbox à la position finale
         self.hitbox.update(self.x, self.y)
 
     def interpolate_position(self):

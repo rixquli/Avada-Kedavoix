@@ -111,14 +111,29 @@ class Enemy(Serializable):
         # TODO: Ajouter l'ia ici pour le comportement des créatures
         # Utiliser set_target_postion pour modifier la position de la créature
         dir = tuple(self.dir_target())
-        self.x += dir[0]
-        self.y += dir[1]
+
+        # Appliquer le mouvement horizontal
+        self.hitbox.update(self.x + dir[0], self.y)
+
+        # Vérifier les collisions horizontales
+        collided = self.hitbox.get_collided()
+        if not collided:
+            self.x += dir[0]
+
+        # Appliquer le mouvement vertical
+        self.hitbox.update(self.x, self.y + dir[1])
+
+        # Vérifier les collisions verticales
+        collided = self.hitbox.get_collided()
+        if not collided:
+            self.y += dir[1]
+
+        # Mettre à jour la hitbox à la position finale
+        self.hitbox.update(self.x, self.y)
 
         if time.time() - self.prec_attack_time > self.attack_delay:
             self.do_attack(dir)
             self.prec_attack_time = time.time()
-
-        self.hitbox.update(self.x, self.y)
 
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
