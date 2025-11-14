@@ -59,6 +59,9 @@ class Enemy(Serializable):
         self.attack_delay = float(attack_delay)
         self.prec_attack_time = time.time()
 
+        from server.managers.iaManager import IaManager
+        self.ia = IaManager("enemy_ia",self)
+
         #pour interagir avec le reste
         from client.gameManager import GameManager
         self.game_manager = GameManager()
@@ -67,7 +70,7 @@ class Enemy(Serializable):
         spell = Spell(
                 x=self.x,
                 y=self.y,
-                player_id=self.game_manager.client_manager.my_player_id,
+                player_id=None,
                 color=(50, 150, 255),
                 dir=dir,
                 radius=4,
@@ -83,57 +86,25 @@ class Enemy(Serializable):
     def is_dead(self) -> bool:
         return self.hp <= 0
 
-    def get_players_pos(self):
-        #renvois les posistion de tous les joueurs
-        players = self.game_manager.client_manager.game_state.players.get_all()
-        pos = []
-        for player in players:
-            pos.append((players[player].display_x,players[player].display_y))
-        return pos
-
-    def dir_target(self):
-        # renvois la direction du joueurs le plus proche
-        dist_min = 1000000000000
-        pos0 = self.x
-        pos1 = self.y
-        for pos in self.get_players_pos():
-            dist = (pos[0]-self.x)**2 + (pos[1]-self.y)**2
-            if dist < dist_min:
-                dist_min = dist
-                pos0 = pos[0]
-                pos1 = pos[1]
-        dist_min = dist_min**0.5
-        pos0 = (pos0 - self.x)/dist_min
-        pos1 = (pos1 - self.y)/dist_min
-        return pos0, pos1
-
     def server_update(self):
         # TODO: Ajouter l'ia ici pour le comportement des créatures
-        # Utiliser set_target_postion pour modifier la position de la créature
-        dir = tuple(self.dir_target())
+        self.ia.update()
 
         # Appliquer le mouvement horizontal
-        self.hitbox.update(self.x + dir[0], self.y)
+        self.hitbox.update(self.x + self.vx, self.y)
 
         # Vérifier les collisions horizontales
         collided = self.hitbox.get_collided()
         if not collided:
-            self.x += dir[0]
+            self.x += self.vx
 
         # Appliquer le mouvement vertical
-        self.hitbox.update(self.x, self.y + dir[1])
+        self.hitbox.update(self.x, self.y + self.vy)
 
         # Vérifier les collisions verticales
         collided = self.hitbox.get_collided()
         if not collided:
-            self.y += dir[1]
-
-        # Mettre à jour la hitbox à la position finale
-        self.hitbox.update(self.x, self.y)
-
-        if time.time() - self.prec_attack_time > self.attack_delay:
-            self.do_attack(dir)
-            self.prec_attack_time = time.time()
+            self.y += self.vy
 
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
