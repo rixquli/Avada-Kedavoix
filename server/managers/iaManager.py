@@ -5,7 +5,7 @@ from client.gameManager import GameManager
 from client.classes.pnj import PNJ
 from client.classes.enemy import Enemy
 
-class IaManager():
+class IaManager:
     def __init__(
             self,
             ia_type: str,
@@ -21,7 +21,7 @@ class IaManager():
             if ia.__name__ == self.ia_type:
                 ia(None, self.entity)
 
-class BasicIaUtility():
+class BasicIaUtility:
     def __init__(self):
         pass
 
@@ -50,7 +50,7 @@ class BasicIaUtility():
         return pos0, pos1
 
 
-class ListIa():
+class ListIa:
     def __init__(self):
         pass
 
