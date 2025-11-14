@@ -11,11 +11,11 @@ from _thread import *
 import os
 import sys
 
-from client.classes.wall import Wall
 
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from client.classes.wall import Wall
 from client.classes.pnj import PNJ
 from client.classes.enemy import Enemy
 from client.classes.player import Player
