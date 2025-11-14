@@ -5,7 +5,11 @@ Classe pour la gestion des ennemis
 from typing import List, Tuple
 
 import pygame
+import time
+
+from client.classes.spell import Spell
 from server.classes.serializable import Serializable
+from client.classes.hitbox import HitBox
 
 
 class Enemy(Serializable):
@@ -19,6 +23,7 @@ class Enemy(Serializable):
         vy: float = 0,
         id: int = None,
         hp: int = 1,
+        attack_delay: float = 5.0
     ):
         self.id = id
         self.color = tuple(color)
@@ -43,13 +48,34 @@ class Enemy(Serializable):
         self.min_threshold = 0.1
 
         self.hitbox_size = (25, 25)
+        self.hitbox = HitBox(x, y, self.hitbox_size[0], self.hitbox_size[1])
 
         # Pour gerer le systeme vie/degat
         self.hp = hp
 
+        # pour donner aux sorts et identifier le thrower
+        self.THROWER_TYPE = "ennemy"
+
+        self.attack_delay = float(attack_delay)
+        self.prec_attack_time = time.time()
+
         #pour interagir avec le reste
         from client.gameManager import GameManager
         self.game_manager = GameManager()
+
+    def do_attack(self, dir: Tuple[int, int]) -> None:
+        spell = Spell(
+                x=self.x,
+                y=self.y,
+                player_id=self.game_manager.client_manager.my_player_id,
+                color=(50, 150, 255),
+                dir=dir,
+                radius=4,
+                thrower=self.THROWER_TYPE,
+                speed=2
+            )
+
+        self.game_manager.client_manager.cast_spell(spell)
 
     def take_dmg(self,dmg: int) -> None:
         self.hp -= dmg
@@ -87,6 +113,12 @@ class Enemy(Serializable):
         dir = tuple(self.dir_target())
         self.x += dir[0]
         self.y += dir[1]
+
+        if time.time() - self.prec_attack_time > self.attack_delay:
+            self.do_attack(dir)
+            self.prec_attack_time = time.time()
+
+        self.hitbox.update(self.x, self.y)
 
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""

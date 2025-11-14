@@ -20,7 +20,7 @@ class Player(Serializable):
         vx: float = 0,
         vy: float = 0,
         id: int = None,
-        hp: int = 1,
+        hp: int = 100,
     ):
         self.id = id
         self.color = tuple(color)
@@ -47,15 +47,19 @@ class Player(Serializable):
         # Pour gerer les collisions
         #! Attention hibox_size sera envoyé au serveur mais pas hitbox (qui correspond a l'objet pygame de l'hitbox)
         self.hitbox_size = (25, 25)
+        self.hitbox = HitBox(x, y, self.hitbox_size[0], self.hitbox_size[1])
 
         # Pour gerer le systeme vie/degat
         self.hp = hp
 
-
-        self.hitbox = HitBox(x, y, self.hitbox_size[0], self.hitbox_size[1])
+        # pour donner aux sorts et identifier le thrower
+        self.THROWER_TYPE = "player"
 
     def is_dead(self) -> bool:
         return self.hp <= 0
+
+    def take_dmg(self,dmg: int) -> None:
+        self.hp -= dmg
 
     def update(self, keys=None):
         self.handle_input(keys)
