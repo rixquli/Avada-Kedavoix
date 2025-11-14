@@ -62,7 +62,7 @@ class ListIa():
             enemy.prec_attack_time = time.time()
 
     def pnj_ia(self, pnj: PNJ) -> None:
-        if abs(pnj.x_target - pnj.display_x) < 1 and abs(pnj.y_target - pnj.display_y) < 1:
+        if abs(pnj.x_target - pnj.x) < 1 and abs(pnj.y_target - pnj.y) < 1:
             pnj.x_target = randint(int(pnj.y - 100), int(pnj.x + 100))
             pnj.y_target = randint(int(pnj.y - 100), int(pnj.y + 100))
             pnj.dist = ((pnj.x_target - pnj.x) ** 2 + (pnj.y_target - pnj.y) ** 2) ** 0.5
