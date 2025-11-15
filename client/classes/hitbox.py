@@ -40,11 +40,14 @@ class HitBox(pygame.sprite.Sprite):
 
     def get_collided(self):
         """
+        Renvoie si l'élément entre en collision avec un autre
+        utilisation de la méthode de la librairie pygame pour eviter d'itérer chaque élément
+        De plus permet de savoir si il entre en collision avec n'importe quel élément dans
+        la liste de "obstacle" permettant d'éviter d'itérer chaque murs, arbres,...
+        """
         return pygame.sprite.spritecollide(
             self,
-            self.game_manager.client_manager.game_state.collision_manager.client_collider_groups.get(
-                "obstacle"
-            ),
+            self.game_manager.collision_manager.client_collider_groups.get("obstacle"),
             False,
         )
         """
@@ -52,6 +55,7 @@ class HitBox(pygame.sprite.Sprite):
             if self.collide(wall):
                 return True
         return False
+        """
 
     def collide(self, entity):
         if hasattr(entity, "rect"):
