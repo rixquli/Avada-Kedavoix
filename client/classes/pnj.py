@@ -45,8 +45,8 @@ class PNJ(Serializable):
         self.min_threshold = 0.1
 
         # Pour IA
-        from server.managers.iaManager import IaManager
-        self.ia = IaManager("pnj_ia",self)
+        from server.managers.iaManager import Ia
+        self.ia = Ia("pnj_ia",self)
         self.x_target = float(x)
         self.y_target = float(y)
         self.dist = 0

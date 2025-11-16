@@ -59,8 +59,8 @@ class Enemy(Serializable):
         self.attack_delay = float(attack_delay)
         self.prec_attack_time = time.time()
 
-        from server.managers.iaManager import IaManager
-        self.ia = IaManager("enemy_ia",self)
+        from server.managers.iaManager import Ia
+        self.ia = Ia("enemy_ia",self)
 
         #pour interagir avec le reste
         from client.gameManager import GameManager

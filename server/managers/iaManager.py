@@ -1,11 +1,14 @@
+#to manage an ia
+
 import time
 from random import randint
 
 from client.gameManager import GameManager
 from client.classes.pnj import PNJ
 from client.classes.enemy import Enemy
+from server.ia.pathFinding import Path
 
-class IaManager:
+class Ia:
     def __init__(
             self,
             ia_type: str,
@@ -25,7 +28,8 @@ class BasicIaUtility:
     def __init__(self):
         pass
 
-    def get_players_pos(self) -> list[tuple[float, float]]:
+    @staticmethod
+    def get_players_pos() -> list[tuple[float, float]]:
         """renvois les posistion de tous les joueurs"""
         players = GameManager().client_manager.game_state.players.get_all()
         pos = []
@@ -33,14 +37,28 @@ class BasicIaUtility:
             pos.append((players[player].display_x, players[player].display_y))
         return pos
 
-    def dir_target (self, x: float = 0.0, y: float = 0.0) -> tuple[float, float]:
+    @staticmethod
+    def get_pos_closest_player(x: float = 0.0, y: float = 0.0, dist_min: int = -1) -> tuple[float, float]:
+        players_pos = BasicIaUtility.get_players_pos()
+        if len(players_pos) != 0:
+            player_pos = players_pos[0]
+            for pos in players_pos:
+                dist = (pos[0] - x) ** 2 + (pos[1] - y) ** 2
+                if dist < dist_min or dist_min == -1:
+                    dist_min = dist
+                    player_pos = pos
+            return player_pos
+        return x,y
+
+
+    @staticmethod
+    def dir_target (x: float = 0.0, y: float = 0.0, dist_min: int = -1) -> tuple[float, float]:
         """renvois la direction du joueurs le plus proche"""
-        dist_min = 1000000000000
         pos0 = x
         pos1 = y
-        for pos in self.get_players_pos():
+        for pos in BasicIaUtility.get_players_pos():
             dist = (pos[0]-x)**2 + (pos[1]-y)**2
-            if dist < dist_min:
+            if dist < dist_min or dist_min == -1:
                 dist_min = dist
                 pos0 = pos[0]
                 pos1 = pos[1]
@@ -54,13 +72,17 @@ class ListIa:
     def __init__(self):
         pass
 
-    def enemy_ia(self, enemy: Enemy) -> None:
-        enemy.vx,enemy.vy = BasicIaUtility().dir_target(enemy.x, enemy.y)
+    #@staticmethod
+    def enemy_ia(self,enemy: Enemy) -> None:
+        path = Path((enemy.x, enemy.y), BasicIaUtility.get_pos_closest_player(enemy.x, enemy.y), enemy.hitbox)
+        enemy.vx,enemy.vy = path.follow_path()
+        print(enemy.vx,enemy.vy)
 
         if time.time() - enemy.prec_attack_time > enemy.attack_delay:
             enemy.do_attack((enemy.vx, enemy.vy))
             enemy.prec_attack_time = time.time()
 
+    #@staticmethod
     def pnj_ia(self, pnj: PNJ) -> None:
         if abs(pnj.x_target - pnj.x) < 1 and abs(pnj.y_target - pnj.y) < 1:
             pnj.x_target = randint(int(pnj.y - 100), int(pnj.x + 100))
