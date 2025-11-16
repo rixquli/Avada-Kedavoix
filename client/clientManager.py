@@ -156,7 +156,7 @@ class ClientManager:
         self.state = State.SOLO
         self.start_local_server(max_player=1, is_solo=True)
         # Attendre que le serveur soit vraiment prêt
-        timeout = time.time() + 1
+        timeout = time.time() + 0.1
         while time.time() < timeout:
             try:
                 # Essaye de se connecter en boucle tant qu'il ne peut pas

@@ -25,7 +25,7 @@ class HitBox(pygame.sprite.Sprite):
 
         self.game_manager = GameManager()
 
-    def update(self, x, y):
+    def update(self, x: int, y: int):
         self.rect.center = (x, y)
 
     def draw(self, surface, offset=(0, 0)):

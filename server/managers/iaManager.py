@@ -62,6 +62,8 @@ class BasicIaUtility:
                 dist_min = dist
                 pos0 = pos[0]
                 pos1 = pos[1]
+        if dist_min == -1:
+            return 0,0
         dist_min = dist_min**0.5
         pos0 = (pos0 - x)/dist_min
         pos1 = (pos1 - y)/dist_min
@@ -74,9 +76,10 @@ class ListIa:
 
     #@staticmethod
     def enemy_ia(self,enemy: Enemy) -> None:
-        path = Path((enemy.x, enemy.y), BasicIaUtility.get_pos_closest_player(enemy.x, enemy.y), enemy.hitbox)
-        enemy.vx,enemy.vy = path.follow_path()
-        print(enemy.vx,enemy.vy)
+        #path = Path((enemy.x, enemy.y), BasicIaUtility.get_pos_closest_player(enemy.x, enemy.y), enemy.hitbox)
+        #enemy.vx,enemy.vy = path.follow_path()
+        #print(enemy.vx,enemy.vy)
+        enemy.vx, enemy.vy = BasicIaUtility.dir_target(enemy.x, enemy.y)
 
         if time.time() - enemy.prec_attack_time > enemy.attack_delay:
             enemy.do_attack((enemy.vx, enemy.vy))
