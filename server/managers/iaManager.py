@@ -92,9 +92,7 @@ class ListIa:
                 enemy.path.update_pos(enemy.x, enemy.y)
                 enemy.path.update_dest(cible_pos[0], cible_pos[1])
                 enemy.path.find_path(enemy.vitesse, 5)
-            print(enemy.path.path)
             enemy.vx,enemy.vy = enemy.path.follow_path()
-        print(enemy.vx,enemy.vy)
 
         if time.time() - enemy.prec_attack_time > enemy.attack_delay:
             enemy.do_attack((enemy.vx, enemy.vy))

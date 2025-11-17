@@ -92,8 +92,6 @@ class Enemy(Serializable):
     def server_update(self):
         # TODO: Ajouter l'ia ici pour le comportement des créatures
         self.ia.update()
-        self.x += self.vx
-        self.y += self.vy
         # Appliquer le mouvement horizontal
         self.hitbox.update(self.x + self.vx, self.y)
 
