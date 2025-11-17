@@ -88,10 +88,13 @@ class ListIa:
         else:
             if enemy.path is None:
                 enemy.path = Path((int(enemy.x), int(enemy.y)), cible_pos, enemy.hitbox)
-                enemy.path.find_path(10)
+            elif len(enemy.path.path) == 0:
+                enemy.path.update_pos(enemy.x, enemy.y)
+                enemy.path.update_dest(cible_pos[0], cible_pos[1])
+                enemy.path.find_path(enemy.vitesse, 5)
             print(enemy.path.path)
-            enemy.vx,enemy.vy = enemy.path.follow_path(10)
-        #print(enemy.vx,enemy.vy)
+            enemy.vx,enemy.vy = enemy.path.follow_path()
+        print(enemy.vx,enemy.vy)
 
         if time.time() - enemy.prec_attack_time > enemy.attack_delay:
             enemy.do_attack((enemy.vx, enemy.vy))

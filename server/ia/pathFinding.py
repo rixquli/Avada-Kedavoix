@@ -1,6 +1,7 @@
 from client.gameManager import GameManager
 from client.classes.hitbox import HitBox
 from _thread import start_new_thread
+import pygame
 
 
 class Pix:
@@ -45,10 +46,14 @@ class Path:
     def __init__(self, pos: tuple[float, float], dest: tuple[float, float], hitbox: HitBox):
         self.pos = tuple((int(pos[0]),int(pos[1])))
         self.dest = tuple((int(dest[0]),int(dest[1])))
-        self.game_state = GameManager().client_manager.game_state
         self.hitbox = HitBox(hitbox.x, hitbox.y, hitbox.w, hitbox.h)
         self.path = list()
 
+    def update_pos(self, x: int, y: int):
+        self.pos = tuple((int(x),int(y)))
+
+    def update_dest(self, x: int, y: int):
+        self.dest = tuple((int(x),int(y)))
 
     def dist_euclide(self, x: int, y: int, x_target: int = None, y_target: int = None) -> float:
         if x_target is None:
@@ -60,7 +65,7 @@ class Path:
     def dist(self, pix: Pix) -> float:
         return pix.dist + self.dist_euclide(pix.x, pix.y)
 
-    def search(self, precision: int) -> list[tuple[int, int]]|None:
+    def search(self, precision: int, nb_frame: int) -> list[tuple[int, int]]|None:
         visited = list()
         to_visit = list()
         to_visit.append(Pix(self.pos))
@@ -86,28 +91,24 @@ class Path:
                 pix = Pix(pos)
                 pix.add_origin(current_pix)
                 path = pix.get_path()
-                if self.dist_euclide(pos[0], pos[1]) <= precision:
-                    #print(len(path))
-                    #print(pos == self.dest)
-                    print(nb)
+                if self.dist_euclide(pos[0], pos[1]) <= precision or nb_frame < len(path):
+                    print("yep")
                     return path
-                elif pix.get_tuple() not in visited and not pix.in_list(to_visit) and not self.hitbox.get_collided():
-                    print(self.hitbox.get_collided())
+                elif pix.get_tuple() not in visited and not pix.in_list(to_visit):# and not self.hitbox.get_collided():
                     to_visit.append(pix)
+                    print(self.hitbox.get_collided())
 
             to_visit.remove(current_pix)
         return []
 
-    def find_path(self, precision: int = 1):
-        self.path = self.search(precision)
+    def find_path(self, precision: int = 1, nb_frame: int = 5):
+        self.path = self.search(precision, nb_frame)
+        print(self.hitbox.get_collided())
 
-    def follow_path(self, precision: int = 1):
-        if len(self.path) <= 1:
+    def follow_path(self):
+        if len(self.path) <= 0:
             return 0,0
-        dx = self.path[1][0] - self.pos[0]
-        dy = self.path[1][1] - self.pos[1]
-        dist = (dx**2 + dy**2)
-        if dist == 0:
-            self.path.remove(self.path[0])
-            return 0, 0
-        return dx/precision, dy/precision
+        dx = self.path[0][0] - self.pos[0]
+        dy = self.path[0][1] - self.pos[1]
+        self.path.remove(self.path[0])
+        return dx, dy

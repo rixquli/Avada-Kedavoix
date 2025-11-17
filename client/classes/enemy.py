@@ -23,11 +23,13 @@ class Enemy(Serializable):
         vy: float = 0,
         id: int = None,
         hp: int = 1,
+        vitesse: int = 1,
         attack_delay: float = 5.0
     ):
         self.id = id
         self.color = tuple(color)
         self.size = int(size)
+        self.vitesse = vitesse
 
         # Vértable position envoyées au serveur
         self.x = float(x)
@@ -92,7 +94,6 @@ class Enemy(Serializable):
         self.ia.update()
         self.x += self.vx
         self.y += self.vy
-        """
         # Appliquer le mouvement horizontal
         self.hitbox.update(self.x + self.vx, self.y)
 
@@ -108,7 +109,6 @@ class Enemy(Serializable):
         collided = self.hitbox.get_collided()
         if not collided:
             self.y += self.vy
-        """
 
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
