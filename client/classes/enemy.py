@@ -23,11 +23,13 @@ class Enemy(Serializable):
         vy: float = 0,
         id: int = None,
         hp: int = 1,
+        vitesse: int = 1,
         attack_delay: float = 5.0
     ):
         self.id = id
         self.color = tuple(color)
         self.size = int(size)
+        self.vitesse = vitesse
 
         # Vértable position envoyées au serveur
         self.x = float(x)
@@ -61,12 +63,13 @@ class Enemy(Serializable):
 
         from server.managers.iaManager import Ia
         self.ia = Ia("enemy_ia",self)
+        self.path = None
 
         #pour interagir avec le reste
         from client.gameManager import GameManager
         self.game_manager = GameManager()
 
-    def do_attack(self, dir: Tuple[int, int]) -> None:
+    def do_attack(self, dir: Tuple[float, float]) -> None:
         spell = Spell(
                 x=self.x,
                 y=self.y,
@@ -89,7 +92,6 @@ class Enemy(Serializable):
     def server_update(self):
         # TODO: Ajouter l'ia ici pour le comportement des créatures
         self.ia.update()
-
         # Appliquer le mouvement horizontal
         self.hitbox.update(self.x + self.vx, self.y)
 

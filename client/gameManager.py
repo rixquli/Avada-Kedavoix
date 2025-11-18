@@ -78,6 +78,7 @@ class GameManager:
             Wall(-500, 500, 1050, 50),
             Wall(-500, -500, 50, 1000),
             Wall(500, -500, 50, 1000),
+            Wall(100,100,100,50)
         ]
         for wall in self.walls:
             self.groups["obstacle"].add(wall)

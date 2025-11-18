@@ -134,6 +134,7 @@ def spawn_element_at_start():
         Wall(-500, 500, 1050, 50),
         Wall(-500, -500, 50, 1000),
         Wall(500, -500, 50, 1000),
+        Wall(100,100,100,50)
     ]
     for wall in walls:
         game_state.walls.addEntity(wall)

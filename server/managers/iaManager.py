@@ -2,6 +2,7 @@
 
 import time
 from random import randint
+import math
 
 from client.gameManager import GameManager
 from client.classes.pnj import PNJ
@@ -50,6 +51,10 @@ class BasicIaUtility:
             return player_pos
         return x,y
 
+    @staticmethod
+    def get_dist(x, y, x1, y1):
+        return math.sqrt((x - x1) ** 2 + (y - y1) ** 2)
+
 
     @staticmethod
     def dir_target (x: float = 0.0, y: float = 0.0, dist_min: int = -1) -> tuple[float, float]:
@@ -62,8 +67,9 @@ class BasicIaUtility:
                 dist_min = dist
                 pos0 = pos[0]
                 pos1 = pos[1]
+
         if dist_min == -1:
-            return 0,0
+            return 0, 0
         dist_min = dist_min**0.5
         pos0 = (pos0 - x)/dist_min
         pos1 = (pos1 - y)/dist_min
@@ -76,13 +82,21 @@ class ListIa:
 
     #@staticmethod
     def enemy_ia(self,enemy: Enemy) -> None:
-        #path = Path((enemy.x, enemy.y), BasicIaUtility.get_pos_closest_player(enemy.x, enemy.y), enemy.hitbox)
-        #enemy.vx,enemy.vy = path.follow_path()
-        #print(enemy.vx,enemy.vy)
-        enemy.vx, enemy.vy = BasicIaUtility.dir_target(enemy.x, enemy.y)
+        cible_pos = BasicIaUtility.get_pos_closest_player(enemy.x, enemy.y)
+        if BasicIaUtility.get_dist(enemy.x, enemy.y, cible_pos[0], cible_pos[1]) < 20 and False:
+            enemy.vx, enemy.vy = BasicIaUtility.dir_target(enemy.x, enemy.y)
+        else:
+            if enemy.path is None:
+                enemy.path = Path((int(enemy.x), int(enemy.y)), cible_pos, enemy.hitbox, enemy.vitesse)
+            elif len(enemy.path.path) == 0:
+                enemy.path.update_dest(cible_pos[0], cible_pos[1])
+                enemy.path.update_pos(enemy.x, enemy.y)
+                enemy.path.find_path(5)
+                #print("change", time.time())
+            enemy.vx,enemy.vy = enemy.path.follow_path()
 
         if time.time() - enemy.prec_attack_time > enemy.attack_delay:
-            enemy.do_attack((enemy.vx, enemy.vy))
+            enemy.do_attack(cible_pos)
             enemy.prec_attack_time = time.time()
 
     #@staticmethod
