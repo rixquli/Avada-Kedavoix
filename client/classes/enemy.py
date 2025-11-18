@@ -69,7 +69,7 @@ class Enemy(Serializable):
         from client.gameManager import GameManager
         self.game_manager = GameManager()
 
-    def do_attack(self, dir: Tuple[int, int]) -> None:
+    def do_attack(self, dir: Tuple[float, float]) -> None:
         spell = Spell(
                 x=self.x,
                 y=self.y,
