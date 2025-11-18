@@ -96,7 +96,7 @@ class ListIa:
             enemy.vx,enemy.vy = enemy.path.follow_path()
 
         if time.time() - enemy.prec_attack_time > enemy.attack_delay:
-            enemy.do_attack(cible_pos)
+            enemy.do_attack(BasicIaUtility.dir_target(enemy.x, enemy.y))
             enemy.prec_attack_time = time.time()
 
     #@staticmethod
