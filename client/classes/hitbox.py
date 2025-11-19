@@ -39,7 +39,6 @@ class HitBox(pygame.sprite.Sprite):
             )
 
     def get_collided(self):
-        """
         return pygame.sprite.spritecollide(
             self,
             self.game_manager.client_manager.game_state.collision_manager.client_collider_groups.get(
@@ -47,11 +46,10 @@ class HitBox(pygame.sprite.Sprite):
             ),
             False,
         )
-        """
-        for wall in self.game_manager.walls:
-            if self.collide(wall):
-                return True
-        return False
+        # for wall in self.game_manager.walls:
+        #     if self.collide(wall):
+        #         return True
+        # return False
 
     def collide(self, entity):
         if hasattr(entity, "rect"):

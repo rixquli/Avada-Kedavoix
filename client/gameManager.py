@@ -70,18 +70,18 @@ class GameManager:
         self.running = True
 
         # Group pour gerer les collisions
-        self.groups = {"obstacle": pygame.sprite.Group()}
+        # self.groups = {"obstacle": pygame.sprite.Group()}
 
         # TODO: a enlever juste pour tester
-        self.walls = [
-            Wall(-500, -500, 1000, 50),
-            Wall(-500, 500, 1050, 50),
-            Wall(-500, -500, 50, 1000),
-            Wall(500, -500, 50, 1000),
-            Wall(100,100,100,50)
-        ]
-        for wall in self.walls:
-            self.groups["obstacle"].add(wall)
+        # self.walls = [
+        #     Wall(-500, -500, 1000, 50),
+        #     Wall(-500, 500, 1050, 50),
+        #     Wall(-500, -500, 50, 1000),
+        #     Wall(500, -500, 50, 1000),
+        #     Wall(100,100,100,50)
+        # ]
+        # for wall in self.walls:
+        #     self.groups["obstacle"].add(wall)
 
     def render(self):
         """Fait un rendu du jeu a executer a chaque tick"""
@@ -138,7 +138,7 @@ class GameManager:
                 color=(50, 150, 255),
                 dir=(dir_x, dir_y),
                 radius=8,
-                thrower=my_player.THROWER_TYPE
+                thrower=my_player.THROWER_TYPE,
             )
 
             self.client_manager.cast_spell(spell)
