@@ -128,6 +128,7 @@ class Player(Serializable):
             self.vx = speed
 
     def draw(self, surface, offset: Tuple[float, float]):
+        self.interpolate_position()
         pygame.draw.circle(
             surface,
             self.color,
