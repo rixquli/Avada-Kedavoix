@@ -175,7 +175,7 @@ class GameManager:
         """
         current_player = self.client_manager.get_player()
         if (
-            not current_player
+            not current_player or not self.screen
         ):  # si le joueur n'existe pas alors la partie n'est pas lancé
             return
 

@@ -4,7 +4,12 @@ gestion de l'objet afficher a l'ecran
 et de la gestion des déplacement pour le joueur local
 """
 
+import os
+import sys
 from typing import List, Tuple
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from client.classes.animator import Animator
 import pygame
 from client.classes.hitbox import HitBox
 from server.classes.serializable import Serializable
@@ -55,10 +60,21 @@ class Player(Serializable):
         # pour donner aux sorts et identifier le thrower
         self.THROWER_TYPE = "player"
 
+        # Pour les animations
+        self.animator = Animator(
+            size=(self.radius * 5, self.radius * 5), animation_speed=10 / 60
+        )
+        self.animator.state_manager.add_state(
+            "idle", "../ressources/wizzard-test/PNG/wizard/idle"
+        )
+        self.animator.state_manager.add_state(
+            "run", "../ressources/wizzard-test/PNG/wizard/run"
+        )
+
     def is_dead(self) -> bool:
         return self.hp <= 0
 
-    def take_dmg(self,dmg: int) -> None:
+    def take_dmg(self, dmg: int) -> None:
         self.hp -= dmg
 
     def update(self, keys=None):
@@ -127,14 +143,22 @@ class Player(Serializable):
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             self.vx = speed
 
+        if self.vx != 0 or self.vy != 0:
+            self.animator.set_state("run")
+        else:
+            self.animator.set_state("idle")
+
     def draw(self, surface, offset: Tuple[float, float]):
         self.interpolate_position()
-        pygame.draw.circle(
-            surface,
-            self.color,
-            (self.display_x + offset[0], self.display_y + offset[1]),
-            self.radius,
-        )
+        # pygame.draw.circle(
+        #     surface,
+        #     self.color,
+        #     (self.display_x + offset[0], self.display_y + offset[1]),
+        #     self.radius,
+        # )
+        pos = (self.display_x + offset[0], self.display_y + offset[1])
+
+        self.animator.blit_sprite(surface, pos)
 
         self.hitbox.draw(surface, offset)
 
