@@ -156,8 +156,13 @@ class Player(Serializable):
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             self.vx = speed
 
+        if self.vx > 0:
+            self.animator.flip_y("right")
+        elif self.vx < 0:
+            self.animator.flip_y("left")
+
         if self.vx != 0 or self.vy != 0:
-            self.animator.set_state("walk")
+            self.animator.set_state("run")
         else:
             self.animator.set_state("idle")
 

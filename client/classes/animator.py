@@ -119,8 +119,21 @@ class Animator:
             size=self.size, animation_speed=self.animation_speed
         )
 
+        self.orientation = 1
+
     def set_state(self, state_name):
         self.state_manager.set_state(state_name)
+
+    def flip_y(self, side):
+        """
+        Retourne l'image dans l'axe y selon le coté
+        Arg:
+            side: 'left' or 'right'
+        """
+        if side == "left":
+            self.orientation = -1
+        else:
+            self.orientation = 1
 
     def blit_sprite(self, surface, position):
         sprite = self.state_manager.get_current_sprite()
@@ -132,6 +145,9 @@ class Animator:
         )
         rect = sprite.get_rect(center=position_with_sprite_offset)
 
-        surface.blit(sprite, rect)
+        if self.orientation == 1:
+            surface.blit(sprite, rect)
+        else:
+            surface.blit(pygame.transform.flip(sprite, True, False), rect)
 
     # def _setup_state_sprites(self, state_name, folder_path):

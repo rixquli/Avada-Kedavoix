@@ -87,7 +87,7 @@ def handle_conn():
 
         # Creer le joueur lors de sa connection
         num_players = len(game_state.players.entities)
-        colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]
+        colors = [(0, 255, 0), (255, 0, 0), (0, 0, 255)]
         player_id = game_state.players.addEntity(
             Player(
                 x=num_players * 100,
