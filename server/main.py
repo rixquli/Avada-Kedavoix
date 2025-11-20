@@ -12,7 +12,6 @@ import os
 import sys
 
 
-
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from client.classes.wall import Wall
@@ -88,7 +87,7 @@ def handle_conn():
 
         # Creer le joueur lors de sa connection
         num_players = len(game_state.players.entities)
-        colors = [(0, 255, 0), (255, 0, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255)]
+        colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]
         player_id = game_state.players.addEntity(
             Player(
                 x=num_players * 100,
@@ -134,7 +133,7 @@ def spawn_element_at_start():
         Wall(-500, 500, 1050, 50),
         Wall(-500, -500, 50, 1000),
         Wall(500, -500, 50, 1000),
-        Wall(100,100,100,50)
+        Wall(100, 100, 100, 50),
     ]
     for wall in walls:
         game_state.walls.addEntity(wall)

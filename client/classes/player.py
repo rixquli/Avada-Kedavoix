@@ -64,11 +64,24 @@ class Player(Serializable):
         self.animator = Animator(
             size=(self.radius * 5, self.radius * 5), animation_speed=10 / 60
         )
+
+        wizard_type = ""
+        match color:
+            case (255, 0, 0):
+                wizard_type = "wizard_fire"
+            case (0, 0, 255):
+                wizard_type = "wizard_ice"
+            case _:
+                wizard_type = "wizard"
+
         self.animator.state_manager.add_state(
-            "idle", "../ressources/wizzard-test/PNG/wizard/idle"
+            "idle", f"../ressources/wizzard-test/PNG/{wizard_type}/idle"
         )
         self.animator.state_manager.add_state(
-            "run", "../ressources/wizzard-test/PNG/wizard/run"
+            "walk", f"../ressources/wizzard-test/PNG/{wizard_type}/walk"
+        )
+        self.animator.state_manager.add_state(
+            "run", f"../ressources/wizzard-test/PNG/{wizard_type}/run"
         )
 
     def is_dead(self) -> bool:
@@ -144,7 +157,7 @@ class Player(Serializable):
             self.vx = speed
 
         if self.vx != 0 or self.vy != 0:
-            self.animator.set_state("run")
+            self.animator.set_state("walk")
         else:
             self.animator.set_state("idle")
 
