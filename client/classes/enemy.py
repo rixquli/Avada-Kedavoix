@@ -24,7 +24,7 @@ class Enemy(Serializable):
         id: int = None,
         hp: int = 1,
         vitesse: int = 1,
-        attack_delay: float = 5.0
+        attack_delay: float = 5.0,
     ):
         self.id = id
         self.color = tuple(color)
@@ -62,28 +62,37 @@ class Enemy(Serializable):
         self.prec_attack_time = time.time()
 
         from server.managers.iaManager import Ia
-        self.ia = Ia("enemy_ia",self)
+
+        self.ia = Ia("enemy_ia", self)
         self.path = None
 
-        #pour interagir avec le reste
+        # pour interagir avec le reste
         from client.gameManager import GameManager
+
         self.game_manager = GameManager()
 
+    #! Server Side
     def do_attack(self, dir: Tuple[float, float]) -> None:
+        """
+        Methode du serveur car le serveur s'occupe de tout mettre a jour donc il gere l'envoie des projectiles
+        """
         spell = Spell(
-                x=self.x,
-                y=self.y,
-                player_id=None,
-                color=(50, 150, 255),
-                dir=dir,
-                radius=4,
-                thrower=self.THROWER_TYPE,
-                speed=2
-            )
+            x=self.x,
+            y=self.y,
+            player_id=None,
+            color=(50, 150, 255),
+            dir=dir,
+            radius=4,
+            thrower=self.THROWER_TYPE,
+            speed=2,
+        )
 
-        self.game_manager.client_manager.cast_spell(spell)
+        # TODO: Nettoyer ce bout et utiliser une classe singloton ou autre
+        from server.main import network
 
-    def take_dmg(self,dmg: int) -> None:
+        network.game_state.spells.addEntity(spell)
+
+    def take_dmg(self, dmg: int) -> None:
         self.hp -= dmg
 
     def is_dead(self) -> bool:

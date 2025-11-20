@@ -11,15 +11,26 @@ import sys
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from server.gameState import GameState
 from server.message import Message, MessageType
 
 
 class NetworkManager:
-    def __init__(self, address="0.0.0.0", port=12345, is_server=False):
+    def __new__(cls):
+        """
+        Permet de creer un singleton qui permet d'acceder aux valeurs et methodes
+        de cette classe depuis n'importe ou
+        """
+        if not hasattr(cls, "instance"):
+            cls.instance = super(NetworkManager, cls).__new__(cls)
+        return cls.instance
+
+    def setup(self, address="0.0.0.0", port=12345, is_server=False):
         self.server_address = (address, port)
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.player_connections = {}
         self.is_server = is_server
+        self.game_state = GameState()
 
     # Methodes du serveur
     def start_server(self, address=None, port=None, max_player=5, is_solo=False):
@@ -70,6 +81,9 @@ class NetworkManager:
     def send_message(self, message: Message):
         if self.socket:
             try:
+                print(message)
+                print(message.type)
+                print(message.data)
                 self.socket.sendall(message.serialize())
             except Exception as e:
                 print(f"Send error: {e}")

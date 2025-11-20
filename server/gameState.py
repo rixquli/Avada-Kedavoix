@@ -67,22 +67,30 @@ class GameState:
         return res
 
     def update_all(self):
+        """Update all entities here"""
+
+        # Spells
         for spell in list(self.spells.entities.values()):
             if spell.is_expired():
                 self.spells.remove(spell.id)
             else:
                 spell.server_update()
+
+        # Enemies
         for enemy in list(self.enemies.entities.values()):
             if enemy.is_dead():
                 self.enemies.remove(enemy.id)
             else:
                 enemy.server_update()
+
+        # PNJ
         for pnj in list(self.pnjs.entities.values()):
             if pnj.is_dead():
                 self.pnjs.remove(pnj.id)
             else:
                 pnj.server_update()
 
+        # Collision handler (events)
         self.collision_manager.handle_collision(entity_list=self.get_entities_list())
 
     # Executer coté client
@@ -128,15 +136,15 @@ class GameState:
                     if filtered_data:
                         entities.update(str(id), filtered_data)
                 else:
-                    #on met tout a jour sauf les display (evites des problemes de syncronisation de position d'image)
+                    # on met tout a jour sauf les display (evites des problemes de syncronisation de position d'image)
                     filtered_data = {
                         k: v
                         for k, v in data.items()
                         if k
-                           not in [
-                               "display_x",
-                               "display_y",
-                           ]
+                        not in [
+                            "display_x",
+                            "display_y",
+                        ]
                     }
                     entities.update(str(id), filtered_data)
         # Verifie si tout les elements ont bien ete supprimer cote client
