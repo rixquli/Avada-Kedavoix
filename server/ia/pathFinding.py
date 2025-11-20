@@ -1,3 +1,8 @@
+"""
+fichier pour effectuer la recherche de chemin
+"""
+
+
 from client.classes.hitbox import HitBox
 
 
@@ -36,7 +41,7 @@ class Pix:
 
     def get_path(self)  -> list[tuple[int, int]]:
         """renvois le chemin j'usqua la position de depart"""
-        if self.origin == None:
+        if self.origin is None:
             return []
         path = self.origin.get_path()
         path.append((self.x, self.y))
@@ -69,7 +74,8 @@ class Path:
             y_target = self.dest[1]
         return ((x_target-x)**2 + (y_target-y)**2)**0.5
 
-    def dist(self, pix: Pix) -> float:
+    @staticmethod
+    def distance(pix: Pix) -> float:
         return pix.dist + pix.dist_e
 
     def adj(self, pos: tuple[int, int]) -> list[tuple[tuple[int, int], float]]:
@@ -90,6 +96,7 @@ class Path:
         renvois les nb_frame positions du chemin vers la destination
         (si nb_frame = 5 renvois 5 positions)
         a reexecuter lorsque le chemin est vide
+        UTILISES A*
         """
         # TODO solve oscillation entre 2 calculs si bloque derriere mur
         visited = list()
@@ -108,8 +115,8 @@ class Path:
             for pix in to_visit:
                 # prendre le pixel avec la distance la plus courte
                 # (distance pour aller au pixel + distance euclidienne arrive)
-                if self.dist(pix) < self.dist(current_pix) or (
-                        self.dist(pix) == self.dist(current_pix) and
+                if self.distance(pix) < self.distance(current_pix) or (
+                        self.distance(pix) == self.distance(current_pix) and
                         pix.dist_e < current_pix.dist_e):
                     current_pix = pix
 

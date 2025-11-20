@@ -12,7 +12,6 @@ Elle gere:
 
 import os
 import sys
-from typing import Tuple
 
 from client.classes.enemy import Enemy
 from client.classes.player import Player
@@ -151,21 +150,21 @@ class GameManager:
         # Update local player
         self.update_local_player()
 
-    def get_camera_offset(self) -> Tuple[float, float]:
+    def get_camera_offset(self) -> tuple[float, float]:
         """
         Renvoie un x et un y qui correspond au decalage pour placer le joueur au centre de la fenetre
         """
         current_player = self.client_manager.get_player()
         if not current_player:
-            return (0, 0)
+            return 0, 0
 
         x, y = current_player.display_x, current_player.display_y
         # display_x et pas x car x = position reelle et display_x la position lors du draw
         # player.x + offset = screen.width/2 => offset = screen.width/2 - player.x
-        return [
+        return (
             self.screen.get_width() / 2 - x,
             self.screen.get_height() / 2 - y,
-        ]
+        )
 
     def draw_elements(self):
         """
@@ -179,7 +178,7 @@ class GameManager:
         ):  # si le joueur n'existe pas alors la partie n'est pas lancé
             return
 
-        offset = self.get_camera_offset()
+        offset:tuple[float, float] = self.get_camera_offset()
 
         # Dessine les joueurs
         other_players = self.client_manager.game_state.players.get_except_list(

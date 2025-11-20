@@ -6,7 +6,6 @@ et de la gestion des déplacement pour le joueur local
 
 import os
 import sys
-from typing import List, Tuple
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from client.classes.animator import Animator
@@ -20,7 +19,7 @@ class Player(Serializable):
         self,
         x: float,
         y: float,
-        color: Tuple[int, int, int],
+        color: tuple[int, int, int],
         radius: int = 10,
         vx: float = 0,
         vy: float = 0,
@@ -52,7 +51,7 @@ class Player(Serializable):
         # Pour gerer les collisions
         #! Attention hibox_size sera envoyé au serveur mais pas hitbox (qui correspond a l'objet pygame de l'hitbox)
         self.hitbox_size = (25, 25)
-        self.hitbox = HitBox(x, y, self.hitbox_size[0], self.hitbox_size[1])
+        self.hitbox = HitBox(int(x), int(y), self.hitbox_size[0], self.hitbox_size[1])
 
         # Pour gerer le systeme vie/degat
         self.hp = hp
@@ -99,7 +98,7 @@ class Player(Serializable):
         Sinon si aucune collision n'est détectée a la prochaine position alors on applique le mouvement
         """
         # Appliquer le mouvement horizontal
-        self.hitbox.update(self.x + self.vx, self.y)
+        self.hitbox.update(int(self.x + self.vx), int(self.y))
 
         # Vérifier les collisions horizontales
         collided = self.hitbox.get_collided()
@@ -107,7 +106,7 @@ class Player(Serializable):
             self.x += self.vx
 
         # Appliquer le mouvement vertical
-        self.hitbox.update(self.x, self.y + self.vy)
+        self.hitbox.update(int(self.x), int(self.y + self.vy))
 
         # Vérifier les collisions verticales
         collided = self.hitbox.get_collided()
@@ -115,7 +114,7 @@ class Player(Serializable):
             self.y += self.vy
 
         # Mettre à jour la hitbox à la position finale
-        self.hitbox.update(self.x, self.y)
+        self.hitbox.update(int(self.x), int(self.y))
 
         # Defini la target pour calculer l'interpolation
         self.set_target_position(self.x, self.y)
@@ -166,7 +165,7 @@ class Player(Serializable):
         else:
             self.animator.set_state("idle")
 
-    def draw(self, surface, offset: Tuple[float, float]):
+    def draw(self, surface, offset: tuple[float, float]):
         self.interpolate_position()
         # pygame.draw.circle(
         #     surface,
@@ -199,9 +198,9 @@ class Player(Serializable):
     @staticmethod
     def draw_all(
         surface,
-        offset: Tuple[float, float],
+        offset: tuple[float, float],
         current_player: "Player",
-        other_players: List["Player"],
+        other_players: list["Player"],
     ):
         """
         Dessine met a jour tout les joueurs

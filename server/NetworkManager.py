@@ -57,11 +57,20 @@ class NetworkManager:
 
             # Attend de recevoir la validation et l'id du serveur
             msg = self.receive_message()
-            if msg and msg.type == MessageType.CONNECT:
-                my_player_id = msg.data["player_id"]
-                print(f"Je suis le joueur {my_player_id}")
-                self.socket.settimeout(None)
-                return my_player_id
+
+            if not msg:
+                raise RuntimeError("Pas de messages reçus")
+
+            msg_t = msg.as_typed()
+
+            if msg_t["type"] == MessageType.CONNECT:
+                my_player_id = msg_t["data"]["player_id"]
+                if my_player_id:
+                    print(f"Je suis le joueur {my_player_id}")
+                    self.socket.settimeout(None)
+                    return my_player_id
+                else:
+                    raise RuntimeError("player_id reçu est vide")
         except Exception as e:
             # print(f"Connection failed: {e}")
             return my_player_id
@@ -74,7 +83,7 @@ class NetworkManager:
             except Exception as e:
                 print(f"Send error: {e}")
 
-    def extract_header(self, conn, size):
+    def extract_header(self, conn: socket.socket, size):
         data = b""
         while len(data) < size:
             packet = conn.recv(size - len(data))
@@ -83,7 +92,7 @@ class NetworkManager:
             data += packet
         return data
 
-    def receive_message(self, conn=None):
+    def receive_message(self, conn: socket.socket | None = None):
         target = conn if conn else self.socket
         if target:
             try:

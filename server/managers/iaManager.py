@@ -1,4 +1,7 @@
-#to manage an ia
+"""
+to manage ias
+"""
+
 
 import time
 from random import randint
@@ -10,6 +13,10 @@ from client.classes.enemy import Enemy
 from server.ia.pathFinding import Path
 
 class Ia:
+    """
+    classe pour enregistrer les ia dans les entiteesç
+    executer self.ia.update() pour appliquer des mouvementset actualiser l'ia
+    """
     def __init__(
             self,
             ia_type: str,
@@ -23,9 +30,10 @@ class Ia:
                   not method.startswith("_") and callable(getattr(ListIa, method))]
         for ia in dir_ia:
             if ia.__name__ == self.ia_type:
-                ia(None, self.entity)
+                ia(self.entity)
 
 class BasicIaUtility:
+    """banque de methode pour calculs de donnees utiles"""
     def __init__(self):
         pass
 
@@ -52,7 +60,7 @@ class BasicIaUtility:
         return x,y
 
     @staticmethod
-    def get_dist(x, y, x1, y1):
+    def get_dist(x: float, y: float, x1: float, y1: float) -> float:
         return math.sqrt((x - x1) ** 2 + (y - y1) ** 2)
 
 
@@ -73,15 +81,20 @@ class BasicIaUtility:
         dist_min = dist_min**0.5
         pos0 = (pos0 - x)/dist_min
         pos1 = (pos1 - y)/dist_min
+
         return pos0, pos1
 
 
 class ListIa:
+    """
+    stockes les ia associees aux entitees (nom du type: entity_name+"_ia")
+    rajouter dans l'entitee ce meme nom avec self.ia_type"""
     def __init__(self):
         pass
 
-    #@staticmethod
-    def enemy_ia(self,enemy: Enemy) -> None:
+    @staticmethod
+    def enemy_ia(enemy: Enemy) -> None:
+        """ia des ennemis: target = joueur le plus proche, chemin = path finding"""
         cible_pos = BasicIaUtility.get_pos_closest_player(enemy.x, enemy.y)
         if BasicIaUtility.get_dist(enemy.x, enemy.y, cible_pos[0], cible_pos[1]) < 20 and False:
             enemy.vx, enemy.vy = BasicIaUtility.dir_target(enemy.x, enemy.y)
@@ -92,15 +105,15 @@ class ListIa:
                 enemy.path.update_dest(cible_pos[0], cible_pos[1])
                 enemy.path.update_pos(enemy.x, enemy.y)
                 enemy.path.find_path(5)
-                #print("change", time.time())
             enemy.vx,enemy.vy = enemy.path.follow_path()
 
         if time.time() - enemy.prec_attack_time > enemy.attack_delay:
             enemy.do_attack(BasicIaUtility.dir_target(enemy.x, enemy.y))
             enemy.prec_attack_time = time.time()
 
-    #@staticmethod
-    def pnj_ia(self, pnj: PNJ) -> None:
+    @staticmethod
+    def pnj_ia(pnj: PNJ) -> None:
+        """ia des pnj: deplacement aleatoires (wandering)"""
         if abs(pnj.x_target - pnj.x) < 1 and abs(pnj.y_target - pnj.y) < 1:
             pnj.x_target = randint(int(pnj.y - 100), int(pnj.x + 100))
             pnj.y_target = randint(int(pnj.y - 100), int(pnj.y + 100))

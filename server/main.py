@@ -7,7 +7,8 @@ De plus,
 """
 
 import time
-from _thread import *
+from _thread import start_new_thread
+import socket
 import os
 import sys
 
@@ -27,7 +28,7 @@ network = NetworkManager(is_server=True)
 game_state = GameState()
 
 
-def handle_client(conn, player_id):
+def handle_client(conn: socket.socket, player_id: str):
     print("Start Handle Player: ", player_id)
 
     initial_msg = Message(MessageType.CONNECT, {"player_id": player_id})
@@ -40,9 +41,10 @@ def handle_client(conn, player_id):
 
             if not msg:
                 break
+            msg_t = msg.as_typed()
 
             # La liste des messages traités
-            match msg.type:
+            match msg_t["type"]:
                 case MessageType.PLAYER_UPDATE:
                     # Cas où le joueur envoie sa position au serveur
                     player_data = msg.data

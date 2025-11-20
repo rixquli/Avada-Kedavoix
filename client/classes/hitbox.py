@@ -5,19 +5,20 @@ Exemple: gestion des collision entre le joueur et les murs
 """
 
 import pygame
+from server.classes.serializable import Serializable
 
 
 class HitBox(pygame.sprite.Sprite):
-    def __init__(self, x, y, w, h, debug=False):
+    def __init__(self, x: int, y: int, w: int, h: int, debug: bool=False):
         super().__init__()
-        self.w = w
-        self.h = h
-        self.x = x
-        self.y = y
+        self.w = int(w)
+        self.h = int(h)
+        self.x = int(x)
+        self.y = int(y)
         self.image = pygame.Surface((w, h))
         self.image.fill((0, 255, 0))
         self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
+        self.rect.center = (int(x), int(y))
 
         self.debug = debug
 
@@ -38,7 +39,7 @@ class HitBox(pygame.sprite.Sprite):
                 2,  # Épaisseur du contour (2 pixels)
             )
 
-    def get_collided(self):
+    def get_collided(self) -> bool:
         return pygame.sprite.spritecollide(
             self,
             self.game_manager.client_manager.game_state.collision_manager.client_collider_groups.get(
@@ -46,12 +47,8 @@ class HitBox(pygame.sprite.Sprite):
             ),
             False,
         )
-        # for wall in self.game_manager.walls:
-        #     if self.collide(wall):
-        #         return True
-        # return False
 
-    def collide(self, entity):
+    def collide(self, entity: Serializable)  -> bool:
         if hasattr(entity, "rect"):
             return self.rect.colliderect(entity.rect)
         return self.rect.colliderect(entity.hitbox.rect)

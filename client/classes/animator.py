@@ -1,6 +1,5 @@
 import time
 import os
-from typing import Dict, Tuple
 import pygame
 
 
@@ -72,7 +71,7 @@ class StateManager:
         self.size = size
         self.animation_speed = animation_speed
 
-        self.states: Dict[str, State] = {}
+        self.states: dict[str, State] = {}
 
         self.default_state = default_state
         self.current_state = default_state
@@ -108,8 +107,8 @@ class Animator:
     def __init__(
         self,
         animation_speed=15 / 60,
-        size: Tuple[int, int] = (0, 0),
-        sprite_offset: Tuple[float, float] = (0, 0),
+        size: tuple[int, int] = (0, 0),
+        sprite_offset: tuple[float, float] = (0, 0),
     ):
         self.size = (int(size[0]), int(size[1]))
         self.animation_speed = animation_speed
