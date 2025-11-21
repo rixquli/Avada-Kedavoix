@@ -81,9 +81,6 @@ class NetworkManager:
     def send_message(self, message: Message):
         if self.socket:
             try:
-                print(message)
-                print(message.type)
-                print(message.data)
                 self.socket.sendall(message.serialize())
             except Exception as e:
                 print(f"Send error: {e}")

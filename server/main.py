@@ -45,8 +45,8 @@ def handle_client(conn, player_id):
                 case MessageType.PLAYER_UPDATE:
                     # Cas où le joueur envoie sa position au serveur
                     player_data = msg.data
-                    player = Player.from_dict(player_data)
-                    network.game_state.players.update(player_id, player)
+                    # player = Player.from_dict(player_data)
+                    network.game_state.players.update(player_id, player_data)
                 case MessageType.PLAYER_CAST_SPELL:
                     # Cas ou un joueur cast un spell
                     spell_id = msg.data["id"]
@@ -98,6 +98,18 @@ def handle_conn():
 
         network.player_connections[conn] = player_id
         print(f"Player {player_id} connected")
+
+        # Envoi synchronisé du CONNECT + snapshot complet au nouveau client
+        try:
+            initial_msg = Message(MessageType.CONNECT, {"player_id": player_id})
+            conn.sendall(initial_msg.serialize())
+
+            full_state = network.game_state.get_game_state(diff=False)
+            full_msg = Message(MessageType.GAME_STATE, full_state)
+            conn.sendall(full_msg.serialize())
+        except Exception as e:
+            print(f"Failed to send initial data to {player_id}: {e}")
+
         start_new_thread(handle_client, (conn, player_id))
 
 
@@ -107,12 +119,14 @@ def broadcast_game_state():
         # Les joueurs s'update coté client
         network.game_state.update_all()
 
-        state = network.game_state.get_game_state()
+        state = network.game_state.get_game_state(diff=True)
         msg = Message(MessageType.GAME_STATE, state)
 
         for conn in list(network.player_connections.keys()):
             try:
-                conn.sendall(msg.serialize())
+                data = msg.serialize()
+                print(len(data))
+                conn.sendall(data)
             except:
                 pass
 

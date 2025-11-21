@@ -115,5 +115,8 @@ class EntityManager:
         else:
             raise TypeError(f"entity_data doit être un Spell ou un dict")
 
-    def to_dict(self):
-        return {eid: entity.to_dict() for eid, entity in self.entities.items()}
+    def to_dict(self, diff):
+        return {eid: entity.to_dict(diff) for eid, entity in self.entities.items()}
+
+    def diff_to_dict(self):
+        return {eid: entity.diff_to_dict() for eid, entity in self.entities.items()}

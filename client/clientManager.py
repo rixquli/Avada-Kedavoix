@@ -74,7 +74,7 @@ class ClientManager:
             my_player = self.game_state.players.get(self.my_player_id)
             player_pos = [my_player.x, my_player.y]
             if self.old_player_pos != player_pos:
-                msg = Message(MessageType.PLAYER_UPDATE, my_player.to_dict())
+                msg = Message(MessageType.PLAYER_UPDATE, my_player.diff_to_dict())
                 self.network.send_message(msg)
                 self.old_player_pos = player_pos
 
@@ -85,7 +85,7 @@ class ClientManager:
         # Envoyer au serveur pour les autres joueurs
         msg = Message(
             MessageType.PLAYER_CAST_SPELL,
-            {"id": spell_id, "spell_data": spell.to_dict()},
+            {"id": spell_id, "spell_data": spell.diff_to_dict()},
         )
         self.network.send_message(msg)
 
@@ -95,15 +95,16 @@ class ClientManager:
         self.server_ready = False
 
         def run_server():
-            #try:
-                print("Démarrage du serveur privé...")
-                server_main(
-                    adress=adress, port=port, max_player=max_player, is_solo=is_solo
-                )
-                self.server_ready = True
-            #except Exception as e:
-            #    print(f"Erreur lors du démarrage du serveur: {e}")
-            #    self.server_ready = True
+            # try:
+            print("Démarrage du serveur privé...")
+            server_main(
+                adress=adress, port=port, max_player=max_player, is_solo=is_solo
+            )
+            self.server_ready = True
+
+        # except Exception as e:
+        #    print(f"Erreur lors du démarrage du serveur: {e}")
+        #    self.server_ready = True
 
         # Démarrer le serveur dans un thread
         start_new_thread(run_server, ())

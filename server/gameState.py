@@ -49,14 +49,14 @@ class GameState:
             self.walls,
         ]
 
-    def get_game_state(self):
+    def get_game_state(self, diff=True):
         """Retourne l'état complet du jeu pour le broadcast"""
         return {
-            "players": self.players.to_dict(),
-            "spells": self.spells.to_dict(),
-            "enemies": self.enemies.to_dict(),
-            "pnjs": self.pnjs.to_dict(),
-            "walls": self.walls.to_dict(),
+            "players": self.players.to_dict(diff),
+            "spells": self.spells.to_dict(diff),
+            "enemies": self.enemies.to_dict(diff),
+            "pnjs": self.pnjs.to_dict(diff),
+            "walls": self.walls.to_dict(diff),
         }
 
     # Executer cote serveur
@@ -100,16 +100,18 @@ class GameState:
         self.apply_state_for(state, "enemies", self.enemies)
         self.apply_state_for(state, "spells", self.spells)
         self.apply_state_for(state, "pnjs", self.pnjs)
+        print(state.get("walls", {}))
         self.apply_state_for(state, "walls", self.walls)
 
         self.collision_manager.update_collision_group("obstacle", [self.walls])
 
     def apply_state_for(self, state, name, entities, my_player_id=None):
         for id, data in state.get(name, {}).items():
-            if not data:
-                # si l'entité n'existe plus on le supprime
-                entities.remove(str(id))
-            elif str(id) not in entities.entities:
+            # if not data:
+            #     # si l'entité n'existe plus on le supprime
+            #     entities.remove(str(id))
+            # el
+            if str(id) not in entities.entities:
                 # si l'entité n'existe pas localement on l'ajoute
                 entity = entities.entity_type.from_dict(data)
                 entities.addEntity(entity, fixed_id=str(id))
