@@ -17,7 +17,7 @@ from typing import Any, Dict
 class Serializable:
     """
     super classe pour les joueurs/ enemy/ spell ...
-    permet d'effectuer des transformation d'objet a dictionnaireet inversement
+    permet d'effectuer des transformation d'objet a dictionnaire et inversement
     """
     def to_dict(self) -> Dict[str, Any]:
         """Convertit l'objet en dictionnaire, en excluant les attributs non-sérialisables"""
