@@ -1,5 +1,5 @@
 from client.classes.hitbox import HitBox
-
+import time
 
 
 class Pix:
@@ -132,16 +132,18 @@ class Path:
 
     def find_path(self, nb_frame: int = 5):
         """met a jour le chemin en en calculant un nouveau"""
+        t1 = time.time()
         self.path = self.search(nb_frame)
+        #print(time.time()-t1)
 
     def follow_path(self):
         """renvois la direction de la prochaine position"""
         if len(self.path) == 0:
             return 0,0
-        dx = self.path[0][0] - self.pos[0]
-        dy = self.path[0][1] - self.pos[1]
+        x = self.path[0][0] - self.pos[0]
+        y = self.path[0][1] - self.pos[1]
         self.path.remove(self.path[0])
         #if dx != 0 and dy != 0:
         #    return dx/(2**0.5), dy/(2**0.5)
         #else:
-        return dx, dy
+        return x, y

@@ -80,23 +80,23 @@ class ListIa:
     def __init__(self):
         pass
 
-    #@staticmethod
     def enemy_ia(self,enemy: Enemy) -> None:
         cible_pos = BasicIaUtility.get_pos_closest_player(enemy.x, enemy.y)
         if BasicIaUtility.get_dist(enemy.x, enemy.y, cible_pos[0], cible_pos[1]) < 20 and False:
             enemy.vx, enemy.vy = BasicIaUtility.dir_target(enemy.x, enemy.y)
         else:
             if enemy.path is None:
+                cible_pos = BasicIaUtility.get_pos_closest_player(enemy.x, enemy.y)
                 enemy.path = Path((int(enemy.x), int(enemy.y)), cible_pos, enemy.hitbox, enemy.vitesse)
             elif len(enemy.path.path) == 0:
+                cible_pos = BasicIaUtility.get_pos_closest_player(enemy.x, enemy.y)
                 enemy.path.update_dest(cible_pos[0], cible_pos[1])
-                enemy.path.update_pos(enemy.x, enemy.y)
-                enemy.path.find_path(5)
-                #print("change", time.time())
-            enemy.vx,enemy.vy = enemy.path.follow_path()
+                enemy.path.find_path(20)
+            enemy.path.update_pos(enemy.x, enemy.y)
+            enemy.vx, enemy.vy = enemy.path.follow_path()
 
         if time.time() - enemy.prec_attack_time > enemy.attack_delay:
-            enemy.do_attack(cible_pos)
+            enemy.do_attack(BasicIaUtility.dir_target(enemy.x, enemy.y))
             enemy.prec_attack_time = time.time()
 
     #@staticmethod
