@@ -75,6 +75,10 @@ class BasicIaUtility:
         pos1 = (pos1 - y)/dist_min
         return pos0, pos1
 
+    @staticmethod
+    def is_dest_reached(x, y, dest_x, dest_y, precision):
+        return abs(dest_x - x) <= precision and abs(dest_y - y) <= precision
+
 
 class ListIa:
     def __init__(self):
@@ -82,18 +86,19 @@ class ListIa:
 
     def enemy_ia(self,enemy: Enemy) -> None:
         cible_pos = BasicIaUtility.get_pos_closest_player(enemy.x, enemy.y)
-        if BasicIaUtility.get_dist(enemy.x, enemy.y, cible_pos[0], cible_pos[1]) < 20 and False:
-            enemy.vx, enemy.vy = BasicIaUtility.dir_target(enemy.x, enemy.y)
-        else:
+        if BasicIaUtility.is_dest_reached(enemy.x, enemy.y, enemy.x_target, enemy.y_target, 1):
             if enemy.path is None:
                 cible_pos = BasicIaUtility.get_pos_closest_player(enemy.x, enemy.y)
-                enemy.path = Path((int(enemy.x), int(enemy.y)), cible_pos, enemy.hitbox, enemy.vitesse)
+                enemy.path = Path((int(enemy.x), int(enemy.y)), cible_pos, enemy.hitbox, enemy.vitesse * 20)
             elif len(enemy.path.path) == 0:
                 cible_pos = BasicIaUtility.get_pos_closest_player(enemy.x, enemy.y)
                 enemy.path.update_dest(cible_pos[0], cible_pos[1])
-                enemy.path.find_path(20)
+                enemy.path.find_path(50)
             enemy.path.update_pos(enemy.x, enemy.y)
-            enemy.vx, enemy.vy = enemy.path.follow_path()
+            vx, vy = enemy.path.follow_path()
+            enemy.x_target, enemy.y_target = enemy.x+vx, enemy.y+vy
+            enemy.vx, enemy.vy = vx/10, vy/10
+
 
         if time.time() - enemy.prec_attack_time > enemy.attack_delay:
             enemy.do_attack(BasicIaUtility.dir_target(enemy.x, enemy.y))
@@ -101,7 +106,7 @@ class ListIa:
 
     #@staticmethod
     def pnj_ia(self, pnj: PNJ) -> None:
-        if abs(pnj.x_target - pnj.x) < 1 and abs(pnj.y_target - pnj.y) < 1:
+        if BasicIaUtility.is_dest_reached(pnj.x, pnj.y, pnj.target_x, pnj.target_y, 1):
             pnj.x_target = randint(int(pnj.y - 100), int(pnj.x + 100))
             pnj.y_target = randint(int(pnj.y - 100), int(pnj.y + 100))
             pnj.dist = ((pnj.x_target - pnj.x) ** 2 + (pnj.y_target - pnj.y) ** 2) ** 0.5

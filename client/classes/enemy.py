@@ -62,6 +62,8 @@ class Enemy(Serializable):
         self.prec_attack_time = time.time()
 
         from server.managers.iaManager import Ia
+        self.x_target = self.x
+        self.y_target = self.y
         self.ia = Ia("enemy_ia",self)
         self.path = None
 
@@ -92,6 +94,8 @@ class Enemy(Serializable):
     def server_update(self):
         # TODO: Ajouter l'ia ici pour le comportement des créatures
         self.ia.update()
+
+        """
         # Appliquer le mouvement horizontal
         self.hitbox.update(self.x + self.vx, self.y)
 
@@ -107,6 +111,9 @@ class Enemy(Serializable):
         collided = self.hitbox.get_collided()
         if not collided:
             self.y += self.vy
+        """
+        self.x += self.vx
+        self.y += self.vy
 
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""

@@ -1,3 +1,5 @@
+from pygame.examples import grid
+
 from client.classes.hitbox import HitBox
 import time
 
@@ -42,24 +44,35 @@ class Pix:
         path.append((self.x, self.y))
         return path
 
+class Grid:
+    def __init__(self,precision, h, l):
+        self.hitbox = HitBox(0,0, precision, precision)
+        self.grid = [[0]*l//precision]*h//precision
+        for i in range(-h, h):
+            for j in range(-l, l):
+                if self.hitbox.collide([i*precision,j*precision]):
+                    self.grid[i][j] = 0
+                else:
+                    self.grid[i][j] = 1
 
 class Path:
     """
     pour calculer et stocker le chemin (precision representes le saut entre chaque pixel du chemin et
     la distance minimale pour considerer l'arrivee)
     """
-    def __init__(self, pos: tuple[float, float], dest: tuple[float, float], hitbox: HitBox, precision: int = 1):
+    def __init__(self, pos: tuple[float, float], dest: tuple[float, float], hitbox: HitBox, precision: int = 1, porte: int = 100):
         self.pos = tuple((int(pos[0]),int(pos[1])))
         self.dest = tuple((int(dest[0]),int(dest[1])))
         self.hitbox = HitBox(hitbox.x, hitbox.y, hitbox.w, hitbox.h)
         self.path = list()
         self.precision = precision
+        self.grid = Grid(precision, porte, porte)
 
     def update_pos(self, x: int, y: int):
-        self.pos = tuple((int(x),int(y)))
+        self.pos = tuple((int(x//self.precision*self.precision),int(y//self.precision*self.precision)))
 
     def update_dest(self, x: int, y: int):
-        self.dest = tuple((int(x),int(y)))
+        self.dest = tuple((int(x//self.precision*self.precision),int(y//self.precision*self.precision)))
 
     def dist_euclide(self, x: int, y: int, x_target: int = None, y_target: int = None) -> float:
         """renvois la distance a vol d'oiseau (si x_target et y_target non remplis ils sont mis a l'arrivee)"""
@@ -146,4 +159,4 @@ class Path:
         #if dx != 0 and dy != 0:
         #    return dx/(2**0.5), dy/(2**0.5)
         #else:
-        return x, y
+        return x/2, y/2
