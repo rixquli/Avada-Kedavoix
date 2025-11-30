@@ -2,7 +2,6 @@
 Element graphique permet la creation de Texte
 """
 
-from typing import Tuple
 import pygame
 
 from client.enums.anchor import Anchor
@@ -13,7 +12,7 @@ class Text:
     def __init__(
         self,
         text,
-        position: Tuple[float, float],
+        position: tuple[float, float],
         font_size=35,
         font_name="Corbel",
         background=False,

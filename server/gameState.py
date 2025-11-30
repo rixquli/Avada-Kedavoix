@@ -29,9 +29,11 @@ from client.classes.enemy import Enemy
 from client.classes.player import Player
 from client.classes.spell import Spell
 from server.managers.entityManager import EntityManager
+from classes.serializable import Serializable
 
 
 class GameState:
+    """permet d'avoir une copie partagee entre client et serveur"""
     def __init__(self):
         self.collision_manager = CollisionManager(self)
 
@@ -60,7 +62,7 @@ class GameState:
         }
 
     # Executer cote serveur
-    def get_entities_list(self):
+    def get_entities_list(self) -> list[tuple[type[Serializable], list[Serializable]]]:
         res = []
         for entities_manager in self.all_entities_manager:
             res.append((entities_manager.entity_type, entities_manager.get_list()))

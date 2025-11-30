@@ -7,10 +7,10 @@ De plus,
 """
 
 import time
-from _thread import *
+from _thread import start_new_thread
+import socket
 import os
 import sys
-
 
 
 # To import module from other folder
@@ -28,7 +28,7 @@ network = NetworkManager(is_server=True)
 game_state = GameState()
 
 
-def handle_client(conn, player_id):
+def handle_client(conn: socket.socket, player_id: str):
     print("Start Handle Player: ", player_id)
 
     initial_msg = Message(MessageType.CONNECT, {"player_id": player_id})
@@ -41,9 +41,10 @@ def handle_client(conn, player_id):
 
             if not msg:
                 break
+            msg_t = msg.as_typed()
 
             # La liste des messages traités
-            match msg.type:
+            match msg_t["type"]:
                 case MessageType.PLAYER_UPDATE:
                     # Cas où le joueur envoie sa position au serveur
                     player_data = msg.data
@@ -88,7 +89,7 @@ def handle_conn():
 
         # Creer le joueur lors de sa connection
         num_players = len(game_state.players.entities)
-        colors = [(0, 255, 0), (255, 0, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255)]
+        colors = [(0, 255, 0), (255, 0, 0), (0, 0, 255)]
         player_id = game_state.players.addEntity(
             Player(
                 x=num_players * 100,
@@ -134,6 +135,7 @@ def spawn_element_at_start():
         Wall(-500, 500, 1050, 50),
         Wall(-500, -500, 50, 1000),
         Wall(500, -500, 50, 1000),
+        Wall(100, 100, 100, 50),
     ]
     for wall in walls:
         game_state.walls.addEntity(wall)

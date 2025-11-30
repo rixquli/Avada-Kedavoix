@@ -15,6 +15,10 @@ from typing import Any, Dict
 
 
 class Serializable:
+    """
+    super classe pour les joueurs/ enemy/ spell ...
+    permet d'effectuer des transformation d'objet a dictionnaireet inversement
+    """
     def to_dict(self) -> Dict[str, Any]:
         """Convertit l'objet en dictionnaire, en excluant les attributs non-sérialisables"""
         data = {}
@@ -36,7 +40,7 @@ class Serializable:
 
         return data
 
-    def _is_serializable(self, value):
+    def _is_serializable(self, value) -> bool:
         """Vérifie si une valeur peut être sérialisée en JSON"""
         try:
             json.dumps(value)
