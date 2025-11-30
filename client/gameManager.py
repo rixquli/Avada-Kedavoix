@@ -18,6 +18,7 @@ from client.classes.enemy import Enemy
 from client.classes.player import Player
 from client.classes.pnj import PNJ
 from client.classes.wall import Wall
+from client.voice.realtimeVoice import get_voice_command, start_voice_recognition
 
 
 # To import module from other folder
@@ -50,6 +51,9 @@ class GameManager:
         Execute setup uniquement lors de la création du premier GameManager
         """
         self.client_manager = ClientManager()
+
+        # Setup voice recognition
+        start_voice_recognition()
 
         # Setup pygame
         self.setup_pygame()
@@ -93,6 +97,7 @@ class GameManager:
             if event.type == pygame.QUIT:
                 self.running = False
             self.handle_event(event)
+        self.handle_voice_event()
 
         self.screen.fill((0, 0, 0))  # Dessine le fond noir
 
@@ -104,6 +109,38 @@ class GameManager:
 
         self.deltatime = self.clock.tick(60)
 
+    # TODO: déplacer ailleur:
+    def cast_basic_spell(self):
+        # Quand on clique ca lance un sort dans la direction de la souris
+        my_player = self.client_manager.get_player()
+        if not my_player:
+            return
+
+        # Calculer la direction normalisée vers le curseur de la souris
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        dx = mouse_x - (self.screen.get_width() / 2)
+        dy = mouse_y - (self.screen.get_height() / 2)
+        length = (dx**2 + dy**2) ** 0.5
+
+        if length > 0:
+            dir_x = dx / length
+            dir_y = dy / length
+        else:
+            dir_x, dir_y = 1, 0
+
+        # Créer le sort localement (pour eviter les latences)
+        spell = Spell(
+            x=my_player.x,
+            y=my_player.y,
+            player_id=self.client_manager.my_player_id,
+            color=(50, 150, 255),
+            dir=(dir_x, dir_y),
+            radius=8,
+            thrower=my_player.THROWER_TYPE,
+        )
+
+        self.client_manager.cast_spell(spell)
+
     def handle_event(self, event):
         """
         Gere le evennements (ex: touches claviers, souris, ...)
@@ -112,35 +149,18 @@ class GameManager:
 
         # TODO: déplacer la logique dans une classe spécifique pour les actions
         if event.type == pygame.MOUSEBUTTONDOWN:
-            # Quand on clique ca lance un sort dans la direction de la souris
-            my_player = self.client_manager.get_player()
-            if not my_player:
-                return
+            self.cast_basic_spell()
 
-            # Calculer la direction normalisée vers le curseur de la souris
-            mouse_x, mouse_y = event.pos
-            dx = mouse_x - (self.screen.get_width() / 2)
-            dy = mouse_y - (self.screen.get_height() / 2)
-            length = (dx**2 + dy**2) ** 0.5
+    def handle_voice_event(self):
+        vocal_action = get_voice_command()
 
-            if length > 0:
-                dir_x = dx / length
-                dir_y = dy / length
-            else:
-                dir_x, dir_y = 1, 0
+        if vocal_action:
+            vocal_action = vocal_action.get("action", "")
+        else:
+            return
 
-            # Créer le sort localement (pour eviter les latences)
-            spell = Spell(
-                x=my_player.x,
-                y=my_player.y,
-                player_id=self.client_manager.my_player_id,
-                color=(50, 150, 255),
-                dir=(dir_x, dir_y),
-                radius=8,
-                thrower=my_player.THROWER_TYPE
-            )
-
-            self.client_manager.cast_spell(spell)
+        if vocal_action == "SPELL":
+            self.cast_basic_spell()
 
     def local_update(self):
         """
