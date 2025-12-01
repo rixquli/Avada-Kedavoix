@@ -3,18 +3,13 @@ import os
 from typing import Dict, Tuple
 import pygame
 
+from server.classes.serializable import Serializable
 
-class State:
+
+class State(Serializable):
     def __init__(self, name, sprites_folder_path, size=(0, 0), animation_speed=1 / 30):
         self.name = name
-        self.sprites_folder_path = os.path.abspath(
-            os.path.join(
-                os.path.dirname(__file__),
-                "..",
-                "ressources",
-                sprites_folder_path,
-            )
-        )
+        self.sprites_folder_path = sprites_folder_path
         self.sprites = []
         self.sprite_index = 0
         self.size = (int(size[0]), int(size[1]))
@@ -54,7 +49,7 @@ class State:
                 if img is not None:
                     sprites.append(img)
         except Exception:
-            raise FileNotFoundError(f"Error parsing sprites")
+            print("Error parsing sprites")
 
         self.sprites = sprites
 
@@ -67,7 +62,7 @@ class State:
         return self.sprites[self.sprite_index]
 
 
-class StateManager:
+class StateManager(Serializable):
     def __init__(self, animation_speed=1 / 30, size=(0, 0), default_state=None):
         self.size = size
         self.animation_speed = animation_speed
@@ -104,7 +99,7 @@ class StateManager:
         self.current_state = name
 
 
-class Animator:
+class Animator(Serializable):
     def __init__(
         self,
         animation_speed=15 / 60,
