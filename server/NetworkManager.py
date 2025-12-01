@@ -76,7 +76,7 @@ class NetworkManager:
                 self.client_socket.settimeout(None)
                 return my_player_id
         except Exception as e:
-            print(f"Connection failed: {e}")
+            # print(f"Connection failed: {e}")
             return my_player_id
 
     # Méthodes du serveur et du client
@@ -113,5 +113,6 @@ class NetworkManager:
                 if data:
                     return Message.deserialize(data)
             except Exception as e:
-                print(f"Receive error: {e}")
+                # print(f"Receive error: {e}")
+                return
         return None
