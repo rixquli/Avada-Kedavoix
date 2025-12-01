@@ -125,7 +125,6 @@ def broadcast_game_state():
         for conn in list(network.player_connections.keys()):
             try:
                 data = msg.serialize()
-                print(len(data))
                 conn.sendall(data)
             except:
                 pass

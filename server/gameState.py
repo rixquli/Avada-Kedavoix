@@ -100,7 +100,6 @@ class GameState:
         self.apply_state_for(state, "enemies", self.enemies)
         self.apply_state_for(state, "spells", self.spells)
         self.apply_state_for(state, "pnjs", self.pnjs)
-        print(state.get("walls", {}))
         self.apply_state_for(state, "walls", self.walls)
 
         self.collision_manager.update_collision_group("obstacle", [self.walls])

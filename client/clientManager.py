@@ -83,9 +83,10 @@ class ClientManager:
         spell_id = self.game_state.spells.addEntity(spell)
 
         # Envoyer au serveur pour les autres joueurs
+        # Utiliser to_dict() car c'est un nouveau spell (pas de diff possible)
         msg = Message(
             MessageType.PLAYER_CAST_SPELL,
-            {"id": spell_id, "spell_data": spell.diff_to_dict()},
+            {"id": spell_id, "spell_data": spell.to_dict()},
         )
         self.network.send_message(msg)
 
