@@ -73,14 +73,46 @@ class Player(Serializable):
             case _:
                 wizard_type = "wizard"
 
+        # Chemin vers la racine du projet
+        PROJECT_ROOT = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..")
+        )
+
         self.animator.state_manager.add_state(
-            "idle", f"../ressources/wizzard-test/PNG/{wizard_type}/idle"
+            "idle",
+            os.path.join(
+                PROJECT_ROOT,
+                "client",
+                "ressources",
+                "wizzard-test",
+                "PNG",
+                wizard_type,
+                "idle",
+            ),
         )
         self.animator.state_manager.add_state(
-            "walk", f"../ressources/wizzard-test/PNG/{wizard_type}/walk"
+            "walk",
+            os.path.join(
+                PROJECT_ROOT,
+                "client",
+                "ressources",
+                "wizzard-test",
+                "PNG",
+                wizard_type,
+                "walk",
+            ),
         )
         self.animator.state_manager.add_state(
-            "run", f"../ressources/wizzard-test/PNG/{wizard_type}/run"
+            "run",
+            os.path.join(
+                PROJECT_ROOT,
+                "client",
+                "ressources",
+                "wizzard-test",
+                "PNG",
+                wizard_type,
+                "run",
+            ),
         )
 
     def is_dead(self) -> bool:

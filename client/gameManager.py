@@ -36,7 +36,6 @@ class GameManager:
         """
         if not hasattr(cls, "instance"):
             cls.instance = super(GameManager, cls).__new__(cls)
-            cls.instance.setup()
         return cls.instance
 
     def __init__(self):
@@ -47,7 +46,7 @@ class GameManager:
 
     def setup(self):
         """
-        Execute setup uniquement lors de la création du premier GameManager
+        Execute setup uniquement lors du lancement du programme mais client seulement
         """
         self.client_manager = ClientManager()
 
@@ -59,6 +58,13 @@ class GameManager:
 
         # Setup ui/menus
         self.ui = UI(self.screen)
+
+    def setup_server(self):
+        """
+        Execute setup uniquement lors du lancement du programme mais server seulement
+        Pour ne pas init les partie graphique inutile au serveur
+        """
+        self.client_manager = ClientManager()
 
     def setup_pygame(self):
         """Initialise pygame et crée la fenetre"""
