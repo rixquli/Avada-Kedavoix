@@ -2,7 +2,6 @@
 Classe pour la gestion des murs
 """
 
-from typing import List, Tuple
 import pygame
 from client.classes.hitbox import HitBox
 
@@ -32,7 +31,7 @@ class Wall(Serializable, pygame.sprite.Sprite):
         surface.blit(self.image, (x, y))
 
     @staticmethod
-    def draw_all(surface, offset: Tuple[float, float], walls: List["Wall"]):
+    def draw_all(surface, offset: tuple[float, float], walls: list["Wall"]):
         """
         Dessine tout les murs
         """

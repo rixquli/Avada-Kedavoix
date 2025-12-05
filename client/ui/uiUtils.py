@@ -6,7 +6,6 @@ Ex:
     UIUtils.get_screen_anchor_position(...)
 """
 
-from typing import Tuple
 import pygame
 
 from client.enums.anchor import Anchor
@@ -15,7 +14,7 @@ from client.enums.anchor import Anchor
 class UIUtils:
     @staticmethod
     def calculate_position_with_anchor(
-        width: float, height: float, anchor: Anchor, position: Tuple[float, float]
+        width: float, height: float, anchor: Anchor, position: tuple[float, float]
     ):
         """
         Calcule la position réelle (topleft) en fonction de l'ancrage par rapport à l'écran.
@@ -44,14 +43,14 @@ class UIUtils:
                 temp_rect.left,
                 temp_rect.top,
             )  # Renvoie la vraie position a appliquer
-        return (0, 0)
+        return 0, 0
 
     @staticmethod
     def get_screen_anchor_position(
-        anchor_value: Anchor,
+        anchor_value: str,
         screen_width: float,
         screen_height: float,
-        position: Tuple[float, float],
+        position: tuple[float, float],
     ):
         """
         Retourne la position du point d'ancrage
@@ -73,4 +72,4 @@ class UIUtils:
             position  # offset correspond ici a la position par rapport au point d'ancrage
         )
 
-        return (base_x + offset_x, base_y + offset_y)
+        return base_x + offset_x, base_y + offset_y

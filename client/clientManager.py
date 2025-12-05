@@ -74,7 +74,7 @@ class ClientManager:
             my_player = self.game_state.players.get(self.my_player_id)
             player_pos = [my_player.x, my_player.y]
             if self.old_player_pos != player_pos:
-                msg = Message(MessageType.PLAYER_UPDATE, my_player.to_dict())
+                msg = Message(MessageType.PLAYER_UPDATE, my_player.diff_to_dict())
                 self.network.send_message(msg)
                 self.old_player_pos = player_pos
 
@@ -83,6 +83,7 @@ class ClientManager:
         spell_id = self.game_state.spells.addEntity(spell)
 
         # Envoyer au serveur pour les autres joueurs
+        # Utiliser to_dict() car c'est un nouveau spell (pas de diff possible)
         msg = Message(
             MessageType.PLAYER_CAST_SPELL,
             {"id": spell_id, "spell_data": spell.to_dict()},
@@ -156,7 +157,7 @@ class ClientManager:
         self.state = State.SOLO
         self.start_local_server(max_player=1, is_solo=True)
         # Attendre que le serveur soit vraiment prêt
-        timeout = time.time() + 1
+        timeout = time.time() + 0.1
         while time.time() < timeout:
             try:
                 # Essaye de se connecter en boucle tant qu'il ne peut pas

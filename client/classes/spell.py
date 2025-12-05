@@ -3,7 +3,6 @@ Classe pour la gestion des spells (sorts)
 """
 
 import time
-from typing import List, Tuple
 import pygame
 
 from server.classes.serializable import Serializable
@@ -15,9 +14,9 @@ class Spell(Serializable):
         self,
         x: float,
         y: float,
-        player_id: int,
-        color: Tuple[int, int, int],
-        dir: Tuple[int, int],
+        player_id: int|None,
+        color: tuple[int, int, int],
+        dir: tuple[float, float],
         radius: int = 10,
         id: int = None,
         lifetime: float = 5.0,
@@ -47,7 +46,7 @@ class Spell(Serializable):
         self.min_threshold = 0.01
 
         self.hitbox_size = (radius, radius)
-        self.hitbox = HitBox(x, y, self.hitbox_size[0], self.hitbox_size[1])
+        self.hitbox = HitBox(int(x), int(y), self.hitbox_size[0], self.hitbox_size[1])
 
 
         # Pour gerer le systeme vie/degat
@@ -70,7 +69,7 @@ class Spell(Serializable):
         else:
             self.display_y = self.target_y
 
-    def set_target_position(self, x, y):
+    def set_target_position(self, x: float, y:float):
         """
         Applique une interpolation lors de l'application des positions recu du serveur
         permettant d'éviter des mouvements sacadés
@@ -79,16 +78,18 @@ class Spell(Serializable):
         self.target_y = float(y)
 
     def server_update(self):
+        # le set_target_position est automatique
+        # potentielle ia a ajouter (si nessecaire)
         self.x += self.dir[0] * self.speed
         self.y += self.dir[1] * self.speed
 
-        self.hitbox.update(self.x, self.y)
+        self.hitbox.update(int(self.x), int(self.y))
 
     def is_expired(self) -> bool:
         """Verifie si le sort a depasse sa duree de vie"""
         return time.time() - self.creation_time > self.lifetime
 
-    def draw(self, surface, offset: Tuple[float, float]):
+    def draw(self, surface, offset: tuple[float, float]):
         # Interpolation vers la position cible
         # Permet d'eviter les mouvements sacadé
         self.interpolate_position()
@@ -101,7 +102,7 @@ class Spell(Serializable):
         )
 
     @staticmethod
-    def draw_all(surface, offset: Tuple[float, float], all_spells: List["Spell"]):
+    def draw_all(surface, offset: tuple[float, float], all_spells: list["Spell"]):
         """
         Dessine tout les spells
         """
