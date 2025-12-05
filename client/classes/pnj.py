@@ -1,6 +1,7 @@
 """
 Classe pour la gestion des pnj
 """
+
 import pygame
 from server.classes.serializable import Serializable
 from client.classes.hitbox import HitBox
@@ -42,7 +43,8 @@ class PNJ(Serializable):
 
         # Pour IA
         from server.managers.iaManager import Ia
-        self.ia = Ia("pnj_ia",self)
+
+        self.ia = Ia("pnj_ia", self)
         self.x_target = float(x)
         self.y_target = float(y)
         self.dist = 0
@@ -58,7 +60,6 @@ class PNJ(Serializable):
     def is_dead(self) -> bool:
         return self.hp <= 0
 
-
     def server_update(self):
         # le set_target_position est automatique
         # actualises la position et les datas de l'ia
@@ -68,7 +69,7 @@ class PNJ(Serializable):
         self.hitbox.update(int(self.x + self.vx), int(self.y))
 
         # Vérifier les collisions horizontales
-        collided = self.hitbox.get_collided()
+        collided = self.hitbox.get_server_collided()
         if not collided:
             self.x += self.vx
 
@@ -76,7 +77,7 @@ class PNJ(Serializable):
         self.hitbox.update(int(self.x), int(self.y + self.vy))
 
         # Vérifier les collisions verticales
-        collided = self.hitbox.get_collided()
+        collided = self.hitbox.get_server_collided()
         if not collided:
             self.y += self.vy
 

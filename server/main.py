@@ -151,6 +151,9 @@ def spawn_element_at_start():
     ]
     for wall in walls:
         network.game_state.walls.addEntity(wall)
+        network.game_state.collision_manager.client_collider_groups["obstacle"].add(
+            wall
+        )
 
 
 def start_game_server(adress=None, port=None, max_player=5, is_solo=False):

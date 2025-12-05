@@ -133,7 +133,7 @@ class Player(Serializable):
         self.hitbox.update(int(self.x + self.vx), int(self.y))
 
         # Vérifier les collisions horizontales
-        collided = self.hitbox.get_collided()
+        collided = self.hitbox.get_local_collided()
         if not collided:
             self.x += self.vx
 
@@ -141,7 +141,7 @@ class Player(Serializable):
         self.hitbox.update(int(self.x), int(self.y + self.vy))
 
         # Vérifier les collisions verticales
-        collided = self.hitbox.get_collided()
+        collided = self.hitbox.get_local_collided()
         if not collided:
             self.y += self.vy
 

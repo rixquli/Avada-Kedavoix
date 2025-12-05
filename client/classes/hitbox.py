@@ -26,6 +26,10 @@ class HitBox(pygame.sprite.Sprite):
 
         self.game_manager = GameManager()
 
+        from server.NetworkManager import NetworkManager
+
+        self.network = NetworkManager()
+
     def update(self, x: int, y: int):
         self.rect.center = (x, y)
 
@@ -39,10 +43,19 @@ class HitBox(pygame.sprite.Sprite):
                 2,  # Épaisseur du contour (2 pixels)
             )
 
-    def get_collided(self) -> bool:
+    def get_local_collided(self) -> bool:
         return pygame.sprite.spritecollide(
             self,
             self.game_manager.collision_manager.client_collider_groups.get("obstacle"),
+            False,
+        )
+
+    def get_server_collided(self) -> bool:
+        return pygame.sprite.spritecollide(
+            self,
+            self.network.game_state.collision_manager.client_collider_groups.get(
+                "obstacle"
+            ),
             False,
         )
 
