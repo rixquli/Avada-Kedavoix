@@ -3,3 +3,4 @@ pygame>=2.5.0
 # For voice recognition
 vosk 
 sounddevice
+pytmx

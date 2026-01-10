@@ -15,6 +15,7 @@ import sys
 from typing import Tuple
 
 from client.classes.enemy import Enemy
+from client.classes.mapBackground import MapBackground
 from client.classes.player import Player
 from client.classes.pnj import PNJ
 from client.classes.wall import Wall
@@ -85,6 +86,15 @@ class GameManager:
         ]
         for wall in self.walls:
             self.groups["obstacle"].add(wall)
+
+        # TODO: enlever/deplacer
+        self.maps = [
+            MapBackground(
+                os.path.normpath(
+                    os.path.join(os.path.dirname(__file__), "tiles", "maps", "main.tmx")
+                )
+            )
+        ]
 
     def render(self):
         """Fait un rendu du jeu a executer a chaque tick"""
@@ -199,6 +209,9 @@ class GameManager:
             return
 
         offset = self.get_camera_offset()
+
+        # Dessine la map de fond
+        MapBackground.draw_all(self.screen, offset, self.maps)
 
         # Dessine les joueurs
         other_players = self.client_manager.game_state.players.get_except_list(
