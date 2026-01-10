@@ -6,6 +6,9 @@ from vosk import Model, KaldiRecognizer
 
 MODEL_PATH = "client/voice/vosk-model-small-fr-0.22"
 
+# Permet de print ou non dans le terminal utile pour tester
+verbose = False
+
 model = Model(MODEL_PATH)
 recognizer = KaldiRecognizer(model, 16000)
 
@@ -57,7 +60,7 @@ def detect_spell(text: str) -> dict | None:
     return None
 
 
-def voice_listener(verbose=False):
+def voice_listener():
     """
     Thread d'écoute vocale non-bloquant.
     Utilise un callback pour capturer l'audio en continu.
@@ -115,6 +118,8 @@ def get_voice_command() -> dict | None:
 
 
 def main():
+    global verbose
+    verbose = True
     start_voice_recognition()
 
     # Simulation de boucle de jeu

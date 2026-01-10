@@ -9,14 +9,23 @@ Ex:
     dico = joueur.to_dict()
 """
 
+import copy
 import inspect
 import json
 from typing import Any, Dict
 
 
 class Serializable:
-    def to_dict(self) -> Dict[str, Any]:
+    """
+    super classe pour les joueurs/ enemy/ spell ...
+    permet d'effectuer des transformation d'objet a dictionnaireet inversement
+    """
+
+    def to_dict(self, diff=False) -> Dict[str, Any]:
         """Convertit l'objet en dictionnaire, en excluant les attributs non-sérialisables"""
+        if diff:
+            return self.diff_to_dict()
+
         data = {}
 
         # Attributs à toujours exclure (objets Pygame, etc.)
@@ -35,6 +44,53 @@ class Serializable:
                     data[key] = value
 
         return data
+
+    def diff_to_dict(self):
+        """
+        Convertit l'objet en dictionnaire, en excluant les attributs non-sérialisables
+        Mais seulement les attribut different sont envoyer
+        """
+
+        exclude = {
+            "hitbox",  # HitBox (objet Pygame)
+            "game_manager",  # Singleton GameManager
+            "image",  # Surface Pygame
+            "rect",  # Rect Pygame
+        }
+
+        first_call = False
+        try:
+            if not self._previous:
+                self._previous = {}
+                first_call = True
+        except:
+            self._previous = {}
+            first_call = True
+
+        if first_call:
+            diff = {}
+            self._previous = {}
+
+            for key, value in self.__dict__.items():
+                # Ignorer les attributs privés et ceux à exclure
+                if not key.startswith("_") and key not in exclude:
+                    # Vérifier si la valeur est sérialisable
+                    if self._is_serializable(value):
+                        diff[key] = value
+                        self._previous[key] = copy.deepcopy(value)
+        else:
+            diff = {}
+
+            for key, value in self.__dict__.items():
+                # Ignorer les attributs privés et ceux à exclure
+                if not key.startswith("_") and key not in exclude:
+                    # Vérifier si la valeur est sérialisable
+                    if self._is_serializable(value):
+                        if self._previous[key] != value or key not in self._previous:
+                            self._previous[key] = copy.deepcopy(value)
+                            diff[key] = value
+
+        return diff
 
     def _is_serializable(self, value):
         """Vérifie si une valeur peut être sérialisée en JSON"""

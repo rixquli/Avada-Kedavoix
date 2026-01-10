@@ -12,7 +12,6 @@ Elle gere:
 
 import os
 import sys
-from typing import Tuple
 
 from client.classes.enemy import Enemy
 from client.classes.mapBackground import MapBackground
@@ -38,7 +37,6 @@ class GameManager:
         """
         if not hasattr(cls, "instance"):
             cls.instance = super(GameManager, cls).__new__(cls)
-            cls.instance.setup()
         return cls.instance
 
     def __init__(self):
@@ -49,7 +47,7 @@ class GameManager:
 
     def setup(self):
         """
-        Execute setup uniquement lors de la création du premier GameManager
+        Execute setup uniquement lors du lancement du programme mais client seulement
         """
         self.client_manager = ClientManager()
 
@@ -61,6 +59,13 @@ class GameManager:
 
         # Setup ui/menus
         self.ui = UI(self.screen)
+
+    def setup_server(self):
+        """
+        Execute setup uniquement lors du lancement du programme mais server seulement
+        Pour ne pas init les partie graphique inutile au serveur
+        """
+        self.client_manager = ClientManager()
 
     def setup_pygame(self):
         """Initialise pygame et crée la fenetre"""
@@ -75,17 +80,18 @@ class GameManager:
         self.running = True
 
         # Group pour gerer les collisions
-        self.groups = {"obstacle": pygame.sprite.Group()}
+        # self.groups = {"obstacle": pygame.sprite.Group()}
 
         # TODO: a enlever juste pour tester
-        self.walls = [
-            Wall(-500, -500, 1000, 50),
-            Wall(-500, 500, 1050, 50),
-            Wall(-500, -500, 50, 1000),
-            Wall(500, -500, 50, 1000),
-        ]
-        for wall in self.walls:
-            self.groups["obstacle"].add(wall)
+        # self.walls = [
+        #     Wall(-500, -500, 1000, 50),
+        #     Wall(-500, 500, 1050, 50),
+        #     Wall(-500, -500, 50, 1000),
+        #     Wall(500, -500, 50, 1000),
+        #     Wall(100,100,100,50)
+        # ]
+        # for wall in self.walls:
+        #     self.groups["obstacle"].add(wall)
 
         # TODO: enlever/deplacer
         self.maps = [
@@ -138,16 +144,16 @@ class GameManager:
         else:
             dir_x, dir_y = 1, 0
 
-        # Créer le sort localement (pour eviter les latences)
-        spell = Spell(
-            x=my_player.x,
-            y=my_player.y,
-            player_id=self.client_manager.my_player_id,
-            color=(50, 150, 255),
-            dir=(dir_x, dir_y),
-            radius=8,
-            thrower=my_player.THROWER_TYPE,
-        )
+            # Créer le sort localement (pour eviter les latences)
+            spell = Spell(
+                x=my_player.x,
+                y=my_player.y,
+                player_id=self.client_manager.my_player_id,
+                color=(50, 150, 255),
+                dir=(dir_x, dir_y),
+                radius=8,
+                thrower=my_player.THROWER_TYPE,
+            )
 
         self.client_manager.cast_spell(spell)
 
@@ -180,21 +186,21 @@ class GameManager:
         # Update local player
         self.update_local_player()
 
-    def get_camera_offset(self) -> Tuple[float, float]:
+    def get_camera_offset(self) -> tuple[float, float]:
         """
         Renvoie un x et un y qui correspond au decalage pour placer le joueur au centre de la fenetre
         """
         current_player = self.client_manager.get_player()
         if not current_player:
-            return (0, 0)
+            return 0, 0
 
         x, y = current_player.display_x, current_player.display_y
         # display_x et pas x car x = position reelle et display_x la position lors du draw
         # player.x + offset = screen.width/2 => offset = screen.width/2 - player.x
-        return [
+        return (
             self.screen.get_width() / 2 - x,
             self.screen.get_height() / 2 - y,
-        ]
+        )
 
     def draw_elements(self):
         """
@@ -204,11 +210,11 @@ class GameManager:
         """
         current_player = self.client_manager.get_player()
         if (
-            not current_player
+            not current_player or not self.screen
         ):  # si le joueur n'existe pas alors la partie n'est pas lancé
             return
 
-        offset = self.get_camera_offset()
+        offset: tuple[float, float] = self.get_camera_offset()
 
         # Dessine la map de fond
         MapBackground.draw_all(self.screen, offset, self.maps)
@@ -255,3 +261,11 @@ class GameManager:
 
         # Envoyer ma position
         self.client_manager.send_my_position()
+
+    @property
+    def game_state(self):
+        return self.client_manager.game_state
+
+    @property
+    def collision_manager(self):
+        return self.client_manager.game_state.collision_manager

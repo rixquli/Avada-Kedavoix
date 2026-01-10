@@ -2,11 +2,8 @@
 Classe pour la gestion des pnj
 """
 
-from typing import List, Tuple
-
 import pygame
 from server.classes.serializable import Serializable
-from random import randint
 from client.classes.hitbox import HitBox
 
 
@@ -15,7 +12,7 @@ class PNJ(Serializable):
         self,
         x: float,
         y: float,
-        color: Tuple[int, int, int],
+        color: tuple[int, int, int],
         size: int = 10,
         vx: float = 0,
         vy: float = 0,
@@ -45,8 +42,9 @@ class PNJ(Serializable):
         self.min_threshold = 0.1
 
         # Pour IA
-        from server.managers.iaManager import IaManager
-        self.ia = IaManager("pnj_ia",self)
+        from server.managers.iaManager import Ia
+
+        self.ia = Ia("pnj_ia", self)
         self.x_target = float(x)
         self.y_target = float(y)
         self.dist = 0
@@ -54,7 +52,7 @@ class PNJ(Serializable):
         self.dir_y = 0
 
         self.hitbox_size = (10, 10)
-        self.hitbox = HitBox(x, y, self.hitbox_size[0], self.hitbox_size[1])
+        self.hitbox = HitBox(int(x), int(y), self.hitbox_size[0], self.hitbox_size[1])
 
         # Pour gerer le systeme vie/degat
         self.hp = hp
@@ -62,30 +60,29 @@ class PNJ(Serializable):
     def is_dead(self) -> bool:
         return self.hp <= 0
 
-
     def server_update(self):
-        # TODO: Ajouter l'ia ici pour le comportement des créatures
-        # Utiliser set_target_postion pour modifier la position de la créature
+        # le set_target_position est automatique
+        # actualises la position et les datas de l'ia
         self.ia.update()
 
         # Appliquer le mouvement horizontal
-        self.hitbox.update(self.x + self.vx, self.y)
+        self.hitbox.update(int(self.x + self.vx), int(self.y))
 
         # Vérifier les collisions horizontales
-        collided = self.hitbox.get_collided()
+        collided = self.hitbox.get_server_collided()
         if not collided:
             self.x += self.vx
 
         # Appliquer le mouvement vertical
-        self.hitbox.update(self.x, self.y + self.vy)
+        self.hitbox.update(int(self.x), int(self.y + self.vy))
 
         # Vérifier les collisions verticales
-        collided = self.hitbox.get_collided()
+        collided = self.hitbox.get_server_collided()
         if not collided:
             self.y += self.vy
 
         # Mettre à jour la hitbox à la position finale
-        self.hitbox.update(self.x, self.y)
+        self.hitbox.update(int(self.x), int(self.y))
 
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
@@ -101,7 +98,7 @@ class PNJ(Serializable):
         else:
             self.display_y = self.target_y
 
-    def draw(self, surface, offset: Tuple[float, float]):
+    def draw(self, surface, offset: tuple[float, float]):
         # Interpolation vers la position cible
         # Permet d'eviter les mouvements sacadé
         self.interpolate_position()
@@ -127,7 +124,7 @@ class PNJ(Serializable):
         self.target_y = float(y)
 
     @staticmethod
-    def draw_all(surface, offset: Tuple[float, float], pnjs: List["PNJ"]):
+    def draw_all(surface, offset: tuple[float, float], pnjs: list["PNJ"]):
         """
         Dessine tout les pnj
         """

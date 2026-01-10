@@ -7,10 +7,10 @@ De plus,
 """
 
 import time
-from _thread import *
+from _thread import start_new_thread
+import socket
 import os
 import sys
-
 
 
 # To import module from other folder
@@ -22,13 +22,12 @@ from client.classes.player import Player
 from client.classes.spell import Spell
 from server.NetworkManager import NetworkManager
 from server.message import Message, MessageType
-from server.gameState import GameState
 
-network = NetworkManager(is_server=True)
-game_state = GameState()
+network = NetworkManager()
+network.setup(is_server=True)
 
 
-def handle_client(conn, player_id):
+def handle_client(conn: socket.socket, player_id: str):
     print("Start Handle Player: ", player_id)
 
     initial_msg = Message(MessageType.CONNECT, {"player_id": player_id})
@@ -41,14 +40,15 @@ def handle_client(conn, player_id):
 
             if not msg:
                 break
+            msg_t = msg.as_typed()
 
             # La liste des messages traités
-            match msg.type:
+            match msg_t["type"]:
                 case MessageType.PLAYER_UPDATE:
                     # Cas où le joueur envoie sa position au serveur
                     player_data = msg.data
-                    player = Player.from_dict(player_data)
-                    game_state.players.update(player_id, player)
+                    # player = Player.from_dict(player_data)
+                    network.game_state.players.update(player_id, player_data)
                 case MessageType.PLAYER_CAST_SPELL:
                     # Cas ou un joueur cast un spell
                     spell_id = msg.data["id"]
@@ -57,7 +57,7 @@ def handle_client(conn, player_id):
                     # On peut récupérer l'objet spell directement a partir du json
                     spell = Spell.from_dict(spell_data)
 
-                    game_state.spells.addEntity(
+                    network.game_state.spells.addEntity(
                         spell,
                         fixed_id=spell_id,
                     )
@@ -67,14 +67,14 @@ def handle_client(conn, player_id):
                     if player_spells:
                         for sid, spell_data in player_spells.items():
                             spell = Spell.from_dict(spell_data)
-                            game_state.spells.update(sid, spell)
+                            network.game_state.spells.update(sid, spell)
 
         except Exception as e:
             print(f"Error with player {player_id}: {e}")
             break
 
     print(f"Lost connection with player {player_id}")
-    game_state.players.remove(player_id)
+    network.game_state.players.remove(player_id)
     if conn in network.player_connections:
         del network.player_connections[conn]
     conn.close()
@@ -87,9 +87,9 @@ def handle_conn():
         print(f"Connected to: {addr}")
 
         # Creer le joueur lors de sa connection
-        num_players = len(game_state.players.entities)
+        num_players = len(network.game_state.players.entities)
         colors = [(0, 255, 0), (255, 0, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255)]
-        player_id = game_state.players.addEntity(
+        player_id = network.game_state.players.addEntity(
             Player(
                 x=num_players * 100,
                 y=num_players * 50,
@@ -100,6 +100,18 @@ def handle_conn():
 
         network.player_connections[conn] = player_id
         print(f"Player {player_id} connected")
+
+        # Envoi synchronisé du CONNECT + snapshot complet au nouveau client
+        try:
+            initial_msg = Message(MessageType.CONNECT, {"player_id": player_id})
+            conn.sendall(initial_msg.serialize())
+
+            full_state = network.game_state.get_game_state(diff=False)
+            full_msg = Message(MessageType.GAME_STATE, full_state)
+            conn.sendall(full_msg.serialize())
+        except Exception as e:
+            print(f"Failed to send initial data to {player_id}: {e}")
+
         start_new_thread(handle_client, (conn, player_id))
 
 
@@ -107,14 +119,15 @@ def broadcast_game_state():
     """Thread qui diffuse l'état du jeu à tous les clients"""
     while True:
         # Les joueurs s'update coté client
-        game_state.update_all()
+        network.game_state.update_all()
 
-        state = game_state.get_game_state()
+        state = network.game_state.get_game_state(diff=True)
         msg = Message(MessageType.GAME_STATE, state)
 
         for conn in list(network.player_connections.keys()):
             try:
-                conn.sendall(msg.serialize())
+                data = msg.serialize()
+                conn.sendall(data)
             except:
                 pass
 
@@ -123,20 +136,24 @@ def broadcast_game_state():
 
 # TODO: Enlever cette fonction elle ne doit rester que en développement ou etre adapté
 def spawn_element_at_start():
-    enemy1 = game_state.enemies.addEntity(Enemy(200, 200, (0, 255, 255)))
-    enemy2 = game_state.enemies.addEntity(Enemy(350, 350, (0, 255, 255)))
+    enemy1 = network.game_state.enemies.addEntity(Enemy(200, 200, (0, 255, 255)))
+    enemy2 = network.game_state.enemies.addEntity(Enemy(350, 350, (0, 255, 255)))
 
-    pnj1 = game_state.pnjs.addEntity(PNJ(-150, -150, (255, 0, 255)))
-    pnj2 = game_state.pnjs.addEntity(PNJ(-100, -100, (255, 0, 255)))
+    pnj1 = network.game_state.pnjs.addEntity(PNJ(-150, -150, (255, 0, 255)))
+    pnj2 = network.game_state.pnjs.addEntity(PNJ(-100, -100, (255, 0, 255)))
 
     walls = [
         Wall(-500, -500, 1000, 50),
         Wall(-500, 500, 1050, 50),
         Wall(-500, -500, 50, 1000),
         Wall(500, -500, 50, 1000),
+        Wall(100, 100, 100, 50),
     ]
     for wall in walls:
-        game_state.walls.addEntity(wall)
+        network.game_state.walls.addEntity(wall)
+        network.game_state.collision_manager.client_collider_groups["obstacle"].add(
+            wall
+        )
 
 
 def start_game_server(adress=None, port=None, max_player=5, is_solo=False):
@@ -153,6 +170,11 @@ def start_game_server(adress=None, port=None, max_player=5, is_solo=False):
 
 
 def main():
+    from client.gameManager import GameManager
+
+    game_manager = GameManager()
+    game_manager.setup_server()
+
     start_game_server("0.0.0.0", 12345)
 
 
