@@ -144,16 +144,16 @@ class GameManager:
         else:
             dir_x, dir_y = 1, 0
 
-            # Créer le sort localement (pour eviter les latences)
-            spell = Spell(
-                x=my_player.x,
-                y=my_player.y,
-                player_id=self.client_manager.my_player_id,
-                color=(50, 150, 255),
-                dir=(dir_x, dir_y),
-                radius=8,
-                thrower=my_player.THROWER_TYPE,
-            )
+        # Créer le sort localement (pour eviter les latences)
+        spell = Spell(
+            x=my_player.x,
+            y=my_player.y,
+            player_id=self.client_manager.my_player_id,
+            color=(50, 150, 255),
+            dir=(dir_x, dir_y),
+            radius=8,
+            thrower=my_player.THROWER_TYPE,
+        )
 
         self.client_manager.cast_spell(spell)
 
