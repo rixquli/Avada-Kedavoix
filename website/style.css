@@ -196,7 +196,8 @@ img {
 
 .images_cartes {
   width: 328px;
-  height: 300px;
+  height: 450px;
+  object-fit: cover;
   border-radius: 1.5rem;
 }
 
