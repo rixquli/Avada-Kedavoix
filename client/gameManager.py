@@ -118,8 +118,8 @@ class GameManager:
         self.screen.fill((0, 0, 0))  # Dessine le fond noir
 
         self.local_update()  # Met a jour les elements qui se mette a jour localement comme le joueur qui ses propres mouvements
-        self.ui.update()  # Dessine les elements des interfaces
         self.draw_elements()  # Dessine les elements de la scene
+        self.ui.update()  # Dessine les elements des interfaces
 
         pygame.display.flip()  # Met a jour l'ecran
 
@@ -161,6 +161,9 @@ class GameManager:
         """
         Gere le evennements (ex: touches claviers, souris, ...)
         """
+        if event.type == pygame.VIDEORESIZE:
+            self.ui.on_resize()
+
         self.ui.handle_event(event)  # Gere les evenement des elements des interfaces
 
         # TODO: déplacer la logique dans une classe spécifique pour les actions

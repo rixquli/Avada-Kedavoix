@@ -1,4 +1,7 @@
-import sounddevice as sd
+try:
+    import sounddevice as sd
+except Exception:
+    sd = None
 import json
 import threading
 import queue
@@ -7,12 +10,12 @@ from vosk import Model, KaldiRecognizer
 MODEL_PATH = "client/voice/vosk-model-small-fr-0.22"
 
 # Permet de print ou non dans le terminal utile pour tester
-verbose = False
+verbose = True
 
 model = Model(MODEL_PATH)
 recognizer = KaldiRecognizer(model, 16000)
 
-# File thread-safe pour les commandes vocales détectées
+# File pour les commandes vocales détectées
 voice_commands = queue.Queue()
 
 # Sorts disponibles avec leurs variations/synonymes
@@ -71,6 +74,9 @@ def voice_listener():
         """Callback appelé par sounddevice à chaque bloc audio."""
         audio_queue.put(bytes(indata))
 
+    if sd is None:
+        return
+
     with sd.RawInputStream(
         samplerate=16000,
         blocksize=2000,  # Réduit pour plus de réactivité
@@ -112,7 +118,9 @@ def get_voice_command() -> dict | None:
     À appeler dans la boucle de jeu.
     """
     try:
-        return voice_commands.get_nowait()
+        return (
+            voice_commands.get_nowait()
+        )  # recupere la derniere commande enregistrer et la retire
     except queue.Empty:
         return None
 
