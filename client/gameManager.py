@@ -13,6 +13,8 @@ Elle gere:
 import os
 import sys
 
+from client.classes.clientOnly.clientElements import ClientElements
+from client.classes.clientOnly.dungeonEntrance import DungeonEntrance
 from client.classes.enemy import Enemy
 from client.classes.mapBackground import MapBackground
 from client.classes.player import Player
@@ -78,6 +80,11 @@ class GameManager:
         self.clock = pygame.time.Clock()
         self.clock.tick(60)
         self.running = True
+
+        # TODO: à deplacer
+        self.clientsElements = ClientElements()
+        dungeonEntrance = DungeonEntrance(400, 0)
+        self.clientsElements.add(dungeonEntrance)
 
         # Group pour gerer les collisions
         # self.groups = {"obstacle": pygame.sprite.Group()}
@@ -166,6 +173,8 @@ class GameManager:
 
         self.ui.handle_event(event)  # Gere les evenement des elements des interfaces
 
+        self.clientsElements.handle_event(event)
+
         # TODO: déplacer la logique dans une classe spécifique pour les actions
         if event.type == pygame.MOUSEBUTTONDOWN:
             self.cast_basic_spell()
@@ -188,6 +197,7 @@ class GameManager:
         """
         # Update local player
         self.update_local_player()
+        self.clientsElements.local_update_all()
 
     def get_camera_offset(self) -> tuple[float, float]:
         """
@@ -221,6 +231,9 @@ class GameManager:
 
         # Dessine la map de fond
         MapBackground.draw_all(self.screen, offset, self.maps)
+
+        # Dessine les éléments cotés clients seulements
+        self.clientsElements.draw_all(self.screen, offset)
 
         # Dessine les joueurs
         other_players = self.client_manager.game_state.players.get_except_list(
