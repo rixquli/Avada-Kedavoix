@@ -13,6 +13,8 @@ Ex:
 import os
 import sys
 
+from client.ui.image import Image
+
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -85,8 +87,16 @@ def main_menu(menu_name):
         onclickFunction=lambda: close_and_exec(menu_name, joinButtonClicked),
         anchor=Anchor.CENTER,
     )
+    background = Image(
+        path="client/ressources/UI/main_screen.png",
+        width=1920,
+        height=1080,
+        position=(0, 0),
+        anchor=Anchor.TOPLEFT,
+    )
 
     return [
+        background,
         title,
         start_single_player,
         start_hosting_player,
