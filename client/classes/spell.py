@@ -4,6 +4,7 @@ Classe pour la gestion des spells (sorts)
 
 import time
 import pygame
+from client.layerList import Layer
 
 from server.classes.serializable import Serializable
 from client.classes.hitbox import HitBox
@@ -14,7 +15,7 @@ class Spell(Serializable):
         self,
         x: float,
         y: float,
-        player_id: int|None,
+        player_id: int | None,
         color: tuple[int, int, int],
         dir: tuple[float, float],
         radius: int = 10,
@@ -23,6 +24,7 @@ class Spell(Serializable):
         dmg: int = 1,
         thrower: str = "Enemy",
         speed: float = 1.0,
+        world_layer: int | Layer = Layer.OVERWORLD,
     ):
         self.id = id
         self.x = float(x)
@@ -34,6 +36,9 @@ class Spell(Serializable):
         self.lifetime = float(lifetime)
         self.creation_time = time.time()
         self.speed = float(speed)
+        self.world_layer = (
+            world_layer.value if isinstance(world_layer, Layer) else int(world_layer)
+        )
 
         # Position affiché
         self.display_x = float(x)
@@ -48,11 +53,10 @@ class Spell(Serializable):
         self.hitbox_size = (radius, radius)
         self.hitbox = HitBox(int(x), int(y), self.hitbox_size[0], self.hitbox_size[1])
 
-
         # Pour gerer le systeme vie/degat
         self.dmg = int(dmg)
 
-        #pour savoir a qui ne pas infliger de degat
+        # pour savoir a qui ne pas infliger de degat
         self.thrower = thrower
 
     def interpolate_position(self):
@@ -69,7 +73,7 @@ class Spell(Serializable):
         else:
             self.display_y = self.target_y
 
-    def set_target_position(self, x: float, y:float):
+    def set_target_position(self, x: float, y: float):
         """
         Applique une interpolation lors de l'application des positions recu du serveur
         permettant d'éviter des mouvements sacadés
@@ -102,13 +106,23 @@ class Spell(Serializable):
         )
 
     @staticmethod
-    def draw_all(surface, offset: tuple[float, float], all_spells: list["Spell"]):
+    def draw_all(
+        surface,
+        offset: tuple[float, float],
+        all_spells: list["Spell"],
+        active_world_layer: int | None = None,
+    ):
         """
         Dessine tout les spells
         """
         if all_spells:
             if isinstance(all_spells, list):
                 for spell in all_spells:
+                    if (
+                        active_world_layer is not None
+                        and spell.world_layer != active_world_layer
+                    ):
+                        continue
                     spell.draw(surface, offset)
             else:
                 all_spells.draw(surface, offset)

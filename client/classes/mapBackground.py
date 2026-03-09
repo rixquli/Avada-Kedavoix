@@ -2,10 +2,13 @@ import os
 from typing import List
 import pygame
 import pytmx
+from client.layerList import Layer
 
 
 class MapBackground:
-    def __init__(self, tmx_path, x=0, y=0):
+    def __init__(
+        self, tmx_path, x=0, y=0, world_layer: int | Layer = Layer.OVERWORLD
+    ):
         if tmx_path is None or tmx_path == "":
             tmx_path = os.path.normpath(
                 os.path.join(
@@ -19,6 +22,9 @@ class MapBackground:
         self.y = y
         self.x -= self.map_image.get_width() / 2
         self.y -= self.map_image.get_height() / 2
+        self.world_layer = (
+            world_layer.value if isinstance(world_layer, Layer) else int(world_layer)
+        )
 
     def hexToColour(self, hash_colour):
         red = int(hash_colour[1:3], 16)
@@ -69,13 +75,23 @@ class MapBackground:
         surface.blit(self.map_image, (x, y))
 
     @staticmethod
-    def draw_all(surface, offset: tuple[float, float], maps: List["MapBackground"]):
+    def draw_all(
+        surface,
+        offset: tuple[float, float],
+        maps: List["MapBackground"],
+        active_world_layer: int | None = None,
+    ):
         """
         Dessine tout les murs
         """
         if maps:
             if isinstance(maps, list):
                 for map in maps:
+                    if (
+                        active_world_layer is not None
+                        and map.world_layer != active_world_layer
+                    ):
+                        continue
                     map.draw(surface, offset)
             else:
                 maps.draw(surface, offset)

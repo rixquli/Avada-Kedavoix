@@ -9,6 +9,7 @@ import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from client.classes.animator import Animator
+from client.layerList import Layer
 import pygame
 from client.classes.hitbox import HitBox
 from server.classes.serializable import Serializable
@@ -25,6 +26,7 @@ class Player(Serializable):
         vy: float = 0,
         id: int = None,
         hp: int = 100,
+        world_layer: int | Layer = Layer.OVERWORLD,
     ):
         self.id = id
         self.color = tuple(color)
@@ -58,6 +60,9 @@ class Player(Serializable):
 
         # pour donner aux sorts et identifier le thrower
         self.THROWER_TYPE = "player"
+        self.world_layer = (
+            world_layer.value if isinstance(world_layer, Layer) else int(world_layer)
+        )
 
         # Pour les animations
         self.animator = Animator(
@@ -233,6 +238,7 @@ class Player(Serializable):
         offset: tuple[float, float],
         current_player: "Player",
         other_players: list["Player"],
+        active_world_layer: int | None = None,
     ):
         """
         Dessine met a jour tout les joueurs
@@ -240,9 +246,19 @@ class Player(Serializable):
         if other_players:
             if isinstance(other_players, list):
                 for player in other_players:
+                    if (
+                        active_world_layer is not None
+                        and player.world_layer != active_world_layer
+                    ):
+                        continue
                     player.draw(surface, offset)
             else:
                 other_players.draw(surface, offset)
 
         if current_player:
+            if (
+                active_world_layer is not None
+                and current_player.world_layer != active_world_layer
+            ):
+                return
             current_player.draw(surface, offset)

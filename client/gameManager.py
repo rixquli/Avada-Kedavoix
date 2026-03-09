@@ -20,6 +20,7 @@ from client.classes.mapBackground import MapBackground
 from client.classes.player import Player
 from client.classes.pnj import PNJ
 from client.classes.wall import Wall
+from client.layerList import Layer
 from client.voice.realtimeVoice import get_voice_command, start_voice_recognition
 
 
@@ -81,10 +82,23 @@ class GameManager:
         self.clock.tick(60)
         self.running = True
 
+        self.world_layer = Layer.OVERWORLD.value
+        self.layer_switch_cooldown_ms = 200
+        self.last_layer_switch_ms = -self.layer_switch_cooldown_ms
+
         # TODO: à deplacer
         self.clientsElements = ClientElements()
-        dungeonEntrance = DungeonEntrance(400, 0)
+        dungeonEntrance = DungeonEntrance(
+            400, 0, world_layer=Layer.OVERWORLD, target_world_layer=Layer.DUNGEON_BASE
+        )
+        dungeonExit = DungeonEntrance(
+            400,
+            0,
+            world_layer=Layer.DUNGEON_BASE,
+            target_world_layer=Layer.OVERWORLD,
+        )
         self.clientsElements.add(dungeonEntrance)
+        self.clientsElements.add(dungeonExit)
 
         # Group pour gerer les collisions
         # self.groups = {"obstacle": pygame.sprite.Group()}
@@ -105,8 +119,15 @@ class GameManager:
             MapBackground(
                 os.path.normpath(
                     os.path.join(os.path.dirname(__file__), "tiles", "maps", "main.tmx")
-                )
-            )
+                ),
+                world_layer=Layer.OVERWORLD,
+            ),
+            MapBackground(
+                os.path.normpath(
+                    os.path.join(os.path.dirname(__file__), "tiles", "maps", "main.tmx")
+                ),
+                world_layer=Layer.DUNGEON_BASE,
+            ),
         ]
 
     def render(self):
@@ -160,6 +181,7 @@ class GameManager:
             dir=(dir_x, dir_y),
             radius=8,
             thrower=my_player.THROWER_TYPE,
+            world_layer=my_player.world_layer,
         )
 
         self.client_manager.cast_spell(spell)
@@ -228,37 +250,60 @@ class GameManager:
             return
 
         offset: tuple[float, float] = self.get_camera_offset()
+        self.world_layer = current_player.world_layer
 
         # Dessine la map de fond
-        MapBackground.draw_all(self.screen, offset, self.maps)
+        MapBackground.draw_all(
+            self.screen, offset, self.maps, active_world_layer=self.world_layer
+        )
 
         # Dessine les éléments cotés clients seulements
-        self.clientsElements.draw_all(self.screen, offset)
+        self.clientsElements.draw_all(
+            self.screen, offset, active_world_layer=self.world_layer
+        )
 
         # Dessine les joueurs
         other_players = self.client_manager.game_state.players.get_except_list(
             self.client_manager.my_player_id
         )
-        Player.draw_all(self.screen, offset, current_player, other_players)
+        Player.draw_all(
+            self.screen,
+            offset,
+            current_player,
+            other_players,
+            active_world_layer=self.world_layer,
+        )
 
         # Dessine les spells
         Spell.draw_all(
-            self.screen, offset, self.client_manager.game_state.spells.get_list()
+            self.screen,
+            offset,
+            self.client_manager.game_state.spells.get_list(),
+            active_world_layer=self.world_layer,
         )
 
         # Dessine les ennemis
         Enemy.draw_all(
-            self.screen, offset, self.client_manager.game_state.enemies.get_list()
+            self.screen,
+            offset,
+            self.client_manager.game_state.enemies.get_list(),
+            active_world_layer=self.world_layer,
         )
 
         # Dessine les PNJ
         PNJ.draw_all(
-            self.screen, offset, self.client_manager.game_state.pnjs.get_list()
+            self.screen,
+            offset,
+            self.client_manager.game_state.pnjs.get_list(),
+            active_world_layer=self.world_layer,
         )
 
         # Dessine les murs
         Wall.draw_all(
-            self.screen, offset, self.client_manager.game_state.walls.get_list()
+            self.screen,
+            offset,
+            self.client_manager.game_state.walls.get_list(),
+            active_world_layer=self.world_layer,
         )
 
     def update_local_player(self):
@@ -285,3 +330,24 @@ class GameManager:
     @property
     def collision_manager(self):
         return self.client_manager.game_state.collision_manager
+
+    # TODO: Move to specialized manager
+    def switch_player_layer(self, target_layer):
+        now_ms = pygame.time.get_ticks()
+        if now_ms - self.last_layer_switch_ms < self.layer_switch_cooldown_ms:
+            return False
+
+        current_player = self.client_manager.get_player()
+        if not current_player:
+            return False
+
+        target_layer_value = (
+            target_layer.value if isinstance(target_layer, Layer) else int(target_layer)
+        )
+
+        if current_player.world_layer == target_layer_value:
+            return False
+
+        current_player.world_layer = target_layer_value
+        self.last_layer_switch_ms = now_ms
+        return True

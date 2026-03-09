@@ -7,6 +7,7 @@ import pygame
 import time
 
 from client.classes.spell import Spell
+from client.layerList import Layer
 from server.classes.serializable import Serializable
 from client.classes.hitbox import HitBox
 
@@ -24,6 +25,7 @@ class Enemy(Serializable):
         hp: int = 1,
         vitesse: int = 1,
         attack_delay: float = 5.0,
+        world_layer: int | Layer = Layer.OVERWORLD,
     ):
         self.id = id
         self.color = tuple(color)
@@ -56,6 +58,9 @@ class Enemy(Serializable):
 
         # pour donner aux sorts et identifier le thrower
         self.THROWER_TYPE = "ennemy"
+        self.world_layer = (
+            world_layer.value if isinstance(world_layer, Layer) else int(world_layer)
+        )
 
         self.attack_delay = float(attack_delay)
         self.prec_attack_time = time.time()
@@ -84,6 +89,7 @@ class Enemy(Serializable):
             radius=4,
             thrower=self.THROWER_TYPE,
             speed=2,
+            world_layer=self.world_layer,
         )
 
         # TODO: Nettoyer ce bout et utiliser une classe singloton ou autre
@@ -157,13 +163,23 @@ class Enemy(Serializable):
         self.target_y = float(y)
 
     @staticmethod
-    def draw_all(surface, offset: tuple[float, float], enemies: list["Enemy"]):
+    def draw_all(
+        surface,
+        offset: tuple[float, float],
+        enemies: list["Enemy"],
+        active_world_layer: int | None = None,
+    ):
         """
         Dessine tout les ennemi
         """
         if enemies:
             if isinstance(enemies, list):
                 for enemy in enemies:
+                    if (
+                        active_world_layer is not None
+                        and enemy.world_layer != active_world_layer
+                    ):
+                        continue
                     enemy.draw(surface, offset)
             else:
                 enemies.draw(surface, offset)

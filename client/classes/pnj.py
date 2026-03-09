@@ -3,6 +3,7 @@ Classe pour la gestion des pnj
 """
 
 import pygame
+from client.layerList import Layer
 from server.classes.serializable import Serializable
 from client.classes.hitbox import HitBox
 
@@ -18,6 +19,7 @@ class PNJ(Serializable):
         vy: float = 0,
         id: int = None,
         hp: int = 1,
+        world_layer: int | Layer = Layer.OVERWORLD,
     ):
         self.id = id
         self.color = tuple(color)
@@ -56,6 +58,9 @@ class PNJ(Serializable):
 
         # Pour gerer le systeme vie/degat
         self.hp = hp
+        self.world_layer = (
+            world_layer.value if isinstance(world_layer, Layer) else int(world_layer)
+        )
 
     def is_dead(self) -> bool:
         return self.hp <= 0
@@ -124,13 +129,23 @@ class PNJ(Serializable):
         self.target_y = float(y)
 
     @staticmethod
-    def draw_all(surface, offset: tuple[float, float], pnjs: list["PNJ"]):
+    def draw_all(
+        surface,
+        offset: tuple[float, float],
+        pnjs: list["PNJ"],
+        active_world_layer: int | None = None,
+    ):
         """
         Dessine tout les pnj
         """
         if pnjs:
             if isinstance(pnjs, list):
                 for pnj in pnjs:
+                    if (
+                        active_world_layer is not None
+                        and pnj.world_layer != active_world_layer
+                    ):
+                        continue
                     pnj.draw(surface, offset)
             else:
                 pnjs.draw(surface, offset)
