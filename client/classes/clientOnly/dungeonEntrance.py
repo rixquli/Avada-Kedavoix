@@ -43,4 +43,13 @@ class DungeonEntrance(CleintElementBehaviour):
 
     def handle_event(self, event: pygame.event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
-            print("ENTER THE DUNGEON")
+            current_player = self.game_manager.client_manager.game_state.players.get(
+                self.game_manager.client_manager.my_player_id
+            )
+            distance = abs(
+                math.sqrt(
+                    (current_player.x - self.x) ** 2 + (current_player.y - self.y) ** 2
+                )
+            )
+            if distance < self.distance_trigger:
+                print("ENTER THE DUNGEON")
