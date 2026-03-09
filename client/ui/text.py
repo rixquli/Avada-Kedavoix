@@ -32,10 +32,11 @@ class Text:
         self.rendered_text = self.font.render(text, True, self.color)
         self.background = background
         self.anchor = anchor
+        self.fixed_background_size = bool(background and width is not None and height is not None)
 
         # si la width et la heigth sont definit on s'en sert
         # sinon on prend la taille du texte
-        if self.background and self.width and self.height:
+        if self.fixed_background_size:
             self.width = width
             self.height = height
         else:
@@ -51,7 +52,7 @@ class Text:
 
         if background:
             self.backgroundRect = pygame.Rect(
-                self.position[0], self.position[1], self.width, self.height
+                self.actual_position[0], self.actual_position[1], self.width, self.height
             )
         else:
             self.backgroundRect = None
@@ -60,7 +61,7 @@ class Text:
         self.text = new_text
         self.rendered_text = self.font.render(self.text, True, self.color)
 
-        if not (self.background and self.width and self.height):
+        if not self.fixed_background_size:
             text_rect = self.rendered_text.get_rect()
             self.width = text_rect.width
             self.height = text_rect.height
@@ -68,8 +69,22 @@ class Text:
         self.actual_position = UIUtils.calculate_position_with_anchor(
             self.width, self.height, self.anchor, self.position
         )
+        if self.backgroundRect:
+            self.backgroundRect.topleft = self.actual_position
+
+    def update_position(self):
+        self.actual_position = UIUtils.calculate_position_with_anchor(
+            self.width, self.height, self.anchor, self.position
+        )
+        if self.backgroundRect:
+            self.backgroundRect.topleft = self.actual_position
+
+    def on_resize(self):
+        self.update_position()
 
     def draw(self, window):
+        self.update_position()
+
         if self.background:
             pygame.draw.rect(
                 window, self.bg_color, self.backgroundRect, border_radius=10
@@ -80,12 +95,12 @@ class Text:
             )
 
             text_x = (
-                self.position[0]
+                self.actual_position[0]
                 + self.backgroundRect.width / 2
                 - self.rendered_text.get_rect().width / 2
             )
             text_y = (
-                self.position[1]
+                self.actual_position[1]
                 + self.backgroundRect.height / 2
                 - self.rendered_text.get_rect().height / 2
             )

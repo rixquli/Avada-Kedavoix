@@ -38,6 +38,11 @@ class Menu:
             if hasattr(comp, "handle_event"):
                 comp.handle_event(event)
 
+    def on_resize(self):
+        for comp in self.ui_components:
+            if hasattr(comp, "on_resize"):
+                comp.on_resize()
+
 
 class UI:
     def __init__(self, screen=None):
@@ -84,9 +89,9 @@ class UI:
         self.menus[menu_name].add(ui_components)
 
     def on_resize(self):
-        """Quand la taille de la fentre change on met a jour tout les menus visibles"""
-        for menu in self.get_visible_menus():
-            self.refresh(menu)
+        """Quand la taille de la fenetre change on recalcule les positions ancrées."""
+        for menu_name in self.get_visible_menus():
+            self.menus[menu_name].on_resize()
 
     def refresh(self, menu_name):
         """
