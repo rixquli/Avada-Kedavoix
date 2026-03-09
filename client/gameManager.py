@@ -73,7 +73,7 @@ class GameManager:
     def setup_pygame(self):
         """Initialise pygame et crée la fenetre"""
         pygame.init()
-        self.width, self.height = 1920 // 2, 1080 // 2
+        self.width, self.height = 1920, 1080
         self.screen = pygame.display.set_mode(
             (self.width, self.height), pygame.RESIZABLE
         )

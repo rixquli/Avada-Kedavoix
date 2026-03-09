@@ -47,7 +47,18 @@ class Button:
             self.actual_position[0], self.actual_position[1], self.width, self.height
         )
 
+    def update_position(self):
+        self.actual_position = UIUtils.calculate_position_with_anchor(
+            self.width, self.height, self.anchor, self.position
+        )
+        self.buttonRect.topleft = self.actual_position
+
+    def on_resize(self):
+        self.update_position()
+
     def draw(self, window):
+        self.update_position()
+
         mouse_pos = pygame.mouse.get_pos()
         is_hovered = self.buttonRect.collidepoint(mouse_pos)
 

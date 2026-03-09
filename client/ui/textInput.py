@@ -54,6 +54,15 @@ class TextInput:
         # Si initial_text est definie on execute onTextChanged
         self.onTextChanged(self.text)
 
+    def update_position(self):
+        self.actual_position = UIUtils.calculate_position_with_anchor(
+            self.width, self.height, self.anchor, self.position
+        )
+        self.input_box.topleft = self.actual_position
+
+    def on_resize(self):
+        self.update_position()
+
     def updateText(self):
         if self.text != self.previousText:
             self.textRenderer = self.font.render(self.text, True, self.color)
@@ -82,6 +91,7 @@ class TextInput:
         return None
 
     def draw(self, window):
+        self.update_position()
         self.updateText()
         pygame.draw.rect(window, self.bg_color, self.input_box, border_radius=10)
 
