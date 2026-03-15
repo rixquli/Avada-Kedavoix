@@ -51,7 +51,9 @@ class Enemy(Serializable):
         self.min_threshold = 0.1
 
         self.hitbox_size = (25, 25)
-        self.hitbox = HitBox(int(x), int(y), self.hitbox_size[0], self.hitbox_size[1])
+        self.hitbox = HitBox(
+            int(x), int(y), self.hitbox_size[0], self.hitbox_size[1], world_layer
+        )
 
         # Pour gerer le systeme vie/degat
         self.hp = hp
@@ -109,7 +111,7 @@ class Enemy(Serializable):
         self.ia.update()
 
         # Appliquer le mouvement horizontal
-        self.hitbox.update(int(self.x + self.vx), int(self.y))
+        self.hitbox.update(int(self.x + self.vx), int(self.y), self.world_layer)
 
         # Vérifier les collisions horizontales
         collided = self.hitbox.get_server_collided()
@@ -117,7 +119,7 @@ class Enemy(Serializable):
             self.x += self.vx
 
         # Appliquer le mouvement vertical
-        self.hitbox.update(int(self.x), int(self.y + self.vy))
+        self.hitbox.update(int(self.x), int(self.y + self.vy), self.world_layer)
 
         # Vérifier les collisions verticales
         collided = self.hitbox.get_server_collided()

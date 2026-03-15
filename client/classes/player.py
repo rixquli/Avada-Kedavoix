@@ -53,7 +53,9 @@ class Player(Serializable):
         # Pour gerer les collisions
         #! Attention hibox_size sera envoyé au serveur mais pas hitbox (qui correspond a l'objet pygame de l'hitbox)
         self.hitbox_size = (25, 25)
-        self.hitbox = HitBox(int(x), int(y), self.hitbox_size[0], self.hitbox_size[1])
+        self.hitbox = HitBox(
+            int(x), int(y), self.hitbox_size[0], self.hitbox_size[1], world_layer
+        )
 
         # Pour gerer le systeme vie/degat
         self.hp = hp
@@ -135,7 +137,7 @@ class Player(Serializable):
         Sinon si aucune collision n'est détectée a la prochaine position alors on applique le mouvement
         """
         # Appliquer le mouvement horizontal
-        self.hitbox.update(int(self.x + self.vx), int(self.y))
+        self.hitbox.update(int(self.x + self.vx), int(self.y), self.world_layer)
 
         # Vérifier les collisions horizontales
         collided = self.hitbox.get_local_collided()
@@ -143,7 +145,7 @@ class Player(Serializable):
             self.x += self.vx
 
         # Appliquer le mouvement vertical
-        self.hitbox.update(int(self.x), int(self.y + self.vy))
+        self.hitbox.update(int(self.x), int(self.y + self.vy), self.world_layer)
 
         # Vérifier les collisions verticales
         collided = self.hitbox.get_local_collided()
@@ -151,7 +153,7 @@ class Player(Serializable):
             self.y += self.vy
 
         # Mettre à jour la hitbox à la position finale
-        self.hitbox.update(int(self.x), int(self.y))
+        self.hitbox.update(int(self.x), int(self.y), self.world_layer)
 
         # Defini la target pour calculer l'interpolation
         self.set_target_position(self.x, self.y)

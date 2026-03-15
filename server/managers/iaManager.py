@@ -133,7 +133,11 @@ class ListIa:
         else:
             if enemy.path is None:
                 enemy.path = Path(
-                    (int(enemy.x), int(enemy.y)), cible_pos, enemy.hitbox, enemy.vitesse
+                    (int(enemy.x), int(enemy.y)),
+                    cible_pos,
+                    enemy.hitbox,
+                    enemy.world_layer,
+                    enemy.vitesse,
                 )
             elif len(enemy.path.path) == 0:
                 enemy.path.update_dest(cible_pos[0], cible_pos[1])

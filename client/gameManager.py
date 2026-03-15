@@ -22,6 +22,7 @@ from client.classes.pnj import PNJ
 from client.classes.wall import Wall
 from client.layerList import Layer
 from client.voice.realtimeVoice import get_voice_command, start_voice_recognition
+from server.world_elements import dungeonWalls
 
 
 # To import module from other folder
@@ -89,14 +90,25 @@ class GameManager:
         # TODO: à deplacer
         self.clientsElements = ClientElements()
         dungeonEntrance = DungeonEntrance(
-            400, 0, world_layer=Layer.OVERWORLD, target_world_layer=Layer.DUNGEON_BASE
+            250, 0, world_layer=Layer.OVERWORLD, target_world_layer=Layer.DUNGEON_BASE
         )
         dungeonExit = DungeonEntrance(
-            400,
+            250,
             0,
             world_layer=Layer.DUNGEON_BASE,
             target_world_layer=Layer.OVERWORLD,
         )
+        for i, e in enumerate(dungeonWalls.dungeonWalls):
+            print(e.teleport_pos)
+            self.clientsElements.add(
+                DungeonEntrance(
+                    e.teleport_pos[0],
+                    e.teleport_pos[1],
+                    world_layer=Layer.DUNGEON_BASE.value + i,
+                    target_world_layer=Layer.DUNGEON_BASE.value + i + 1,
+                )
+            )
+
         self.clientsElements.add(dungeonEntrance)
         self.clientsElements.add(dungeonExit)
 

@@ -51,7 +51,9 @@ class Spell(Serializable):
         self.min_threshold = 0.01
 
         self.hitbox_size = (radius, radius)
-        self.hitbox = HitBox(int(x), int(y), self.hitbox_size[0], self.hitbox_size[1])
+        self.hitbox = HitBox(
+            int(x), int(y), self.hitbox_size[0], self.hitbox_size[1], world_layer
+        )
 
         # Pour gerer le systeme vie/degat
         self.dmg = int(dmg)
@@ -87,7 +89,7 @@ class Spell(Serializable):
         self.x += self.dir[0] * self.speed
         self.y += self.dir[1] * self.speed
 
-        self.hitbox.update(int(self.x), int(self.y))
+        self.hitbox.update(int(self.x), int(self.y), self.world_layer)
 
     def is_expired(self) -> bool:
         """Verifie si le sort a depasse sa duree de vie"""

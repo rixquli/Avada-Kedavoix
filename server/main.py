@@ -12,6 +12,10 @@ import socket
 import os
 import sys
 
+from client.classes.clientOnly.dungeonEntrance import DungeonEntrance
+from client.layerList import Layer
+from server.world_elements import dungeonWalls
+
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -138,6 +142,9 @@ def broadcast_game_state():
 def spawn_element_at_start():
     enemy1 = network.game_state.enemies.addEntity(Enemy(200, 200, (0, 255, 255)))
     enemy2 = network.game_state.enemies.addEntity(Enemy(350, 350, (0, 255, 255)))
+    enemy2 = network.game_state.enemies.addEntity(
+        Enemy(350, 350, (0, 255, 255), world_layer=2)
+    )
 
     pnj1 = network.game_state.pnjs.addEntity(PNJ(-150, -150, (255, 0, 255)))
     pnj2 = network.game_state.pnjs.addEntity(PNJ(-100, -100, (255, 0, 255)))
@@ -154,6 +161,18 @@ def spawn_element_at_start():
         network.game_state.collision_manager.client_collider_groups["obstacle"].add(
             wall
         )
+
+    for i, e in enumerate(dungeonWalls.dungeonWalls):
+        if i > 0:
+            break
+        for data in e.walls:
+            wall = Wall(
+                data[0], data[1], data[2], data[3], Layer.DUNGEON_BASE.value + i
+            )
+            network.game_state.walls.addEntity(wall)
+            network.game_state.collision_manager.client_collider_groups["obstacle"].add(
+                wall
+            )
 
 
 def start_game_server(adress=None, port=None, max_player=5, is_solo=False):
