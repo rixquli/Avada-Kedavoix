@@ -66,7 +66,7 @@ class ClientManager:
                         )
 
             except Exception as e:
-                print(f"Error: {e}")
+                print(f"Error while receiving msg: {e}")
                 break
 
     def send_my_position(self):

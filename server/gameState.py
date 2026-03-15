@@ -34,6 +34,7 @@ from classes.serializable import Serializable
 
 class GameState:
     """permet d'avoir une copie partagee entre client et serveur"""
+
     def __init__(self):
         self.collision_manager = CollisionManager(self)
 
@@ -53,12 +54,18 @@ class GameState:
 
     def get_game_state(self, diff=True):
         """Retourne l'état complet du jeu pour le broadcast"""
+        players_state = self.players.to_dict(diff)
+        spells_state = self.spells.to_dict(diff)
+        enemies_state = self.enemies.to_dict(diff)
+        pnjs_state = self.pnjs.to_dict(diff)
+        walls_state = self.walls.to_dict(diff)
+
         return {
-            "players": self.players.to_dict(diff),
-            "spells": self.spells.to_dict(diff),
-            "enemies": self.enemies.to_dict(diff),
-            "pnjs": self.pnjs.to_dict(diff),
-            "walls": self.walls.to_dict(diff),
+            "players": players_state,
+            "spells": spells_state,
+            "enemies": enemies_state,
+            "pnjs": pnjs_state,
+            "walls": walls_state,
         }
 
     # Executer cote serveur
@@ -108,10 +115,6 @@ class GameState:
 
     def apply_state_for(self, state, name, entities, my_player_id=None):
         for id, data in state.get(name, {}).items():
-            # if not data:
-            #     # si l'entité n'existe plus on le supprime
-            #     entities.remove(str(id))
-            # el
             if str(id) not in entities.entities:
                 # si l'entité n'existe pas localement on l'ajoute
                 entity = entities.entity_type.from_dict(data)

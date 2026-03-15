@@ -125,12 +125,18 @@ def broadcast_game_state():
         # Les joueurs s'update coté client
         network.game_state.update_all()
 
+        # layersToRender = []
+        # for player in network.game_state.players.get_list():
+        #     layer = player.world_layer
+        #     if layer not in layersToRender:
+        #         layersToRender.append(layer)
+
         state = network.game_state.get_game_state(diff=True)
         msg = Message(MessageType.GAME_STATE, state)
 
+        data = msg.serialize()
         for conn in list(network.player_connections.keys()):
             try:
-                data = msg.serialize()
                 conn.sendall(data)
             except:
                 pass
@@ -163,8 +169,6 @@ def spawn_element_at_start():
         )
 
     for i, e in enumerate(dungeonWalls.dungeonWalls):
-        if i > 0:
-            break
         for data in e.walls:
             wall = Wall(
                 data[0], data[1], data[2], data[3], Layer.DUNGEON_BASE.value + i

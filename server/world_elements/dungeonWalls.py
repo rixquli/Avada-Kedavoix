@@ -31,8 +31,8 @@ class DungeonGenerator:
 
     def __init__(
         self,
-        width=2500,
-        height=2500,
+        width=1000,
+        height=1000,
         room_min=250,
         room_max=600,
         room_count=50,
@@ -51,7 +51,7 @@ class DungeonGenerator:
         self.wall_thickness = wall_thickness
         self.door_width = door_width
 
-    def generate_rooms(self):
+    def _generate_room_partition(self):
         rectangles = [(-self.width, -self.height, self.width * 2, self.height * 2)]
 
         def find_splittable_index():
@@ -93,6 +93,30 @@ class DungeonGenerator:
                 rectangles[index : index + 1] = [top, bottom]
 
         return [Room(x, y, w, h) for x, y, w, h in rectangles]
+
+    def _is_point_in_safe_room_area(self, room, point):
+        x, y = point
+
+        return (
+            room.x + self.wall_thickness <= x <= room.x + room.w - self.wall_thickness
+            and room.y + self.wall_thickness <= y <= room.y + room.h - self.wall_thickness
+        )
+
+    def generate_rooms(self, required_point=None, max_attempts=40):
+        rooms = []
+
+        for _ in range(max_attempts):
+            rooms = self._generate_room_partition()
+
+            if required_point is None:
+                return rooms
+
+            if any(
+                self._is_point_in_safe_room_area(room, required_point) for room in rooms
+            ):
+                return rooms
+
+        return rooms
 
     def merge_intervals(self, intervals):
 
@@ -296,9 +320,9 @@ class DungeonGenerator:
 
         return walls
 
-    def generate_level(self):
+    def generate_level(self, required_point=None):
 
-        rooms = self.generate_rooms()
+        rooms = self.generate_rooms(required_point=required_point)
 
         openings = self.create_openings(rooms)
 
@@ -318,9 +342,10 @@ class DungeonGenerator:
 
 generator = DungeonGenerator()
 
-level = generator.generate_level()
 
-walls = level.walls
-teleport = level.teleport_pos
-
-dungeonWalls = [DungeonLevel(walls, teleport)]
+dungeonWalls = []
+required_point = None
+for i in range(100):
+    level = generator.generate_level(required_point=required_point)
+    dungeonWalls.append(DungeonLevel(level.walls, level.teleport_pos))
+    required_point = level.teleport_pos

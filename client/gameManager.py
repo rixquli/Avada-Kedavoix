@@ -108,6 +108,14 @@ class GameManager:
                     target_world_layer=Layer.DUNGEON_BASE.value + i + 1,
                 )
             )
+            self.clientsElements.add(
+                DungeonEntrance(
+                    e.teleport_pos[0],
+                    e.teleport_pos[1],
+                    world_layer=Layer.DUNGEON_BASE.value + i + 1,
+                    target_world_layer=Layer.DUNGEON_BASE.value + i,
+                )
+            )
 
         self.clientsElements.add(dungeonEntrance)
         self.clientsElements.add(dungeonExit)
