@@ -1,10 +1,7 @@
-"""
-fichier pour effectuer la recherche de chemin
-"""
-
+from pygame.examples import grid
 
 from client.classes.hitbox import HitBox
-
+import time
 
 
 class Pix:
@@ -53,18 +50,19 @@ class Path:
     pour calculer et stocker le chemin (precision representes le saut entre chaque pixel du chemin et
     la distance minimale pour considerer l'arrivee)
     """
-    def __init__(self, pos: tuple[float, float], dest: tuple[float, float], hitbox: HitBox, precision: int = 1):
-        self.pos = tuple((int(pos[0]),int(pos[1])))
-        self.dest = tuple((int(dest[0]),int(dest[1])))
+    def __init__(self, pos: tuple[float, float], dest: tuple[float, float], hitbox: HitBox, precision: int = 1, porte: int = 1000):
+        self.pos = tuple((int(pos[0]//precision*precision),int(pos[1]//precision*precision)))
+        self.dest = tuple((int(dest[0]//precision*precision),int(dest[1]//precision*precision)))
         self.hitbox = HitBox(hitbox.x, hitbox.y, hitbox.w, hitbox.h)
         self.path = list()
         self.precision = precision
+        self.porte = porte
 
     def update_pos(self, x: int, y: int):
-        self.pos = tuple((int(x),int(y)))
+        self.pos = tuple((int(x//self.precision*self.precision),int(y//self.precision*self.precision)))
 
     def update_dest(self, x: int, y: int):
-        self.dest = tuple((int(x),int(y)))
+        self.dest = tuple((int(x//self.precision*self.precision),int(y//self.precision*self.precision)))
 
     def dist_euclide(self, x: int, y: int, x_target: int = None, y_target: int = None) -> float:
         """renvois la distance a vol d'oiseau (si x_target et y_target non remplis ils sont mis a l'arrivee)"""
@@ -85,7 +83,7 @@ class Path:
         """
         adj_list: list[tuple[tuple[int, int], float]] = list()
         x,y = pos
-        for dx in(-self.precision, 0, self.precision):
+        for dx in (-self.precision, 0, self.precision):
             for dy in (-self.precision, 0, self.precision):
                 if dx != 0 or dy != 0:
                     adj_list.append(((x+dx, y+dy), (dx**2+dy**2)**0.5)) # x, y, dist
@@ -98,13 +96,12 @@ class Path:
         a reexecuter lorsque le chemin est vide
         UTILISES A*
         """
-        # TODO solve oscillation entre 2 calculs si bloque derriere mur
         visited = list()
         to_visit = list()
-        to_visit.append(Pix(self.pos,self.dist_euclide(self.pos[0],self.pos[1])))
+        to_visit.append(Pix(self.pos,0))
         nb = 0
 
-        while len(to_visit)>0 and nb < 1000:
+        while len(to_visit)>0 and nb < self.porte:
             #str_to_visit = list()
             #for pix in to_visit:
             #    str_to_visit.append(pix.get_tuple())
@@ -126,7 +123,7 @@ class Path:
             for (pos,dist) in self.adj(current_pix.get_tuple()):
                 pix = Pix(pos, self.dist_euclide(pos[0],pos[1]))
                 pix.add_origin(current_pix, dist)
-                self.hitbox.update(pix.x, pix.y)
+                self.hitbox.update(pos[0], pos[1])
 
                 if self.dist_euclide(pix.x, pix.y) <= self.precision or nb_frame < pix.len_path:
                     # test si il est arrive ou si il a calcule asse d'image
@@ -140,17 +137,17 @@ class Path:
 
     def find_path(self, nb_frame: int = 5):
         """met a jour le chemin en en calculant un nouveau"""
+        #t1 = time.time()
         self.path = self.search(nb_frame)
+        #print(time.time()-t1)
 
     def follow_path(self):
         """renvois la direction de la prochaine position"""
         if len(self.path) == 0:
+            print(self.path)
             return 0,0
-        dx = self.path[0][0] - self.pos[0]
-        dy = self.path[0][1] - self.pos[1]
-        self.path.remove(self.path[0])
-        # TODO solve  vitesse trop grande en diagonale
-        #if dx != 0 and dy != 0:
-        #    return dx/(2**0.5), dy/(2**0.5)
-        #else:
-        return dx, dy
+        x = self.path[0][0] - self.pos[0]
+        y = self.path[0][1] - self.pos[1]
+        print(self.path)
+        self.path.pop(0)
+        return x, y
