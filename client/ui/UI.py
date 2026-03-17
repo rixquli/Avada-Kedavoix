@@ -88,6 +88,22 @@ class UI:
             raise ValueError(menu_name, ": this menu do not exist")
         self.menus[menu_name].add(ui_components)
 
+    def _resolve_menu_components(self, menu_def, menu_name):
+        """Construit la liste des composants en supportant du contenu statique ou callable."""
+        content = menu_def.get("content", [])
+
+        if callable(content):
+            try:
+                components = content(menu_name)
+            except TypeError:
+                components = content()
+        else:
+            components = content
+
+        if components is None:
+            return []
+        return components
+
     def on_resize(self):
         """Quand la taille de la fenetre change on recalcule les positions ancrées."""
         for menu_name in self.get_visible_menus():
@@ -112,8 +128,7 @@ class UI:
             new_menu = Menu(menu_name, is_showing)
 
             # résoudre le contenu (accepte callable(menu_name) ou callable())
-            content = menu_def.get("content", [])
-            components = content
+            components = self._resolve_menu_components(menu_def, menu_name)
 
             # ajouter les composants (ignorer None)
             for comp in components:
@@ -145,5 +160,6 @@ class UI:
             name = menu["name"]
             is_showing = menu.get("is_showing", False)
             self.createMenu(name, is_showing)
-            for component in menu["content"]:
+            components = self._resolve_menu_components(menu, name)
+            for component in components:
                 self.addTo(name, component)

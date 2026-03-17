@@ -133,7 +133,6 @@ def join_menu(menu_name):
             game_manager.ui.hide(menu_name)
 
             game_manager.ui.show("hud")
-            game_manager.ui.refresh("hud")
         else:
             # Met à jour le texte d'erreur
             error_text.change_text(f"Error, can not join {ip}:{port}")
@@ -203,13 +202,28 @@ def hud():
         return elements
 
     wizard_type = player.wizard_type
+    wizard_folder = {
+        "fire": "wizard_fire",
+        "ice": "wizard_ice",
+    }.get(wizard_type, "wizard")
 
-    if wizard_type == "fire":
-        path = "client/ressources/wizzard-test/PNG/wizard_fire/attack/attack_1.png"
-    elif wizard_type == "ice":
-        path = "client/ressources/wizzard-test/PNG/wizard_ice/attack/attack_1.png"
-    else:
-        return elements
+    PROJECT_ROOT = os.path.abspath(
+        os.path.join(
+            os.path.dirname(__file__),
+            "..",
+        )
+    )
+    path = os.path.join(
+        PROJECT_ROOT,
+        "client",
+        "ressources",
+        "wizzard-test",
+        "PNG",
+        wizard_folder,
+        "idle",
+        "idle_1.png",
+    )
+
     avatar = Image(
         path=path,
         width=100,
@@ -226,20 +240,20 @@ def hud():
 Menus = [
     {
         "name": "MainMenu",
-        "content": main_menu("MainMenu"),
+        "content": main_menu,
         "is_showing": True,  # permet au menu d'apparaitre au demarage de l'app de base is_showing = False
     },
     {
         "name": "JoinMenu",
-        "content": join_menu("JoinMenu"),  # Version sans le message d'erreur
+        "content": join_menu,  # Version sans le message d'erreur
     },
     {
         "name": "press_e",
-        "content": press_e("press_e"),
+        "content": press_e,
     },
     {
         "name": "hud",
-        "content": hud(),
+        "content": hud,
         "is_showing": False,
     },
 ]
