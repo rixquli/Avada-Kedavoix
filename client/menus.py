@@ -15,6 +15,8 @@ import sys
 
 from client.ui.image import Image
 
+from client.ui.image import Image
+
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -94,8 +96,16 @@ def main_menu(menu_name):
         position=(0, 0),
         anchor=Anchor.TOPLEFT,
     )
+    background = Image(
+        path="client/ressources/UI/main_screen.png",
+        width=1920,
+        height=1080,
+        position=(0, 0),
+        anchor=Anchor.TOPLEFT,
+    )
 
     return [
+        background,
         background,
         title,
         start_single_player,
