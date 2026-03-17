@@ -100,7 +100,6 @@ class ClientManager:
                                     world_layer=Layer.DUNGEON_BASE.value + i,
                                 )
                             )
-                        print(msg.data)
 
             except Exception as e:
                 print(f"Error while receiving msg: {e}")

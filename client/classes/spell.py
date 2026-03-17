@@ -32,7 +32,7 @@ class Spell(Serializable):
         lifetime: float = 5.0,
         dmg: int = 1,
         thrower: str = "Enemy",
-        speed: float = 1.0,
+        speed: float = 20.0,
         world_layer: int | Layer = Layer.OVERWORLD,
     ):
         self.id = id

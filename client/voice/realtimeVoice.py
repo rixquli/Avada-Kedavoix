@@ -4,6 +4,7 @@ except Exception:
     sd = None
 import json
 import os
+import re
 import sys
 import threading
 import queue
@@ -78,12 +79,40 @@ def detect_spell(text: str) -> dict | None:
     return None
 
 
+def count_keyword_occurrences(text: str, keyword: str) -> int:
+    """Compte les occurrences exactes d'un mot-clé ou d'une expression."""
+    pattern = rf"(?<!\w){re.escape(keyword.lower())}(?!\w)"
+    return len(re.findall(pattern, text.lower()))
+
+
+def detect_spells_stream(text: str, previous_counts: dict[str, int]) -> list[dict]:
+    """Retourne les nouveaux sorts détectés dans un résultat partiel ou final."""
+    triggered_spells = []
+    normalized_text = text.lower().strip()
+
+    for spell_name, spell_data in SPELLS.items():
+        current_count = 0
+        for keyword in spell_data["keywords"]:
+            current_count += count_keyword_occurrences(normalized_text, keyword)
+
+        previous_count = previous_counts.get(spell_name, 0)
+        new_occurrences = max(0, current_count - previous_count)
+
+        for _ in range(new_occurrences):
+            triggered_spells.append({"name": spell_name, **spell_data})
+
+        previous_counts[spell_name] = current_count
+
+    return triggered_spells
+
+
 def voice_listener():
     """
     Thread d'écoute vocale non-bloquant.
     Utilise un callback pour capturer l'audio en continu.
     """
     audio_queue = queue.Queue()
+    partial_detection_counts = {}
 
     def audio_callback(indata, frames, time, status):
         """Callback appelé par sounddevice à chaque bloc audio."""
@@ -111,14 +140,29 @@ def voice_listener():
                 text = result.get("text", "").strip()
 
                 if text:
-                    spell = detect_spell(text)
-                    if spell:
-                        voice_commands.put(spell)
-                        if verbose:
-                            print(f"[DÉTECTÉ] {text} → {spell['action']}")
-                    else:
+                    spells = detect_spells_stream(text, partial_detection_counts)
+                    if spells:
+                        for spell in spells:
+                            voice_commands.put(spell)
+                            if verbose:
+                                print(f"[DÉTECTÉ] {text} → {spell['action']}")
+                    elif verbose:
                         if verbose:
                             print(f"[IGNORÉ] {text}")
+
+                partial_detection_counts.clear()
+            else:
+                partial_result = json.loads(recognizer.PartialResult())
+                partial_text = partial_result.get("partial", "").strip()
+
+                if not partial_text:
+                    continue
+
+                spells = detect_spells_stream(partial_text, partial_detection_counts)
+                for spell in spells:
+                    voice_commands.put(spell)
+                    if verbose:
+                        print(f"[STREAM] {partial_text} → {spell['action']}")
 
 
 def start_voice_recognition():
