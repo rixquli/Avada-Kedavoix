@@ -30,6 +30,8 @@ class Menu:
 
     def update(self, screen):
         for comp in self.ui_components:
+            if hasattr(comp, "update"):
+                comp.update()
             if hasattr(comp, "draw"):
                 comp.draw(screen)
 
