@@ -3,9 +3,15 @@ try:
 except Exception:
     sd = None
 import json
+import os
+import re
+import sys
 import threading
 import queue
 from vosk import Model, KaldiRecognizer
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+from client.classes.spell import SpellList
 
 MODEL_PATH = "client/voice/vosk-model-small-fr-0.22"
 
@@ -20,36 +26,46 @@ voice_commands = queue.Queue()
 
 # Sorts disponibles avec leurs variations/synonymes
 SPELLS = {
-    "spell": {
-        "keywords": ["spell"],
-        "message": "Spell lancé",
-        "action": "SPELL",
+    # "spell": {
+    #     "keywords": ["spell"],
+    #     "message": "Spell lancé",
+    #     "action": "SPELL",
+    # },
+    "teleportation": {
+        "keywords": ["téléportation"],
+        "message": "Téléportation lancée",
+        "action": SpellList.TELEPORTATION,
     },
     "feu": {
         "keywords": ["boule de feu", "plus de feu"],
         "message": "Boule de feu lancée",
-        "action": "FIREBALL",
+        "action": SpellList.FIREBALL,
     },
     "glace": {
         "keywords": ["pic de glace", "pic de classe"],
         "message": "Jet de glace lancé",
-        "action": "ICE",
+        "action": SpellList.ICE,
     },
-    "foudre": {
-        "keywords": ["éclair", "tonnerre"],
-        "message": "Éclair lancé",
-        "action": "LIGHTNING",
+    "soin": {
+        "keywords": ["soin"],
+        "message": "Vie régénérée",
+        "action": SpellList.HEAL,
     },
-    "flèche": {
-        "keywords": ["flèche"],
-        "message": "Flèche lancé",
-        "action": "ARROW",
-    },
-    "avada": {
-        "keywords": ["avada", "cadavre"],
-        "message": "Sort interdit",
-        "action": "DEATH",
-    },
+    # "foudre": {
+    #     "keywords": ["éclair", "tonnerre"],
+    #     "message": "Éclair lancé",
+    #     "action": "LIGHTNING",
+    # },
+    # "flèche": {
+    #     "keywords": ["flèche"],
+    #     "message": "Flèche lancé",
+    #     "action": "ARROW",
+    # },
+    # "avada": {
+    #     "keywords": ["avada", "cadavre"],
+    #     "message": "Sort interdit",
+    #     "action": "DEATH",
+    # },
 }
 
 
@@ -63,12 +79,40 @@ def detect_spell(text: str) -> dict | None:
     return None
 
 
+def count_keyword_occurrences(text: str, keyword: str) -> int:
+    """Compte les occurrences exactes d'un mot-clé ou d'une expression."""
+    pattern = rf"(?<!\w){re.escape(keyword.lower())}(?!\w)"
+    return len(re.findall(pattern, text.lower()))
+
+
+def detect_spells_stream(text: str, previous_counts: dict[str, int]) -> list[dict]:
+    """Retourne les nouveaux sorts détectés dans un résultat partiel ou final."""
+    triggered_spells = []
+    normalized_text = text.lower().strip()
+
+    for spell_name, spell_data in SPELLS.items():
+        current_count = 0
+        for keyword in spell_data["keywords"]:
+            current_count += count_keyword_occurrences(normalized_text, keyword)
+
+        previous_count = previous_counts.get(spell_name, 0)
+        new_occurrences = max(0, current_count - previous_count)
+
+        for _ in range(new_occurrences):
+            triggered_spells.append({"name": spell_name, **spell_data})
+
+        previous_counts[spell_name] = current_count
+
+    return triggered_spells
+
+
 def voice_listener():
     """
     Thread d'écoute vocale non-bloquant.
     Utilise un callback pour capturer l'audio en continu.
     """
     audio_queue = queue.Queue()
+    partial_detection_counts = {}
 
     def audio_callback(indata, frames, time, status):
         """Callback appelé par sounddevice à chaque bloc audio."""
@@ -79,8 +123,9 @@ def voice_listener():
 
     with sd.RawInputStream(
         samplerate=16000,
-        blocksize=2000,  # Réduit pour plus de réactivité
+        blocksize=800,  # Réduit pour plus de réactivité
         dtype="int16",
+        latency="low",
         channels=1,
         callback=audio_callback,
     ):
@@ -95,14 +140,29 @@ def voice_listener():
                 text = result.get("text", "").strip()
 
                 if text:
-                    spell = detect_spell(text)
-                    if spell:
-                        voice_commands.put(spell)
-                        if verbose:
-                            print(f"[DÉTECTÉ] {text} → {spell['action']}")
-                    else:
+                    spells = detect_spells_stream(text, partial_detection_counts)
+                    if spells:
+                        for spell in spells:
+                            voice_commands.put(spell)
+                            if verbose:
+                                print(f"[DÉTECTÉ] {text} → {spell['action']}")
+                    elif verbose:
                         if verbose:
                             print(f"[IGNORÉ] {text}")
+
+                partial_detection_counts.clear()
+            else:
+                partial_result = json.loads(recognizer.PartialResult())
+                partial_text = partial_result.get("partial", "").strip()
+
+                if not partial_text:
+                    continue
+
+                spells = detect_spells_stream(partial_text, partial_detection_counts)
+                for spell in spells:
+                    voice_commands.put(spell)
+                    if verbose:
+                        print(f"[STREAM] {partial_text} → {spell['action']}")
 
 
 def start_voice_recognition():

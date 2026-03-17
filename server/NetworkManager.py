@@ -31,6 +31,9 @@ class NetworkManager:
         self.player_connections = {}
         self.is_server = is_server
         self.game_state = GameState()
+        from server.managers.enemySpawner import EnemySpawner
+
+        self.enemySpawner = EnemySpawner(self)
 
     # Methodes du serveur
     def start_server(self, address=None, port=None, max_player=5, is_solo=False):

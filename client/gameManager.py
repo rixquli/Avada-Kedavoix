@@ -21,6 +21,7 @@ from client.classes.player import Player
 from client.classes.pnj import PNJ
 from client.classes.wall import Wall
 from client.layerList import Layer
+from client.spellsManager import SpellsManager
 #from client.voice.realtimeVoice import get_voice_command, start_voice_recognition
 
 
@@ -52,10 +53,12 @@ class GameManager:
         """
         Execute setup uniquement lors du lancement du programme mais client seulement
         """
-        self.client_manager = ClientManager()
+        self.client_manager = ClientManager(self)
 
         # Setup voice recognition
         #start_voice_recognition()
+
+        self.spellManager = SpellsManager(self)
 
         # Setup pygame
         self.setup_pygame()
@@ -88,17 +91,30 @@ class GameManager:
 
         # TODO: à deplacer
         self.clientsElements = ClientElements()
+
+        # TODO: enlever/deplacer
+        self.maps = [
+            MapBackground(
+                os.path.normpath(
+                    os.path.join(os.path.dirname(__file__), "tiles", "maps", "main.tmx")
+                ),
+                world_layer=Layer.OVERWORLD,
+            )
+        ]
+
         dungeonEntrance = DungeonEntrance(
-            400, 0, world_layer=Layer.OVERWORLD, target_world_layer=Layer.DUNGEON_BASE
+            250, 0, world_layer=Layer.OVERWORLD, target_world_layer=Layer.DUNGEON_BASE
         )
         dungeonExit = DungeonEntrance(
-            400,
+            250,
             0,
             world_layer=Layer.DUNGEON_BASE,
             target_world_layer=Layer.OVERWORLD,
         )
         self.clientsElements.add(dungeonEntrance)
         self.clientsElements.add(dungeonExit)
+
+        self.cameraBlackFade = CameraBlackFade()
 
         # Group pour gerer les collisions
         # self.groups = {"obstacle": pygame.sprite.Group()}
@@ -113,22 +129,6 @@ class GameManager:
         # ]
         # for wall in self.walls:
         #     self.groups["obstacle"].add(wall)
-
-        # TODO: enlever/deplacer
-        self.maps = [
-            MapBackground(
-                os.path.normpath(
-                    os.path.join(os.path.dirname(__file__), "tiles", "maps", "main.tmx")
-                ),
-                world_layer=Layer.OVERWORLD,
-            ),
-            MapBackground(
-                os.path.normpath(
-                    os.path.join(os.path.dirname(__file__), "tiles", "maps", "main.tmx")
-                ),
-                world_layer=Layer.DUNGEON_BASE,
-            ),
-        ]
 
     def render(self):
         """Fait un rendu du jeu a executer a chaque tick"""
@@ -153,39 +153,6 @@ class GameManager:
 
         self.deltatime = self.clock.tick(60)
 
-    # TODO: déplacer ailleur:
-    def cast_basic_spell(self):
-        # Quand on clique ca lance un sort dans la direction de la souris
-        my_player = self.client_manager.get_player()
-        if not my_player:
-            return
-
-        # Calculer la direction normalisée vers le curseur de la souris
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-        dx = mouse_x - (self.screen.get_width() / 2)
-        dy = mouse_y - (self.screen.get_height() / 2)
-        length = (dx**2 + dy**2) ** 0.5
-
-        if length > 0:
-            dir_x = dx / length
-            dir_y = dy / length
-        else:
-            dir_x, dir_y = 1, 0
-
-        # Créer le sort localement (pour eviter les latences)
-        spell = Spell(
-            x=my_player.x,
-            y=my_player.y,
-            player_id=self.client_manager.my_player_id,
-            color=(50, 150, 255),
-            dir=(dir_x, dir_y),
-            radius=8,
-            thrower=my_player.THROWER_TYPE,
-            world_layer=my_player.world_layer,
-        )
-
-        self.client_manager.cast_spell(spell)
-
     def handle_event(self, event):
         """
         Gere le evennements (ex: touches claviers, souris, ...)
@@ -199,7 +166,7 @@ class GameManager:
 
         # TODO: déplacer la logique dans une classe spécifique pour les actions
         if event.type == pygame.MOUSEBUTTONDOWN:
-            self.cast_basic_spell()
+            self.spellManager.cast_basic_spell()
 
     def handle_voice_event(self):
         vocal_action = get_voice_command()
@@ -209,8 +176,9 @@ class GameManager:
         else:
             return
 
+        self.spellManager.cast_spell(vocal_action)
         if vocal_action == "SPELL":
-            self.cast_basic_spell()
+            self.spellManager.cast_basic_spell()
 
     def local_update(self):
         """
@@ -305,6 +273,12 @@ class GameManager:
             self.client_manager.game_state.walls.get_list(),
             active_world_layer=self.world_layer,
         )
+
+        if self.world_layer > Layer.OVERWORLD.value:
+            self.cameraBlackFade.draw(
+                self.screen,
+                (self.screen.get_width() // 2, self.screen.get_height() // 2),
+            )
 
     def update_local_player(self):
         # Met a jour tout les joueurs

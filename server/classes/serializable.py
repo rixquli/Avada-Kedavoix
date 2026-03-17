@@ -34,6 +34,7 @@ class Serializable:
             "game_manager",  # Singleton GameManager
             "image",  # Surface Pygame
             "rect",  # Rect Pygame
+            "healthBar",
         }
 
         for key, value in self.__dict__.items():
@@ -56,6 +57,7 @@ class Serializable:
             "game_manager",  # Singleton GameManager
             "image",  # Surface Pygame
             "rect",  # Rect Pygame
+            "healthBar",
         }
 
         first_call = False

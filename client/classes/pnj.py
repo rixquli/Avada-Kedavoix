@@ -54,7 +54,9 @@ class PNJ(Serializable):
         self.dir_y = 0
 
         self.hitbox_size = (10, 10)
-        self.hitbox = HitBox(int(x), int(y), self.hitbox_size[0], self.hitbox_size[1])
+        self.hitbox = HitBox(
+            int(x), int(y), self.hitbox_size[0], self.hitbox_size[1], world_layer
+        )
 
         # Pour gerer le systeme vie/degat
         self.hp = hp
@@ -71,7 +73,7 @@ class PNJ(Serializable):
         self.ia.update()
 
         # Appliquer le mouvement horizontal
-        self.hitbox.update(int(self.x + self.vx), int(self.y))
+        self.hitbox.update(int(self.x + self.vx), int(self.y), self.world_layer)
 
         # Vérifier les collisions horizontales
         collided = self.hitbox.get_server_collided()
@@ -79,7 +81,7 @@ class PNJ(Serializable):
             self.x += self.vx
 
         # Appliquer le mouvement vertical
-        self.hitbox.update(int(self.x), int(self.y + self.vy))
+        self.hitbox.update(int(self.x), int(self.y + self.vy), self.world_layer)
 
         # Vérifier les collisions verticales
         collided = self.hitbox.get_server_collided()
@@ -87,7 +89,7 @@ class PNJ(Serializable):
             self.y += self.vy
 
         # Mettre à jour la hitbox à la position finale
-        self.hitbox.update(int(self.x), int(self.y))
+        self.hitbox.update(int(self.x), int(self.y), self.world_layer)
 
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
@@ -119,6 +121,7 @@ class PNJ(Serializable):
             (int(cx - half), int(cy)),  # gauche
         ]
         pygame.draw.polygon(surface, self.color, points)
+        self.hitbox.draw(surface, offset)
 
     def set_target_position(self, x, y):
         """
@@ -127,6 +130,7 @@ class PNJ(Serializable):
         """
         self.target_x = float(x)
         self.target_y = float(y)
+        self.hitbox.update(int(x), int(y), self.world_layer)
 
     @staticmethod
     def draw_all(

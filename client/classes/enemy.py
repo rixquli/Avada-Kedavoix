@@ -6,6 +6,7 @@ from typing import Tuple
 import pygame
 import time
 
+from client.classes.clientOnly.healthBar import HealthBar
 from client.classes.spell import Spell
 from client.layerList import Layer
 from server.classes.serializable import Serializable
@@ -22,7 +23,7 @@ class Enemy(Serializable):
         vx: float = 0,
         vy: float = 0,
         id: int = None,
-        hp: int = 1,
+        hp: int = 5,
         vitesse: int = 1,
         attack_delay: float = 5.0,
         world_layer: int | Layer = Layer.OVERWORLD,
@@ -51,10 +52,13 @@ class Enemy(Serializable):
         self.min_threshold = 0.1
 
         self.hitbox_size = (25, 25)
-        self.hitbox = HitBox(int(x), int(y), self.hitbox_size[0], self.hitbox_size[1])
+        self.hitbox = HitBox(
+            int(x), int(y), self.hitbox_size[0], self.hitbox_size[1], world_layer
+        )
 
         # Pour gerer le systeme vie/degat
         self.hp = hp
+        self.max_hp = hp
 
         # pour donner aux sorts et identifier le thrower
         self.THROWER_TYPE = "ennemy"
@@ -74,6 +78,7 @@ class Enemy(Serializable):
         from client.gameManager import GameManager
 
         self.game_manager = GameManager()
+        self.healthBar = HealthBar(y_offset=20)
 
     #! Server Side
     def do_attack(self, dir: Tuple[float, float]) -> None:
@@ -109,7 +114,7 @@ class Enemy(Serializable):
         self.ia.update()
 
         # Appliquer le mouvement horizontal
-        self.hitbox.update(int(self.x + self.vx), int(self.y))
+        self.hitbox.update(int(self.x + self.vx), int(self.y), self.world_layer)
 
         # Vérifier les collisions horizontales
         collided = self.hitbox.get_server_collided()
@@ -117,7 +122,7 @@ class Enemy(Serializable):
             self.x += self.vx
 
         # Appliquer le mouvement vertical
-        self.hitbox.update(int(self.x), int(self.y + self.vy))
+        self.hitbox.update(int(self.x), int(self.y + self.vy), self.world_layer)
 
         # Vérifier les collisions verticales
         collided = self.hitbox.get_server_collided()
@@ -153,6 +158,14 @@ class Enemy(Serializable):
                 self.size,
             ),
         )
+        self.hitbox.draw(surface, offset)
+        self.healthBar.draw(
+            surface,
+            self.display_x + offset[0],
+            self.display_y + offset[1],
+            self.hp,
+            self.max_hp,
+        )
 
     def set_target_position(self, x, y):
         """
@@ -161,6 +174,7 @@ class Enemy(Serializable):
         """
         self.target_x = float(x)
         self.target_y = float(y)
+        self.hitbox.update(int(x), int(y), self.world_layer)
 
     @staticmethod
     def draw_all(

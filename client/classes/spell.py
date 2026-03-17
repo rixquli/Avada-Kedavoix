@@ -3,11 +3,20 @@ Classe pour la gestion des spells (sorts)
 """
 
 import time
-import pygame
-from client.layerList import Layer
+from enum import Enum
 
+import pygame
+
+from client.layerList import Layer
 from server.classes.serializable import Serializable
 from client.classes.hitbox import HitBox
+
+
+class SpellList(Enum):
+    FIREBALL = 1
+    ICE = 2
+    HEAL = 3
+    TELEPORTATION = 4
 
 
 class Spell(Serializable):
@@ -23,7 +32,7 @@ class Spell(Serializable):
         lifetime: float = 5.0,
         dmg: int = 1,
         thrower: str = "Enemy",
-        speed: float = 1.0,
+        speed: float = 20.0,
         world_layer: int | Layer = Layer.OVERWORLD,
     ):
         self.id = id
@@ -51,7 +60,9 @@ class Spell(Serializable):
         self.min_threshold = 0.01
 
         self.hitbox_size = (radius, radius)
-        self.hitbox = HitBox(int(x), int(y), self.hitbox_size[0], self.hitbox_size[1])
+        self.hitbox = HitBox(
+            int(x), int(y), self.hitbox_size[0], self.hitbox_size[1], world_layer
+        )
 
         # Pour gerer le systeme vie/degat
         self.dmg = int(dmg)
@@ -80,6 +91,7 @@ class Spell(Serializable):
         """
         self.target_x = float(x)
         self.target_y = float(y)
+        self.hitbox.update(int(x), int(y), self.world_layer)
 
     def server_update(self):
         # le set_target_position est automatique
@@ -87,7 +99,7 @@ class Spell(Serializable):
         self.x += self.dir[0] * self.speed
         self.y += self.dir[1] * self.speed
 
-        self.hitbox.update(int(self.x), int(self.y))
+        self.hitbox.update(int(self.x), int(self.y), self.world_layer)
 
     def is_expired(self) -> bool:
         """Verifie si le sort a depasse sa duree de vie"""
@@ -104,6 +116,7 @@ class Spell(Serializable):
             (int(self.display_x + offset[0]), int(self.display_y + offset[1])),
             self.radius,
         )
+        self.hitbox.draw(surface, offset)
 
     @staticmethod
     def draw_all(
@@ -126,3 +139,11 @@ class Spell(Serializable):
                     spell.draw(surface, offset)
             else:
                 all_spells.draw(surface, offset)
+
+    @staticmethod
+    def get_spell_type(spell_type: SpellList, **keyargs):
+        match spell_type:
+            case SpellList.FIREBALL:
+                return Spell(radius=10, color=(255, 0, 0), **keyargs)
+            case _:
+                return Spell(radius=8, color=(50, 150, 255), **keyargs)

@@ -7,6 +7,8 @@ et de la gestion des déplacement pour le joueur local
 import os
 import sys
 
+from client.classes.clientOnly.healthBar import HealthBar
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from client.classes.animator import Animator
 from client.layerList import Layer
@@ -53,10 +55,14 @@ class Player(Serializable):
         # Pour gerer les collisions
         #! Attention hibox_size sera envoyé au serveur mais pas hitbox (qui correspond a l'objet pygame de l'hitbox)
         self.hitbox_size = (25, 25)
-        self.hitbox = HitBox(int(x), int(y), self.hitbox_size[0], self.hitbox_size[1])
+        self.hitbox = HitBox(
+            int(x), int(y), self.hitbox_size[0], self.hitbox_size[1], world_layer
+        )
 
         # Pour gerer le systeme vie/degat
+        self.max_hp = hp
         self.hp = hp
+        self.heal_amount = 25
 
         # pour donner aux sorts et identifier le thrower
         self.THROWER_TYPE = "player"
@@ -120,11 +126,21 @@ class Player(Serializable):
             ),
         )
 
+        self.healthBar = HealthBar(y_offset=20)
+
     def is_dead(self) -> bool:
         return self.hp <= 0
 
     def take_dmg(self, dmg: int) -> None:
         self.hp -= dmg
+
+    def heal(self):
+        self.hp = min(self.max_hp, self.heal_amount + self.hp)
+
+    def teleport(self, x, y, world_layer: int):
+        self.x = x
+        self.y = y
+        self.world_layer = world_layer
 
     def update(self, keys=None):
         self.handle_input(keys)
@@ -135,7 +151,7 @@ class Player(Serializable):
         Sinon si aucune collision n'est détectée a la prochaine position alors on applique le mouvement
         """
         # Appliquer le mouvement horizontal
-        self.hitbox.update(int(self.x + self.vx), int(self.y))
+        self.hitbox.update(int(self.x + self.vx), int(self.y), self.world_layer)
 
         # Vérifier les collisions horizontales
         collided = self.hitbox.get_local_collided()
@@ -143,7 +159,7 @@ class Player(Serializable):
             self.x += self.vx
 
         # Appliquer le mouvement vertical
-        self.hitbox.update(int(self.x), int(self.y + self.vy))
+        self.hitbox.update(int(self.x), int(self.y + self.vy), self.world_layer)
 
         # Vérifier les collisions verticales
         collided = self.hitbox.get_local_collided()
@@ -151,7 +167,7 @@ class Player(Serializable):
             self.y += self.vy
 
         # Mettre à jour la hitbox à la position finale
-        self.hitbox.update(int(self.x), int(self.y))
+        self.hitbox.update(int(self.x), int(self.y), self.world_layer)
 
         # Defini la target pour calculer l'interpolation
         self.set_target_position(self.x, self.y)
@@ -215,6 +231,7 @@ class Player(Serializable):
         self.animator.blit_sprite(surface, pos)
 
         self.hitbox.draw(surface, offset)
+        self.healthBar.draw(surface, pos[0], pos[1], self.hp, self.max_hp)
 
     def set_target_position(self, x, y):
         """
@@ -223,6 +240,7 @@ class Player(Serializable):
         """
         self.target_x = float(x)
         self.target_y = float(y)
+        self.hitbox.update(int(x), int(y), self.world_layer)
 
     @staticmethod
     def update_local_player(current_player: "Player"):

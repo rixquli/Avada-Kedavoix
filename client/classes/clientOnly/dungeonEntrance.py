@@ -27,6 +27,7 @@ class DungeonEntrance(CleintElementBehaviour):
         self.game_manager = GameManager()
         self.distance_trigger = 50
         self.target_world_layer = target_world_layer
+        self.shown = False
 
     def draw(self, surface: pygame.Surface, offset):
         x = self.x + offset[0]
@@ -52,8 +53,10 @@ class DungeonEntrance(CleintElementBehaviour):
             distance < self.distance_trigger
             and current_player.world_layer == self.world_layer
         ):
+            self.shown = True
             self.game_manager.ui.show("press_e")
-        else:
+        elif self.shown:
+            self.shown = False
             self.game_manager.ui.hide("press_e")
 
     def handle_event(self, event: pygame.event):
