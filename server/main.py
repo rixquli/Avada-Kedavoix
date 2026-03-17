@@ -165,11 +165,11 @@ def spawn_element_at_start():
     pnj2 = network.game_state.pnjs.addEntity(PNJ(-100, -100, (255, 0, 255)))
 
     walls = [
-        Wall(-500, -500, 1000, 50),
-        Wall(-500, 500, 1050, 50),
-        Wall(-500, -500, 50, 1000),
-        Wall(500, -500, 50, 1000),
-        Wall(100, 100, 100, 50),
+        Wall(-500, -500, 1000, 50, texture_path=None),
+        Wall(-500, 500, 1050, 50, texture_path=None),
+        Wall(-500, -500, 50, 1000, texture_path=None),
+        Wall(500, -500, 50, 1000, texture_path=None),
+        Wall(100, 100, 100, 50, texture_path=None),
     ]
     for wall in walls:
         network.game_state.walls.addEntity(wall)
@@ -180,7 +180,12 @@ def spawn_element_at_start():
     for i, e in enumerate(dungeonWalls.dungeonWalls):
         for data in e.walls:
             wall = Wall(
-                data[0], data[1], data[2], data[3], Layer.DUNGEON_BASE.value + i
+                data[0],
+                data[1],
+                data[2],
+                data[3],
+                Layer.DUNGEON_BASE.value + i,
+                texture_path=None,
             )
             network.game_state.walls.addEntity(wall)
             network.game_state.collision_manager.client_collider_groups["obstacle"].add(

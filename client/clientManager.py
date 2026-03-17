@@ -94,7 +94,7 @@ class ClientManager:
                                             os.path.dirname(__file__),
                                             "tiles",
                                             "maps",
-                                            "main.tmx",
+                                            "dungeon_floor.tmx",
                                         )
                                     ),
                                     world_layer=Layer.DUNGEON_BASE.value + i,
