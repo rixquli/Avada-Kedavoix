@@ -89,6 +89,17 @@ class GameManager:
 
         # TODO: à deplacer
         self.clientsElements = ClientElements()
+
+        # TODO: enlever/deplacer
+        self.maps = [
+            MapBackground(
+                os.path.normpath(
+                    os.path.join(os.path.dirname(__file__), "tiles", "maps", "main.tmx")
+                ),
+                world_layer=Layer.OVERWORLD,
+            )
+        ]
+
         dungeonEntrance = DungeonEntrance(
             250, 0, world_layer=Layer.OVERWORLD, target_world_layer=Layer.DUNGEON_BASE
         )
@@ -98,8 +109,9 @@ class GameManager:
             world_layer=Layer.DUNGEON_BASE,
             target_world_layer=Layer.OVERWORLD,
         )
+        self.clientsElements.add(dungeonEntrance)
+        self.clientsElements.add(dungeonExit)
         for i, e in enumerate(dungeonWalls.dungeonWalls):
-            print(e.teleport_pos)
             self.clientsElements.add(
                 DungeonEntrance(
                     e.teleport_pos[0],
@@ -116,9 +128,16 @@ class GameManager:
                     target_world_layer=Layer.DUNGEON_BASE.value + i,
                 )
             )
-
-        self.clientsElements.add(dungeonEntrance)
-        self.clientsElements.add(dungeonExit)
+            self.maps.append(
+                MapBackground(
+                    os.path.normpath(
+                        os.path.join(
+                            os.path.dirname(__file__), "tiles", "maps", "main.tmx"
+                        )
+                    ),
+                    world_layer=Layer.DUNGEON_BASE.value + i,
+                )
+            )
 
         # Group pour gerer les collisions
         # self.groups = {"obstacle": pygame.sprite.Group()}
@@ -133,22 +152,6 @@ class GameManager:
         # ]
         # for wall in self.walls:
         #     self.groups["obstacle"].add(wall)
-
-        # TODO: enlever/deplacer
-        self.maps = [
-            MapBackground(
-                os.path.normpath(
-                    os.path.join(os.path.dirname(__file__), "tiles", "maps", "main.tmx")
-                ),
-                world_layer=Layer.OVERWORLD,
-            ),
-            MapBackground(
-                os.path.normpath(
-                    os.path.join(os.path.dirname(__file__), "tiles", "maps", "main.tmx")
-                ),
-                world_layer=Layer.DUNGEON_BASE,
-            ),
-        ]
 
     def render(self):
         """Fait un rendu du jeu a executer a chaque tick"""

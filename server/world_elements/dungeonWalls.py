@@ -94,12 +94,14 @@ class DungeonGenerator:
 
         return [Room(x, y, w, h) for x, y, w, h in rectangles]
 
-    def _is_point_in_safe_room_area(self, room, point):
+    def _is_point_in_safe_room_area(self, room, point, size):
         x, y = point
 
         return (
-            room.x + self.wall_thickness <= x <= room.x + room.w - self.wall_thickness
-            and room.y + self.wall_thickness <= y <= room.y + room.h - self.wall_thickness
+            room.x + self.wall_thickness <= x - size[0]
+            and x + size[0] <= room.x + room.w - self.wall_thickness
+            and room.y + self.wall_thickness <= y - size[1]
+            and y + size[1] <= room.y + room.h - self.wall_thickness
         )
 
     def generate_rooms(self, required_point=None, max_attempts=40):
@@ -112,7 +114,8 @@ class DungeonGenerator:
                 return rooms
 
             if any(
-                self._is_point_in_safe_room_area(room, required_point) for room in rooms
+                self._is_point_in_safe_room_area(room, required_point, (50, 50))
+                for room in rooms
             ):
                 return rooms
 
@@ -251,7 +254,6 @@ class DungeonGenerator:
             for i in range(len(rooms))
         }
         edges = self.find_room_adjacencies(rooms)
-        degree = [0] * len(rooms)
 
         def add_opening(edge):
             margin = self.door_width // 2
@@ -259,40 +261,42 @@ class DungeonGenerator:
             pos_max = edge["end"] - margin
             if pos_max < pos_min:
                 return False
-
             door_pos = random.randint(pos_min, pos_max)
             openings[edge["a"]][edge["a_side"]].append(door_pos)
             openings[edge["b"]][edge["b_side"]].append(door_pos)
-            degree[edge["a"]] += 1
-            degree[edge["b"]] += 1
             return True
 
+        # Union-Find to track connected components
+        parent = list(range(len(rooms)))
+
+        def find(x):
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        def union(x, y):
+            px, py = find(x), find(y)
+            if px == py:
+                return False
+            parent[px] = py
+            return True
+
+        # Build a random spanning tree to guarantee every room is reachable
+        shuffled = list(enumerate(edges))
+        random.shuffle(shuffled)
         used_edges = set()
 
-        for room_index in range(len(rooms)):
-            if degree[room_index] > 0:
-                continue
+        for edge_id, edge in shuffled:
+            if find(edge["a"]) != find(edge["b"]):
+                if add_opening(edge):
+                    union(edge["a"], edge["b"])
+                    used_edges.add(edge_id)
 
-            candidates = [
-                (edge_id, edge)
-                for edge_id, edge in enumerate(edges)
-                if edge["a"] == room_index or edge["b"] == room_index
-            ]
-            if not candidates:
-                continue
-
-            edge_id, edge = random.choice(candidates)
-            if add_opening(edge):
-                used_edges.add(edge_id)
-
+        # Add extra random openings (~25% of remaining edges) for variety
         for edge_id, edge in enumerate(edges):
-            if edge_id in used_edges:
-                continue
-            if random.random() < 0.25:
+            if edge_id not in used_edges and random.random() < 0.25:
                 add_opening(edge)
-
-        if edges and all(d == 0 for d in degree):
-            add_opening(edges[0])
 
         return openings
 
@@ -340,12 +344,12 @@ class DungeonGenerator:
         )
 
 
-generator = DungeonGenerator()
+generator = DungeonGenerator(wall_thickness=25, room_min=350, room_max=750)
 
 
 dungeonWalls = []
-required_point = None
-for i in range(100):
+required_point = (250, 0)
+for i in range(10):
     level = generator.generate_level(required_point=required_point)
     dungeonWalls.append(DungeonLevel(level.walls, level.teleport_pos))
     required_point = level.teleport_pos
