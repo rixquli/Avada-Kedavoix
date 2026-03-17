@@ -25,11 +25,11 @@ voice_commands = queue.Queue()
 
 # Sorts disponibles avec leurs variations/synonymes
 SPELLS = {
-    "spell": {
-        "keywords": ["spell"],
-        "message": "Spell lancé",
-        "action": "SPELL",
-    },
+    # "spell": {
+    #     "keywords": ["spell"],
+    #     "message": "Spell lancé",
+    #     "action": "SPELL",
+    # },
     "teleportation": {
         "keywords": ["téléportation"],
         "message": "Téléportation lancée",
@@ -50,21 +50,21 @@ SPELLS = {
         "message": "Vie régénérée",
         "action": SpellList.HEAL,
     },
-    "foudre": {
-        "keywords": ["éclair", "tonnerre"],
-        "message": "Éclair lancé",
-        "action": "LIGHTNING",
-    },
-    "flèche": {
-        "keywords": ["flèche"],
-        "message": "Flèche lancé",
-        "action": "ARROW",
-    },
-    "avada": {
-        "keywords": ["avada", "cadavre"],
-        "message": "Sort interdit",
-        "action": "DEATH",
-    },
+    # "foudre": {
+    #     "keywords": ["éclair", "tonnerre"],
+    #     "message": "Éclair lancé",
+    #     "action": "LIGHTNING",
+    # },
+    # "flèche": {
+    #     "keywords": ["flèche"],
+    #     "message": "Flèche lancé",
+    #     "action": "ARROW",
+    # },
+    # "avada": {
+    #     "keywords": ["avada", "cadavre"],
+    #     "message": "Sort interdit",
+    #     "action": "DEATH",
+    # },
 }
 
 
