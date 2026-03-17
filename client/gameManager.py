@@ -10,9 +10,17 @@ Elle gere:
     - la mise a jour des element locaux comme le joueur
 """
 
+"""
+3 choses a changer pour recuperer la reconaissance vocale:
+    -enlever # ligne 33
+    -enlever # ligne 68
+    -enlever # ligne 153
+"""
+
 import os
 import sys
 
+from client.classes.CameraBlackFade import CameraBlackFade
 from client.classes.clientOnly.clientElements import ClientElements
 from client.classes.clientOnly.dungeonEntrance import DungeonEntrance
 from client.classes.enemy import Enemy
@@ -31,6 +39,7 @@ import pygame
 from client.classes.spell import Spell
 from client.clientManager import ClientManager
 from client.ui.UI import UI
+
 
 
 class GameManager:
