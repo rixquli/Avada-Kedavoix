@@ -23,7 +23,6 @@ from client.classes.wall import Wall
 from client.layerList import Layer
 from client.spellsManager import SpellsManager
 from client.voice.realtimeVoice import get_voice_command, start_voice_recognition
-from server.world_elements import dungeonWalls
 
 
 # To import module from other folder
@@ -54,7 +53,7 @@ class GameManager:
         """
         Execute setup uniquement lors du lancement du programme mais client seulement
         """
-        self.client_manager = ClientManager()
+        self.client_manager = ClientManager(self)
 
         # Setup voice recognition
         start_voice_recognition()
@@ -114,33 +113,6 @@ class GameManager:
         )
         self.clientsElements.add(dungeonEntrance)
         self.clientsElements.add(dungeonExit)
-        for i, e in enumerate(dungeonWalls.dungeonWalls):
-            self.clientsElements.add(
-                DungeonEntrance(
-                    e.teleport_pos[0],
-                    e.teleport_pos[1],
-                    world_layer=Layer.DUNGEON_BASE.value + i,
-                    target_world_layer=Layer.DUNGEON_BASE.value + i + 1,
-                )
-            )
-            self.clientsElements.add(
-                DungeonEntrance(
-                    e.teleport_pos[0],
-                    e.teleport_pos[1],
-                    world_layer=Layer.DUNGEON_BASE.value + i + 1,
-                    target_world_layer=Layer.DUNGEON_BASE.value + i,
-                )
-            )
-            self.maps.append(
-                MapBackground(
-                    os.path.normpath(
-                        os.path.join(
-                            os.path.dirname(__file__), "tiles", "maps", "main.tmx"
-                        )
-                    ),
-                    world_layer=Layer.DUNGEON_BASE.value + i,
-                )
-            )
 
         # Group pour gerer les collisions
         # self.groups = {"obstacle": pygame.sprite.Group()}

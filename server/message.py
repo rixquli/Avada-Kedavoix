@@ -19,6 +19,7 @@ class MessageType(Enum):
     PLAYER_CAST_SPELL = "spell"
     PLAYER_UPDATE_SPELL = "spell_update"
     PLAYER_HEAL = "player_heal"
+    DUNGEON_DATA = "dungeon_data"
 
 
 class PlayerUpdateData(TypedDict):
@@ -122,6 +123,8 @@ class Message:
             case MessageType.PLAYER_UPDATE_SPELL:
                 return cast(MessageTyped, {"type": self.type, "data": self.data})
             case MessageType.PLAYER_HEAL:
+                return cast(MessageTyped, {"type": self.type, "data": self.data})
+            case MessageType.DUNGEON_DATA:
                 return cast(MessageTyped, {"type": self.type, "data": self.data})
 
         raise ValueError("Unknown message type")

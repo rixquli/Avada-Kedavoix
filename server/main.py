@@ -6,6 +6,7 @@ De plus,
 "python server/main.py" permet de lancer juste un serveur rejoingnable en entrant son ip local
 """
 
+import pickle
 import time
 from _thread import start_new_thread
 import socket
@@ -106,8 +107,6 @@ def handle_conn():
                 radius=10,
             )
         )
-
-        network.player_connections[conn] = player_id
         print(f"Player {player_id} connected")
 
         # Envoi synchronisé du CONNECT + snapshot complet au nouveau client
@@ -118,6 +117,11 @@ def handle_conn():
             full_state = network.game_state.get_game_state(diff=False)
             full_msg = Message(MessageType.GAME_STATE, full_state)
             conn.sendall(full_msg.serialize())
+            full_msg = Message(MessageType.DUNGEON_DATA, dungeonWalls.dungeonWalls)
+            conn.sendall(full_msg.serialize())
+
+            # Ajouter le client au broadcast uniquement après l'envoi du snapshot complet.
+            network.player_connections[conn] = player_id
         except Exception as e:
             print(f"Failed to send initial data to {player_id}: {e}")
 

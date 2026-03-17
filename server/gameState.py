@@ -117,8 +117,13 @@ class GameState:
         for id, data in state.get(name, {}).items():
             if str(id) not in entities.entities:
                 # si l'entité n'existe pas localement on l'ajoute
-                entity = entities.entity_type.from_dict(data)
-                entities.addEntity(entity, fixed_id=str(id))
+                try:
+                    entity = entities.entity_type.from_dict(data)
+                    entities.addEntity(entity, fixed_id=str(id))
+                except TypeError:
+                    # Un diff partiel peut arriver avant le snapshot initial.
+                    # On attend un payload complet pour instancier l'entité.
+                    continue
             else:
                 # si l'entité existe localement on le met a jour
                 if my_player_id and str(id) == str(my_player_id):
