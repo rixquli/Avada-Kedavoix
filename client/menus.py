@@ -131,6 +131,9 @@ def join_menu(menu_name):
             # Remet un text vierge au cas ou
             error_text.change_text("")
             game_manager.ui.hide(menu_name)
+
+            game_manager.ui.show("hud")
+            game_manager.ui.refresh("hud")
         else:
             # Met à jour le texte d'erreur
             error_text.change_text(f"Error, can not join {ip}:{port}")
@@ -192,6 +195,32 @@ def press_e(menu_name):
     ]
 
 
+def hud():
+    elements = []
+    player = game_manager.client_manager.get_player()
+
+    if player is None:
+        return elements
+
+    wizard_type = player.wizard_type
+
+    if wizard_type == "fire":
+        path = "client/ressources/wizzard-test/PNG/wizard_fire/attack/attack_1.png"
+    elif wizard_type == "ice":
+        path = "client/ressources/wizzard-test/PNG/wizard_ice/attack/attack_1.png"
+    else:
+        return elements
+    avatar = Image(
+        path=path,
+        width=100,
+        height=100,
+        position=(0, 0),
+        anchor=Anchor.BOTTOMLEFT,
+    )
+    elements.append(avatar)
+    return elements
+
+
 # Contient la liste de tout les menus accessibles dupuis GameManager().ui
 # Pour en rajouter suivre les exemples deja presents
 Menus = [
@@ -207,5 +236,10 @@ Menus = [
     {
         "name": "press_e",
         "content": press_e("press_e"),
+    },
+    {
+        "name": "hud",
+        "content": hud(),
+        "is_showing": False,
     },
 ]
