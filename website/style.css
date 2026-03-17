@@ -2,6 +2,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 body {
@@ -29,7 +30,7 @@ body {
   display: flex;
   color: #fff;
   font-family: "Times New Roman", Times, serif;
-  font-size: 30px;
+  font-size: 25px;
   background-color: #741290;
 }
 
@@ -48,7 +49,7 @@ header {
 }
 
 .menu ul {
-  margin-left: 25px;
+  margin-left: auto;
   display: flex;
   list-style: none;
   gap: 40px;
@@ -117,14 +118,24 @@ header {
   position: relative;
   display: flex;
   margin: 1rem;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
 }
 .hero-img {
-  padding-left: 1rem;
-  padding-right: 1rem;
-  width: 70%;
+  /* padding-left: 1rem;
+  padding-right: 1rem; */
+  width: 100%;
+  max-width: 66rem;
   height: auto;
   border-radius: 30px;
-  /* margin: 1rem; */
+  object-fit: cover;
+}
+
+@media screen and (max-width: 1450px) {
+  .main-hero {
+    flex-direction: column;
+  }
 }
 
 @keyframes animate-gradient {
@@ -167,15 +178,17 @@ img {
 
 .intro {
   position: relative;
-  margin-top: 130px;
+  /* margin-top: 130px; */
   color: #741290;
-  margin-left: 100px;
+  top: 1rem;
+  /* margin-left: 100px; */
+  margin-inline: 2rem;
   opacity: 0;
   transform: translateX(-30px);
   animation: moveright 0.5s linear forwards;
   margin-bottom: 5px;
   line-height: 2;
-  width: 800px;
+  width: 100%;
   background-color: transparent;
 }
 
@@ -349,7 +362,8 @@ img {
 }
 
 .pdf {
-  margin-top: 145px;
+  /* margin-top: 145px; */
+  margin-top: 3rem;
   display: flex;
   justify-content: center;
 }
