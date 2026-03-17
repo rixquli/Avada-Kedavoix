@@ -6,9 +6,7 @@ from client.layerList import Layer
 
 
 class MapBackground:
-    def __init__(
-        self, tmx_path, x=0, y=0, world_layer: int | Layer = Layer.OVERWORLD
-    ):
+    def __init__(self, tmx_path, x=0, y=0, world_layer: int | Layer = Layer.OVERWORLD):
         if tmx_path is None or tmx_path == "":
             tmx_path = os.path.normpath(
                 os.path.join(

@@ -177,6 +177,7 @@ def spawn_element_at_start():
             network.game_state.collision_manager.client_collider_groups["obstacle"].add(
                 wall
             )
+        network.enemySpawner.dungeon_generate(Layer.DUNGEON_BASE.value + i, i)
 
 
 def start_game_server(adress=None, port=None, max_player=5, is_solo=False):
