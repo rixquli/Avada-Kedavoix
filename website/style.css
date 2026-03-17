@@ -1,0 +1,374 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  background-color: #ebcdf3;
+}
+
+.box {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #741290;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 10%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.titre {
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  display: flex;
+  color: #fff;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 25px;
+  background-color: #741290;
+}
+
+header {
+  position: relative;
+  left: 0;
+  height: 40px;
+  width: 100%;
+  background-color: #a542b8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 10%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.menu ul {
+  margin-left: auto;
+  display: flex;
+  list-style: none;
+  gap: 40px;
+}
+
+.menu ul a {
+  margin-left: 5px;
+  text-transform: capitalize;
+  font-size: 20px;
+  color: #ffffff;
+  text-decoration: 0;
+  position: relative;
+}
+
+.menu ul a::after {
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  content: "";
+  width: 0%;
+  height: 2px;
+  background-color: #3b3838;
+  transition: 0.1s ease-out;
+}
+
+.menu ul a:hover::after {
+  width: 100%;
+}
+
+.presentation_du_jeu {
+  /* margin-top: 190px;
+  margin-left: 150px; */
+  box-sizing: border-box;
+  background-color: rgb(247, 245, 245);
+  width: 500px;
+  scrollbar-width: thin;
+  border: 5px solid rgb(105, 33, 122);
+  padding: 60px;
+  border-radius: 30px;
+  box-shadow:
+    0 4px 8px 0 rgba(0, 0, 0, 0.2),
+    0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.presentation_du_jeu h2 {
+  text-align: center;
+  font-size: 35px;
+  text-transform: uppercase;
+  background: linear-gradient(
+    to right,
+    #741290,
+    #b850d4,
+    #df96f3,
+    #b850d4,
+    #741290,
+    #741290
+  );
+  background-size: 200%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: animate-gradient 2.5s linear infinite;
+}
+
+.main-hero {
+  position: relative;
+  display: flex;
+  margin: 1rem;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+.hero-img {
+  /* padding-left: 1rem;
+  padding-right: 1rem; */
+  width: 100%;
+  max-width: 66rem;
+  height: auto;
+  border-radius: 30px;
+  object-fit: cover;
+}
+
+@media screen and (max-width: 1450px) {
+  .main-hero {
+    flex-direction: column;
+  }
+}
+
+@keyframes animate-gradient {
+  to {
+    background-position: 200%;
+  }
+}
+.presentation_du_jeu p {
+  text-align: center;
+}
+
+.télécharger {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.télécharger a {
+  background-color: #a542b8;
+  color: #fff;
+  font-size: 30px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  padding: 10px 35px;
+  text-decoration: none;
+}
+
+.télécharger a:hover {
+  transform: scale(0.95);
+}
+
+img {
+  height: 40px;
+  width: auto;
+}
+
+.intro {
+  position: relative;
+  /* margin-top: 130px; */
+  color: #741290;
+  top: 1rem;
+  /* margin-left: 100px; */
+  margin-inline: 2rem;
+  opacity: 0;
+  transform: translateX(-30px);
+  animation: moveright 0.5s linear forwards;
+  margin-bottom: 5px;
+  line-height: 2;
+  width: 100%;
+  background-color: transparent;
+}
+
+.intro .l2 {
+  animation-delay: 0.5s;
+  margin-top: 0;
+}
+
+@keyframes moveright {
+  100% {
+    opacity: 1;
+    transform: translateX(0px);
+  }
+}
+
+.container {
+  display: grid;
+  place-items: center;
+  margin-inline: 1.5rem;
+  padding-block: 5rem;
+}
+
+.cartes_container {
+  display: grid;
+  row-gap: 3.5rem;
+}
+
+.cartes_article {
+  position: relative;
+  overflow: hidden;
+}
+
+.images_cartes {
+  width: 328px;
+  height: 450px;
+  object-fit: cover;
+  border-radius: 1.5rem;
+}
+
+.info_cartes {
+  width: 280px;
+  background-color: white;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 8px 24px hsla(0, 0%, 0%, 0.15);
+  border-radius: 1rem;
+  position: absolute;
+  bottom: -9rem;
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  opacity: 0;
+  transition: opacity 1s 1s;
+}
+
+.description_cartes {
+  display: block;
+  font-size: var(--small-font-size);
+  margin-bottom: 0.25rem;
+  font-style: italic;
+}
+
+.titre_cartes {
+  font-size: 30px;
+  font-weight: 500;
+  color: #741290;
+  margin-bottom: 0.75rem;
+}
+
+.bouton_cartes {
+  text-decoration: none;
+  font-size: small;
+  font-weight: 500;
+  color: black;
+}
+
+.bouton_cartes:hover {
+  text-decoration: underline;
+}
+
+.cartes_article:hover .info_cartes {
+  animation: show-data 1s forwards;
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+.cartes_article:hover {
+  animation: remove-overflow 2s forwards;
+}
+
+.cartes_article:not(:hover) {
+  animation: show-overflow 2s forwards;
+}
+
+.cartes_article:not(:hover) .info_cartes {
+  animation: remove-data 1s forwards;
+}
+
+@keyframes show-data {
+  50% {
+    transform: translateY(-10rem);
+  }
+  100% {
+    transform: translateY(-7rem);
+  }
+}
+
+@keyframes remove-overflow {
+  to {
+    overflow: initial;
+  }
+}
+
+@keyframes remove-data {
+  0% {
+    transform: translateY(-7rem);
+  }
+  50% {
+    transform: translateY(-10rem);
+  }
+  100% {
+    transform: translateY(0.5rem);
+  }
+}
+
+@keyframes show-overflow {
+  0% {
+    overflow: initial;
+    pointer-events: none;
+  }
+  50% {
+    overflow: hidden;
+  }
+}
+
+@media screen and (max-width: 340px) {
+  .container {
+    margin-inline: 1rem;
+  }
+
+  .info_cartes {
+    width: 250px;
+    padding: 1rem;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .card_container {
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 1.5rem;
+  }
+}
+
+@media screen and (min-width: 1120px) {
+  .container {
+    height: 100vh;
+  }
+
+  .cartes_container {
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 1.5rem;
+  }
+
+  .images_cartes {
+    width: 348px;
+  }
+
+  .info_cartes {
+    width: 315px;
+    padding-inline: 2.5rem;
+  }
+}
+
+.pdf {
+  /* margin-top: 145px; */
+  margin-top: 3rem;
+  display: flex;
+  justify-content: center;
+}
+iframe {
+  width: 50%;
+  height: 600px;
+  border: none;
+}

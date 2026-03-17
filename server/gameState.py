@@ -34,6 +34,7 @@ from classes.serializable import Serializable
 
 class GameState:
     """permet d'avoir une copie partagee entre client et serveur"""
+
     def __init__(self):
         self.collision_manager = CollisionManager(self)
 
@@ -51,14 +52,20 @@ class GameState:
             self.walls,
         ]
 
-    def get_game_state(self):
+    def get_game_state(self, diff=True):
         """Retourne l'état complet du jeu pour le broadcast"""
+        players_state = self.players.to_dict(diff)
+        spells_state = self.spells.to_dict(diff)
+        enemies_state = self.enemies.to_dict(diff)
+        pnjs_state = self.pnjs.to_dict(diff)
+        walls_state = self.walls.to_dict(diff)
+
         return {
-            "players": self.players.to_dict(),
-            "spells": self.spells.to_dict(),
-            "enemies": self.enemies.to_dict(),
-            "pnjs": self.pnjs.to_dict(),
-            "walls": self.walls.to_dict(),
+            "players": players_state,
+            "spells": spells_state,
+            "enemies": enemies_state,
+            "pnjs": pnjs_state,
+            "walls": walls_state,
         }
 
     # Executer cote serveur
@@ -69,22 +76,30 @@ class GameState:
         return res
 
     def update_all(self):
+        """Update all entities here"""
+
+        # Spells
         for spell in list(self.spells.entities.values()):
             if spell.is_expired():
                 self.spells.remove(spell.id)
             else:
                 spell.server_update()
+
+        # Enemies
         for enemy in list(self.enemies.entities.values()):
             if enemy.is_dead():
                 self.enemies.remove(enemy.id)
             else:
                 enemy.server_update()
+
+        # PNJ
         for pnj in list(self.pnjs.entities.values()):
             if pnj.is_dead():
                 self.pnjs.remove(pnj.id)
             else:
                 pnj.server_update()
 
+        # Collision handler (events)
         self.collision_manager.handle_collision(entity_list=self.get_entities_list())
 
     # Executer coté client
@@ -100,13 +115,15 @@ class GameState:
 
     def apply_state_for(self, state, name, entities, my_player_id=None):
         for id, data in state.get(name, {}).items():
-            if not data:
-                # si l'entité n'existe plus on le supprime
-                entities.remove(str(id))
-            elif str(id) not in entities.entities:
+            if str(id) not in entities.entities:
                 # si l'entité n'existe pas localement on l'ajoute
-                entity = entities.entity_type.from_dict(data)
-                entities.addEntity(entity, fixed_id=str(id))
+                try:
+                    entity = entities.entity_type.from_dict(data)
+                    entities.addEntity(entity, fixed_id=str(id))
+                except TypeError:
+                    # Un diff partiel peut arriver avant le snapshot initial.
+                    # On attend un payload complet pour instancier l'entité.
+                    continue
             else:
                 # si l'entité existe localement on le met a jour
                 if my_player_id and str(id) == str(my_player_id):
@@ -130,15 +147,15 @@ class GameState:
                     if filtered_data:
                         entities.update(str(id), filtered_data)
                 else:
-                    #on met tout a jour sauf les display (evites des problemes de syncronisation de position d'image)
+                    # on met tout a jour sauf les display (evites des problemes de syncronisation de position d'image)
                     filtered_data = {
                         k: v
                         for k, v in data.items()
                         if k
-                           not in [
-                               "display_x",
-                               "display_y",
-                           ]
+                        not in [
+                            "display_x",
+                            "display_y",
+                        ]
                     }
                     entities.update(str(id), filtered_data)
         # Verifie si tout les elements ont bien ete supprimer cote client

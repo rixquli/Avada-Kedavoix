@@ -2,12 +2,13 @@
 Classe pour la gestion des ennemis
 """
 
-from typing import List, Tuple
-
+from typing import Tuple
 import pygame
 import time
 
+from client.classes.clientOnly.healthBar import HealthBar
 from client.classes.spell import Spell
+from client.layerList import Layer
 from server.classes.serializable import Serializable
 from client.classes.hitbox import HitBox
 
@@ -17,14 +18,15 @@ class Enemy(Serializable):
         self,
         x: float,
         y: float,
-        color: Tuple[int, int, int],
+        color: tuple[int, int, int],
         size: int = 10,
         vx: float = 0,
         vy: float = 0,
         id: int = None,
-        hp: int = 1,
+        hp: int = 5,
         vitesse: int = 1,
-        attack_delay: float = 5.0
+        attack_delay: float = 5.0,
+        world_layer: int | Layer = Layer.OVERWORLD,
     ):
         self.id = id
         self.color = tuple(color)
@@ -50,68 +52,82 @@ class Enemy(Serializable):
         self.min_threshold = 0.1
 
         self.hitbox_size = (25, 25)
-        self.hitbox = HitBox(x, y, self.hitbox_size[0], self.hitbox_size[1])
+        self.hitbox = HitBox(
+            int(x), int(y), self.hitbox_size[0], self.hitbox_size[1], world_layer
+        )
 
         # Pour gerer le systeme vie/degat
         self.hp = hp
+        self.max_hp = hp
 
         # pour donner aux sorts et identifier le thrower
         self.THROWER_TYPE = "ennemy"
+        self.world_layer = (
+            world_layer.value if isinstance(world_layer, Layer) else int(world_layer)
+        )
 
         self.attack_delay = float(attack_delay)
         self.prec_attack_time = time.time()
 
         from server.managers.iaManager import Ia
-        self.x_target = self.x
-        self.y_target = self.y
-        self.ia = Ia("enemy_ia",self)
+
+        self.ia = Ia("enemy_ia", self)
         self.path = None
 
-        #pour interagir avec le reste
+        # pour interagir avec le reste
         from client.gameManager import GameManager
+
         self.game_manager = GameManager()
+        self.healthBar = HealthBar(y_offset=20)
 
+    #! Server Side
     def do_attack(self, dir: Tuple[float, float]) -> None:
+        """
+        Methode du serveur car le serveur s'occupe de tout mettre a jour donc il gere l'envoie des projectiles
+        """
         spell = Spell(
-                x=self.x,
-                y=self.y,
-                player_id=None,
-                color=(50, 150, 255),
-                dir=dir,
-                radius=4,
-                thrower=self.THROWER_TYPE,
-                speed=2
-            )
+            x=self.x,
+            y=self.y,
+            player_id=None,
+            color=(50, 150, 255),
+            dir=dir,
+            radius=4,
+            thrower=self.THROWER_TYPE,
+            speed=2,
+            world_layer=self.world_layer,
+        )
 
-        self.game_manager.client_manager.cast_spell(spell)
+        # TODO: Nettoyer ce bout et utiliser une classe singloton ou autre
+        from server.main import network
 
-    def take_dmg(self,dmg: int) -> None:
+        network.game_state.spells.addEntity(spell)
+
+    def take_dmg(self, dmg: int) -> None:
         self.hp -= dmg
 
     def is_dead(self) -> bool:
         return self.hp <= 0
 
     def server_update(self):
-        # TODO: Ajouter l'ia ici pour le comportement des créatures
+        # le set_target_position est automatique
+        # actualises la position et les datas de l'ia
         self.ia.update()
 
         # Appliquer le mouvement horizontal
-        self.hitbox.update(self.x + self.vx, self.y)
+        self.hitbox.update(int(self.x + self.vx), int(self.y), self.world_layer)
 
         # Vérifier les collisions horizontales
-        collided = self.hitbox.get_collided()
+        collided = self.hitbox.get_server_collided()
         if not collided:
             self.x += self.vx
 
         # Appliquer le mouvement vertical
-        self.hitbox.update(self.x, self.y + self.vy)
+        self.hitbox.update(int(self.x), int(self.y + self.vy), self.world_layer)
 
         # Vérifier les collisions verticales
-        collided = self.hitbox.get_collided()
+        collided = self.hitbox.get_server_collided()
         if not collided:
             self.y += self.vy
-        self.x += self.vx
-        self.y += self.vy
 
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
@@ -127,7 +143,7 @@ class Enemy(Serializable):
         else:
             self.display_y = self.target_y
 
-    def draw(self, surface, offset: Tuple[float, float]):
+    def draw(self, surface, offset: tuple[float, float]):
         # Interpolation vers la position cible
         # Permet d'eviter les mouvements sacadé
         self.interpolate_position()
@@ -142,6 +158,14 @@ class Enemy(Serializable):
                 self.size,
             ),
         )
+        self.hitbox.draw(surface, offset)
+        self.healthBar.draw(
+            surface,
+            self.display_x + offset[0],
+            self.display_y + offset[1],
+            self.hp,
+            self.max_hp,
+        )
 
     def set_target_position(self, x, y):
         """
@@ -150,15 +174,26 @@ class Enemy(Serializable):
         """
         self.target_x = float(x)
         self.target_y = float(y)
+        self.hitbox.update(int(x), int(y), self.world_layer)
 
     @staticmethod
-    def draw_all(surface, offset: Tuple[float, float], enemies: List["Enemy"]):
+    def draw_all(
+        surface,
+        offset: tuple[float, float],
+        enemies: list["Enemy"],
+        active_world_layer: int | None = None,
+    ):
         """
         Dessine tout les ennemi
         """
         if enemies:
             if isinstance(enemies, list):
                 for enemy in enemies:
+                    if (
+                        active_world_layer is not None
+                        and enemy.world_layer != active_world_layer
+                    ):
+                        continue
                     enemy.draw(surface, offset)
             else:
                 enemies.draw(surface, offset)

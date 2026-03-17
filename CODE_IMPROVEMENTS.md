@@ -2,306 +2,306 @@
 
 ## 📋 Résumé
 
-Ce document liste les améliorations recommandées pour rendre le code plus compréhensible et maintenable pour tous les contributeurs.
+Ce document liste les améliorations recommandées pour continuer à rendre le code plus compréhensible, maintenable et performant.
 
-## 🎯 Améliorations Prioritaires
+## 🎯 État Actuel du Projet
 
-### 1. Documentation et Commentaires
+### ✅ Éléments Complétés
 
-#### ✅ Fichiers déjà créés
-- [x] `README.md` - Documentation complète du projet
-- [x] `CONTRIBUTING.md` - Guide de contribution
-- [x] `requirements.txt` - Liste des dépendances
-- [x] `LICENSE` - Licence MIT
+**Documentation**
 
-#### 🔄 À améliorer dans le code
+- [x] `README.md` - Documentation complète et à jour
+- [x] `CONTRIBUTING.md` - Guide de contribution détaillé
+- [x] `requirements.txt` - Liste complète des dépendances
+- [ ] `LICENSE` - Licence MIT
+- [x] Docstrings dans les fichiers principaux
 
-**server/message.py**
-- ✅ Ajouter des docstrings à la classe `Message`
-- ✅ Documenter chaque type de message dans `MessageType`
-- ✅ Expliquer le format de sérialisation
+**Architecture**
 
-**server/NetworkManager.py**
-- ✅ Ajouter des docstrings pour chaque méthode
-- ✅ Documenter les paramètres et valeurs de retour
-- ✅ Expliquer la différence entre mode serveur et client
+- [x] Architecture client-serveur robuste
+- [x] Système de messages avec type-safety (TypedDict)
+- [x] NetworkManager singleton pour les connexions
+- [x] GameManager singleton côté client
+- [x] Gestion des joueurs multiples
+- [x] Système de synchronisation serveur/client
+- [x] Broadcast de l'état du jeu (30 FPS)
 
-**server/gameManager.py**
-- ✅ Documenter la structure de l'état du jeu
-- ✅ Expliquer le rôle du GameManager
+**Fonctionnalités Joueur**
 
-**server/managers/playersManager.py**
-- ✅ Ajouter des docstrings
-- ✅ Expliquer la gestion des IDs
+- [x] Système de mouvements fluides (ZQSD/flèches)
+- [x] Animations (idle, walk, run, attack, hurt, dead)
+- [x] Système de sorts avec cooldown
+- [x] Hitbox et détection de collisions
+- [x] Caméra suivant le joueur
+- [x] Reconnaissance vocale en français
 
-**client/clientManager.py**
-- ✅ Documenter la gestion de la synchronisation
-- ✅ Expliquer la logique de réception des messages
+**Système de Jeu**
 
-**client/classes/player.py**
-- ✅ Documenter les attributs et méthodes
-- ✅ Expliquer le système de contrôles
+- [x] Gestion des connexions/déconnexions
+- [x] Gestion des ennemis avec IA
+- [x] PNJs
+- [x] Obstacles et murs
+- [x] Cartes Tiled
+- [x] Menus (main, host, join)
+- [x] Mode solo et multijoueur
 
-### 2. Constantes et Configuration
+### 🔄 En Cours / À Améliorer
 
-**Créer un fichier `config.py` pour centraliser les configurations :**
+#### Phase 1 : Documentation et Maintenabilité (PRIORITAIRE)
+
+**1. Ajouter des docstrings détaillés**
+
+- [ ] Compléter les docstrings de tous les fichiers client
+- [ ] Compléter les docstrings de tous les fichiers server
+- [ ] Ajouter des exemples d'utilisation dans les docstrings complexes
+- [ ] Documenter les APIs publiques avec type hints
+
+**État:** `server/message.py` et `client/gameManager.py` ont des docstrings, mais beaucoup de fichiers en manquent.
+
+**2. Type Hints partout**
+
+- [ ] `client/clientManager.py` - Ajouter type hints à toutes les méthodes
+- [ ] `client/gameManager.py` - Type hints pour les paramètres et retours
+- [ ] `client/classes/*.py` - Tous les fichiers classes
+- [ ] `server/*.py` - Tous les fichiers serveur
+- [ ] Configuration mypy ou pyright pour vérifier les types
+
+**3. Logging cohérent**
+
+- [ ] Remplacer les `print()` par `logging` dans tous les fichiers
+- [ ] Configurer les niveaux de log (DEBUG, INFO, WARNING, ERROR)
+- [ ] Ajouter un fichier de configuration logging
+- [ ] Logs structurés avec contexte (player_id, timestamp, etc.)
+
+#### Phase 2 : Configuration et Constantes
+
+**1. Créer un fichier config.py centralisé**
 
 ```python
 # config.py
-
-# Configuration réseau
-SERVER_HOST = "localhost"
-SERVER_PORT = 12345
-SOCKET_TIMEOUT = 5
-BUFFER_SIZE = 4096
-
-# Configuration du jeu
-GAME_WIDTH = 800
-GAME_HEIGHT = 600
-FPS = 60
-BROADCAST_RATE = 30  # fois par seconde
-
-# Configuration des joueurs
-PLAYER_RADIUS = 10
-PLAYER_SPEED = 5
-PLAYER_COLORS = [
-    (0, 255, 0),    # Vert
-    (255, 0, 0),    # Rouge
-    (0, 0, 255),    # Bleu
-    (255, 255, 0),  # Jaune
-    (255, 0, 255),  # Magenta
-    (0, 255, 255),  # Cyan
-]
-
-# Positions de spawn
-SPAWN_OFFSET_X = 100
-SPAWN_OFFSET_Y = 50
-SPAWN_START_X = 50
-SPAWN_START_Y = 50
-```
-
-**Utiliser ces constantes dans le code au lieu de valeurs "magiques".**
-
-### 3. Gestion des Erreurs
-
-**Améliorer la gestion des erreurs avec des messages plus descriptifs :**
-
-```python
-# Exemple dans NetworkManager.py
-try:
-    self.socket.connect((host, port))
-    print(f"✅ Connected to {host}:{port}")
-except socket.timeout:
-    print(f"❌ Connection timeout: Could not reach server at {host}:{port}")
-    return None
-except ConnectionRefusedError:
-    print(f"❌ Connection refused: Server not running at {host}:{port}")
-    return None
-except Exception as e:
-    print(f"❌ Unexpected error during connection: {type(e).__name__}: {e}")
-    return None
-```
-
-### 4. Structure et Organisation
-
-**Améliorer l'organisation des imports :**
-
-```python
-# Au lieu de manipuler sys.path dans chaque fichier
-# Créer un package Python propre avec __init__.py
-
-# Structure recommandée :
-avada-kedavoix/
-├── src/
-│   ├── __init__.py
-│   ├── config.py
-│   ├── client/
-│   │   ├── __init__.py
-│   │   ├── main.py
-│   │   ├── client_manager.py
-│   │   └── models/
-│   │       ├── __init__.py
-│   │       └── player.py
-│   └── server/
-│       ├── __init__.py
-│       ├── main.py
-│       ├── network_manager.py
-│       ├── game_manager.py
-│       ├── message.py
-│       └── managers/
-│           ├── __init__.py
-│           └── players_manager.py
-```
-
-### 5. Conventions de Nommage
-
-**Uniformiser les noms (choisir entre anglais ou français) :**
-
-Actuellement mélangé :
-- `playersManager` → `players_manager` (snake_case)
-- `addPlayer` → `add_player`
-- `getId` → `get_id`
-- `getOtherPlayers` → `get_other_players`
-
-**Recommandation : Utiliser snake_case partout (convention Python PEP 8)**
-
-### 6. Types et Annotations
-
-**Ajouter des type hints partout :**
-
-```python
-from typing import Dict, List, Optional, Tuple
-
-def add_player(
-    self,
-    x: float,
-    y: float,
-    color: Tuple[int, int, int],
-    radius: int = 10,
-    vx: float = 0,
-    vy: float = 0
-) -> int:
-    """Ajoute un nouveau joueur.
+CONFIG = {
+    # Network
+    'SERVER_HOST': 'localhost',
+    'SERVER_PORT': 12345,
+    'SOCKET_TIMEOUT': 5,
+    'BUFFER_SIZE': 4096,
+    'BROADCAST_RATE': 30,  # Hz
     
-    Args:
-        x: Position X initiale
-        y: Position Y initiale
-        color: Couleur RGB du joueur
-        radius: Rayon du cercle du joueur
-        vx: Vélocité X initiale
-        vy: Vélocité Y initiale
-        
-    Returns:
-        L'ID unique du joueur créé
-    """
-    player_id = self._get_next_id()
-    self.players[player_id] = Player(x, y, color, radius, vx, vy)
-    return player_id
+    # Game
+    'GAME_WIDTH': 1280,
+    'GAME_HEIGHT': 720,
+    'CLIENT_FPS': 60,
+    'SERVER_FPS': 30,
+    
+    # Voice
+    'VOICE_ENABLED': True,
+    'VOICE_LANGUAGE': 'fr',
+    
+    # Graphics
+    'SPRITE_SCALE': 2,
+    'CAMERA_OFFSET_X': 400,
+    'CAMERA_OFFSET_Y': 300,
+}
 ```
 
-### 7. Logging
+- [ ] Créer `config.py`
+- [ ] Remplacer toutes les valeurs "magiques" par des constantes
+- [ ] Support de fichiers de configuration (JSON/YAML)
 
-**Utiliser le module logging au lieu de print :**
+#### Phase 3 : Sécurité et Robustesse
 
-```python
-import logging
+**1. Validation des données**
 
-# Configuration du logger
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+- [ ] Valider tous les messages reçus du réseau
+- [ ] Vérifier les types et limiter la taille
+- [ ] Sanitizer les données avant utilisation
+- [ ] Tests de sécurité avec données malformées
 
-# Utilisation
-logger.info(f"Player {player_id} connected")
-logger.warning(f"Connection timeout for {host}:{port}")
-logger.error(f"Error: {e}")
-logger.debug(f"Game state: {state}")
-```
+**2. Gestion d'erreurs améliorée**
 
-### 8. Tests
+- [ ] Try/except cohérent partout
+- [ ] Messages d'erreur descriptifs
+- [ ] Graceful shutdown en cas d'erreur
+- [ ] Reconnexion automatique côté client
 
-**Créer des tests unitaires :**
+**3. Remplacer pickle par JSON**
 
-```python
-# tests/test_player.py
-import pytest
-from client.classes.player import Player
+- [ ] Réduire les risques de sécurité (pickle = arbitrary code execution)
+- [ ] Meilleure compatibilité cross-platform
+- [ ] Plus facile à déboguer
 
-def test_player_creation():
-    player = Player(100, 200, (255, 0, 0), 10)
-    assert player.x == 100
-    assert player.y == 200
-    assert player.color == (255, 0, 0)
-    assert player.radius == 10
+**État:** Le code utilise actuellement `pickle` pour la sérialisation.
 
-def test_player_movement():
-    player = Player(100, 100, (255, 0, 0))
-    player.vx = 5
-    player.vy = 3
-    player.update()
-    assert player.x == 105
-    assert player.y == 103
-```
+#### Phase 4 : Performance et Optimisation
 
-### 9. Sécurité
+**1. Optimisation réseau**
 
-**Améliorations de sécurité à considérer :**
+- [ ] Delta encoding (envoyer uniquement les changements)
+- [ ] Compression des messages
+- [ ] Réduire la fréquence des broadcasts
+- [ ] Pooling de connexions
 
-- [ ] Valider les données reçues avant de les traiter
-- [ ] Limiter la taille des messages reçus
-- [ ] Ajouter un timeout pour les opérations réseau
-- [ ] Gérer proprement les déconnexions brutales
-- [ ] Empêcher l'injection de code via pickle (utiliser JSON)
+**2. Optimisation client**
 
-```python
-# Remplacer pickle par JSON pour plus de sécurité
-import json
+- [ ] Framerate limité avec vsync
+- [ ] Dirty rect rendering (mettre à jour uniquement ce qui change)
+- [ ] Culling (ne pas afficher ce qui est hors écran)
+- [ ] Caching des ressources
 
-def serialize(self) -> bytes:
-    data = {
-        "type": self.type.value,
-        "data": self._serialize_data(self.data)
-    }
-    return json.dumps(data).encode('utf-8')
-```
+**3. Profiling et benchmarks**
 
-### 10. Performance
+- [ ] Profile CPU/mémoire
+- [ ] Identifier les goulets d'étranglement
+- [ ] Tests de charge multijoueurs
+- [ ] Latency tests
 
-**Optimisations possibles :**
+#### Phase 5 : Tests et Qualité
 
-- [ ] Utiliser asyncio pour la gestion asynchrone
-- [ ] Implémenter un système de delta pour ne transmettre que les changements
-- [ ] Ajouter de la compression pour les gros messages
-- [ ] Pool de connexions pour gérer plus de joueurs
+**1. Tests unitaires**
 
-## 📝 Plan d'Action Recommandé
+- [ ] Structure de tests (pytest)
+- [ ] Tests pour `message.py`
+- [ ] Tests pour les classes Player, Enemy, Spell
+- [ ] Tests pour NetworkManager
+- [ ] Couverture >80%
 
-### Phase 1 : Documentation (FAIT ✅)
-- [x] Créer README.md complet
-- [x] Créer CONTRIBUTING.md
-- [x] Créer requirements.txt
+**2. Tests d'intégration**
 
-### Phase 2 : Documentation du Code
-- [ ] Ajouter docstrings à toutes les classes
-- [ ] Ajouter docstrings à toutes les méthodes
-- [ ] Commenter les sections complexes
+- [ ] Test client-serveur avec multiple clients
+- [ ] Test des déconnexions
+- [ ] Test des reconnexions
+- [ ] Test des messages corrompus
 
-### Phase 3 : Refactoring
-- [ ] Créer config.py
-- [ ] Uniformiser les noms de fonctions (snake_case)
-- [ ] Ajouter type hints partout
-- [ ] Remplacer print par logging
+**3. CI/CD**
 
-### Phase 4 : Structure
-- [ ] Réorganiser en package Python propre
-- [ ] Créer __init__.py
-- [ ] Nettoyer les imports
+- [ ] GitHub Actions pour tests automatiques
+- [ ] Linting (pylint, flake8)
+- [ ] Type checking (mypy)
+- [ ] Formatting (black, autopep8)
 
-### Phase 5 : Qualité
-- [ ] Ajouter tests unitaires
-- [ ] Améliorer la gestion d'erreurs
-- [ ] Remplacer pickle par JSON
-- [ ] Ajouter validation des données
+#### Phase 6 : Structure et Nommage
 
-## 🎯 Objectif Final
+**1. Conventions de nommage cohérentes**
 
-Un code :
-- ✅ **Documenté** : Tout le monde comprend ce que fait chaque partie
-- ✅ **Propre** : Conventions cohérentes, nommage clair
-- ✅ **Sûr** : Gestion d'erreurs robuste, validation des données
-- ✅ **Testable** : Tests unitaires et d'intégration
-- ✅ **Maintenable** : Facile à modifier et à étendre
+- [ ] Utiliser snake_case partout (PEP 8)
+- [ ] Renommer les méthodes incohérentes
+- [ ] Exemples :
+  - `as_typed()` → `as_typed()` (OK)
+  - `serialize()` → `serialize()` (OK)
+  - Mais vérifier tous les fichiers pour cohérence
 
-## 💡 Conseils pour les Contributeurs
+**2. Organiser en packages**
 
-1. **Commencez petit** : Une amélioration à la fois
-2. **Testez toujours** : Vérifiez que rien ne casse
-3. **Documentez** : Expliquez vos choix dans les commits
-4. **Demandez de l'aide** : N'hésitez pas à ouvrir des issues
-5. **Soyez cohérent** : Suivez le style du code existant
+- [ ] Créer `src/avada_kedavoix/`
+- [ ] `src/avada_kedavoix/client/`
+- [ ] `src/avada_kedavoix/server/`
+- [ ] `src/avada_kedavoix/shared/` pour code partagé
+- [ ] Ajouter `__init__.py` partout
+
+**3. Dépendances à externaliser**
+
+- [ ] `shared/message.py` - Utilisé par client ET serveur
+- [ ] `shared/constants.py` - Valeurs communes
+- [ ] `shared/utils.py` - Utilitaires communs
+
+#### Phase 7 : Fonctionnalités Avancées
+
+**1. Système de salles/lobbies**
+
+- [ ] Support de plusieurs serveurs de jeu
+- [ ] Joindre une partie spécifique
+- [ ] Spectateurs
+- [ ] Système de vote
+
+**2. Persistance et Base de Données**
+
+- [ ] Sauvegarder les joueurs (nom, statistiques)
+- [ ] Classement (leaderboard)
+- [ ] Historique des matchs
+- [ ] Économie du jeu (or, items, etc.)
+
+**3. Gameplay Avancé**
+
+- [ ] Plus de types de sorts
+- [ ] Système d'équipement (armes, armures)
+- [ ] Quêtes et missions
+- [ ] Donjons/boss
+- [ ] PvP vs PvE
+
+**4. Social Features**
+
+- [ ] Chat en jeu
+- [ ] Friends list
+- [ ] Guildes/clans
+- [ ] Achievements/badges
+
+#### Phase 8 : Déploiement et Distribution
+
+- [ ] Docker pour serveur
+- [ ] Scripts de déploiement
+- [ ] Exécutable Windows/Mac/Linux
+- [ ] Launcher avec auto-update
+- [ ] Configuration cloud-ready
+
+## 📊 Priorités Recommandées
+
+### Court Terme (1-2 semaines)
+
+1. **Type hints partout** - Improve code quality
+2. **Logging cohérent** - Replace all print()
+3. **Docstrings détaillés** - Document everything
+4. **Config centralisée** - Remove magic numbers
+
+### Moyen Terme (1-2 mois)
+
+1. **Tests unitaires** - Ensure stability
+2. **Validation données** - Security
+3. **JSON au lieu de pickle** - Safety + compatibility
+4. **Gestion d'erreurs** - Robustness
+
+### Long Terme (3+ mois)
+
+1. **Performance optimization** - Smooth gameplay
+2. **Structure refactor** - Clean packages
+3. **Features avancées** - Rich gameplay
+4. **Déploiement** - Production ready
+
+## 🔍 Checklist de Qualité
+
+- [ ] Tous les fichiers ont des docstrings
+- [ ] 100% type hints sur les APIs publiques
+- [ ] Zéro hardcoded magic numbers
+- [ ] Logging au lieu de print()
+- [ ] Gestion d'erreurs cohérente
+- [ ] Pas de dépendances circulaires
+- [ ] Tests >80% coverage
+- [ ] Code lintable sans warnings
+- [ ] Documentation à jour
+- [ ] Changelog maintenu
+
+## 📝 Format de Contribution
+
+Quand vous travaillez sur une amélioration :
+
+1. **Créez une branche** : `feature/improve-xyz`
+2. **Documentez les changements** : Commentaires + docstrings
+3. **Testez vos changements** : Vérifiez que rien ne casse
+4. **Committez clairement** : `feat: improve logging in NetworkManager`
+5. **Ouvrez une PR** : Référencez l'issue associée
+
+## 🎯 Vision Finale
+
+Un projet qui est :
+
+- ✅ **Documenté** : Tout le monde comprend le code
+- ✅ **Typé** : Erreurs attrapées à la compilation
+- ✅ **Sécurisé** : Pas d'injections, validation stricte
+- ✅ **Performant** : 60+ FPS client, low latency
+- ✅ **Testé** : Couverture >80%, CI/CD automatique
+- ✅ **Maintenable** : Architecture propre, conventions claires
+- ✅ **Scalable** : Support 100+ joueurs simultanés
+- ✅ **Déployable** : Production-ready, Docker, etc.
 
 ---
 
-**Ce document est vivant et sera mis à jour au fur et à mesure des améliorations.**
+**Ce document est vivant et sera mis à jour régulièrement avec la progression du projet.**
