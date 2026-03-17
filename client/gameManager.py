@@ -139,6 +139,7 @@ class GameManager:
             if event.type == pygame.QUIT:
                 self.running = False
             self.handle_event(event)
+
         self.handle_voice_event()
 
         self.screen.fill((0, 0, 0))  # Dessine le fond noir
@@ -161,6 +162,9 @@ class GameManager:
         self.ui.handle_event(event)  # Gere les evenement des elements des interfaces
 
         self.clientsElements.handle_event(event)
+
+        for pnj in self.client_manager.game_state.pnjs.get_list():
+            pnj.handle_event(event)
 
         # TODO: déplacer la logique dans une classe spécifique pour les actions
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -186,6 +190,8 @@ class GameManager:
         # Update local player
         self.update_local_player()
         self.clientsElements.local_update_all()
+        for pnj in self.client_manager.game_state.pnjs.get_list():
+            pnj.local_update()
 
     def get_camera_offset(self) -> tuple[float, float]:
         """

@@ -161,8 +161,24 @@ def spawn_element_at_start():
         Enemy(350, 350, (0, 255, 255), world_layer=2)
     )
 
-    pnj1 = network.game_state.pnjs.addEntity(PNJ(-150, -150, (255, 0, 255)))
-    pnj2 = network.game_state.pnjs.addEntity(PNJ(-100, -100, (255, 0, 255)))
+    pnj1 = network.game_state.pnjs.addEntity(
+        PNJ(
+            -150,
+            -150,
+            (255, 0, 255),
+            name="Daniel",
+            text=["Placeholder", ".", "..", "..."],
+        )
+    )
+    pnj2 = network.game_state.pnjs.addEntity(
+        PNJ(
+            -100,
+            -100,
+            (255, 0, 255),
+            name="Julian",
+            text=["Placeholder", ".", "..", "..."],
+        )
+    )
 
     walls = [
         Wall(-500, -500, 1000, 50),

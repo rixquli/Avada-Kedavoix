@@ -17,6 +17,7 @@ class SpellList(Enum):
     ICE = 2
     HEAL = 3
     TELEPORTATION = 4
+    CLOSE = 99
 
 
 class Spell(Serializable):
