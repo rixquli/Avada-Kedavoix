@@ -13,6 +13,7 @@ Elle gere:
 import os
 import sys
 
+from client.classes.CameraBlackFade import CameraBlackFade
 from client.classes.clientOnly.clientElements import ClientElements
 from client.classes.clientOnly.dungeonEntrance import DungeonEntrance
 from client.classes.enemy import Enemy
@@ -113,6 +114,8 @@ class GameManager:
         )
         self.clientsElements.add(dungeonEntrance)
         self.clientsElements.add(dungeonExit)
+
+        self.cameraBlackFade = CameraBlackFade()
 
         # Group pour gerer les collisions
         # self.groups = {"obstacle": pygame.sprite.Group()}
@@ -271,6 +274,12 @@ class GameManager:
             self.client_manager.game_state.walls.get_list(),
             active_world_layer=self.world_layer,
         )
+
+        if self.world_layer > Layer.OVERWORLD.value:
+            self.cameraBlackFade.draw(
+                self.screen,
+                (self.screen.get_width() // 2, self.screen.get_height() // 2),
+            )
 
     def update_local_player(self):
         # Met a jour tout les joueurs
