@@ -3,10 +3,13 @@ try:
 except Exception:
     sd = None
 import json
+import os
+import sys
 import threading
 import queue
 from vosk import Model, KaldiRecognizer
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from client.classes.spell import SpellList
 
 MODEL_PATH = "client/voice/vosk-model-small-fr-0.22"
@@ -26,6 +29,11 @@ SPELLS = {
         "keywords": ["spell"],
         "message": "Spell lancé",
         "action": "SPELL",
+    },
+    "teleportation": {
+        "keywords": ["téléportation"],
+        "message": "Téléportation lancée",
+        "action": SpellList.TELEPORTATION,
     },
     "feu": {
         "keywords": ["boule de feu", "plus de feu"],
@@ -86,8 +94,9 @@ def voice_listener():
 
     with sd.RawInputStream(
         samplerate=16000,
-        blocksize=2000,  # Réduit pour plus de réactivité
+        blocksize=800,  # Réduit pour plus de réactivité
         dtype="int16",
+        latency="low",
         channels=1,
         callback=audio_callback,
     ):

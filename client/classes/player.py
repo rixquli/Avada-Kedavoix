@@ -133,6 +133,11 @@ class Player(Serializable):
     def heal(self):
         self.hp = min(self.max_hp, self.heal_amount + self.hp)
 
+    def teleport(self, x, y, world_layer: int):
+        self.x = x
+        self.y = y
+        self.world_layer = world_layer
+
     def update(self, keys=None):
         self.handle_input(keys)
 

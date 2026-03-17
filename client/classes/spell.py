@@ -16,6 +16,7 @@ class SpellList(Enum):
     FIREBALL = 1
     ICE = 2
     HEAL = 3
+    TELEPORTATION = 4
 
 
 class Spell(Serializable):

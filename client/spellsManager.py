@@ -1,6 +1,7 @@
 import pygame
 
 from client.classes.spell import Spell, SpellList
+from client.layerList import Layer
 
 
 throwableSpells = [SpellList.FIREBALL, SpellList.ICE]
@@ -46,8 +47,9 @@ class SpellsManager:
             # Sors spéciaux
             match vocal_action:
                 case SpellList.HEAL:
-                    print("heal")
                     self.gameManager.client_manager.heal()
+                case SpellList.TELEPORTATION:
+                    my_player.teleport(0, 0, Layer.OVERWORLD.value)
                 case _:
                     raise NotImplementedError(
                         "Need to implement or remove: " + vocal_action
