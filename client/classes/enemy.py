@@ -6,6 +6,7 @@ from typing import Tuple
 import pygame
 import time
 
+from client.classes.clientOnly.healthBar import HealthBar
 from client.classes.spell import Spell
 from client.layerList import Layer
 from server.classes.serializable import Serializable
@@ -22,7 +23,7 @@ class Enemy(Serializable):
         vx: float = 0,
         vy: float = 0,
         id: int = None,
-        hp: int = 1,
+        hp: int = 5,
         vitesse: int = 1,
         attack_delay: float = 5.0,
         world_layer: int | Layer = Layer.OVERWORLD,
@@ -57,6 +58,7 @@ class Enemy(Serializable):
 
         # Pour gerer le systeme vie/degat
         self.hp = hp
+        self.max_hp = hp
 
         # pour donner aux sorts et identifier le thrower
         self.THROWER_TYPE = "ennemy"
@@ -76,6 +78,7 @@ class Enemy(Serializable):
         from client.gameManager import GameManager
 
         self.game_manager = GameManager()
+        self.healthBar = HealthBar(y_offset=20)
 
     #! Server Side
     def do_attack(self, dir: Tuple[float, float]) -> None:
@@ -156,6 +159,13 @@ class Enemy(Serializable):
             ),
         )
         self.hitbox.draw(surface, offset)
+        self.healthBar.draw(
+            surface,
+            self.display_x + offset[0],
+            self.display_y + offset[1],
+            self.hp,
+            self.max_hp,
+        )
 
     def set_target_position(self, x, y):
         """

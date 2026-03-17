@@ -7,6 +7,8 @@ et de la gestion des déplacement pour le joueur local
 import os
 import sys
 
+from client.classes.clientOnly.healthBar import HealthBar
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from client.classes.animator import Animator
 from client.layerList import Layer
@@ -124,6 +126,8 @@ class Player(Serializable):
             ),
         )
 
+        self.healthBar = HealthBar(y_offset=20)
+
     def is_dead(self) -> bool:
         return self.hp <= 0
 
@@ -227,6 +231,7 @@ class Player(Serializable):
         self.animator.blit_sprite(surface, pos)
 
         self.hitbox.draw(surface, offset)
+        self.healthBar.draw(surface, pos[0], pos[1], self.hp, self.max_hp)
 
     def set_target_position(self, x, y):
         """
