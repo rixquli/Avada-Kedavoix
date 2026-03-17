@@ -13,13 +13,13 @@ from vosk import Model, KaldiRecognizer
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from client.classes.spell import SpellList
 
-MODEL_PATH = "client/voice/vosk-model-small-fr-0.22"
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "vosk-model-small-fr-0.22")
 
 # Permet de print ou non dans le terminal utile pour tester
 verbose = True
 
-model = Model(MODEL_PATH)
-recognizer = KaldiRecognizer(model, 16000)
+model = None
+recognizer = None
 
 # File pour les commandes vocales détectées
 voice_commands = queue.Queue()
@@ -118,7 +118,7 @@ def voice_listener():
         """Callback appelé par sounddevice à chaque bloc audio."""
         audio_queue.put(bytes(indata))
 
-    if sd is None:
+    if sd is None or recognizer is None:
         return
 
     with sd.RawInputStream(
@@ -167,6 +167,25 @@ def voice_listener():
 
 def start_voice_recognition():
     """Démarre le thread de reconnaissance vocale."""
+    global model, recognizer
+
+    if sd is None:
+        if verbose:
+            print("Reconnaissance vocale désactivée: module sounddevice indisponible.")
+        return None
+
+    if recognizer is None:
+        try:
+            model = Model(os.path.abspath(MODEL_PATH))
+            recognizer = KaldiRecognizer(model, 16000)
+        except Exception as exc:
+            if verbose:
+                print(
+                    "Reconnaissance vocale désactivée: modèle Vosk introuvable/invalide à "
+                    f"{os.path.abspath(MODEL_PATH)} ({exc})"
+                )
+            return None
+
     thread = threading.Thread(target=voice_listener, daemon=True)
     thread.start()
     return thread
