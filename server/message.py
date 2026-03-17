@@ -18,22 +18,29 @@ class MessageType(Enum):
     DISCONNECT = "disconnect"
     PLAYER_CAST_SPELL = "spell"
     PLAYER_UPDATE_SPELL = "spell_update"
+    PLAYER_HEAL = "player_heal"
+
 
 class PlayerUpdateData(TypedDict):
     x: float
     y: float
 
+
 class GameStateData(TypedDict):
     enemies: list[str]
+
 
 class ConnectData(TypedDict):
     player_id: str
 
+
 class DisconnectData(TypedDict):
     reason: str
 
+
 class SpellCastData(TypedDict):
     id: int
+
 
 class SpellUpdateData(TypedDict):
     cooldown: float
@@ -42,29 +49,36 @@ class SpellUpdateData(TypedDict):
 class MessageBase(TypedDict):
     type: MessageType
 
+
 class PlayerUpdateMessage(MessageBase):
     type: Literal[MessageType.PLAYER_UPDATE]
     data: PlayerUpdateData
+
 
 class GameStateMessage(MessageBase):
     type: Literal[MessageType.GAME_STATE]
     data: GameStateData
 
+
 class ConnectMessage(MessageBase):
     type: Literal[MessageType.CONNECT]
     data: ConnectData
+
 
 class DisconnectMessage(MessageBase):
     type: Literal[MessageType.DISCONNECT]
     data: DisconnectData
 
+
 class SpellCastMessage(MessageBase):
     type: Literal[MessageType.PLAYER_CAST_SPELL]
     data: SpellCastData
 
+
 class SpellUpdateMessage(MessageBase):
     type: Literal[MessageType.PLAYER_UPDATE_SPELL]
     data: SpellUpdateData
+
 
 MessageTyped = Union[
     PlayerUpdateMessage,
@@ -74,6 +88,7 @@ MessageTyped = Union[
     SpellCastMessage,
     SpellUpdateMessage,
 ]
+
 
 class Message:
     def __init__(self, msg_type: MessageType, data):
@@ -105,6 +120,8 @@ class Message:
             case MessageType.PLAYER_CAST_SPELL:
                 return cast(MessageTyped, {"type": self.type, "data": self.data})
             case MessageType.PLAYER_UPDATE_SPELL:
+                return cast(MessageTyped, {"type": self.type, "data": self.data})
+            case MessageType.PLAYER_HEAL:
                 return cast(MessageTyped, {"type": self.type, "data": self.data})
 
         raise ValueError("Unknown message type")

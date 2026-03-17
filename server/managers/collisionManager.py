@@ -52,6 +52,17 @@ class CollisionManager:
             or entity1.world_layer != entity2.world_layer
         ):
             return False
+
+        # from client.classes.spell import Spell
+        # from client.classes.player import Player
+
+        # if isinstance(entity2, Player) and isinstance(entity1, Spell):
+        #     print("==================================")
+        #     print(entity1.hitbox.collide(entity2))
+        #     print(entity1.hitbox.rect)
+        #     print(entity1.hitbox.rect.size)
+        #     print(entity2.hitbox.rect)
+        #     print(entity2.hitbox.rect.size)
         return entity1.hitbox.collide(entity2)
 
     def get_handler_collision_between(self, entity_type1, entity_type2):

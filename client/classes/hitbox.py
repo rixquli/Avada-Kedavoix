@@ -17,7 +17,7 @@ class HitBox(pygame.sprite.Sprite):
         w: int,
         h: int,
         world_layer: int | Layer = Layer.OVERWORLD,
-        debug: bool = False,
+        debug: bool = True,
     ):
         super().__init__()
         self.w = int(w)
@@ -41,6 +41,8 @@ class HitBox(pygame.sprite.Sprite):
         self.network = NetworkManager()
 
     def update(self, x: int, y: int, world_layer: int | Layer = Layer.OVERWORLD):
+        self.x = int(x)
+        self.y = int(y)
         self.rect.center = (x, y)
         self.world_layer = world_layer
 

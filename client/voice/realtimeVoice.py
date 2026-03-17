@@ -7,6 +7,8 @@ import threading
 import queue
 from vosk import Model, KaldiRecognizer
 
+from client.classes.spell import SpellList
+
 MODEL_PATH = "client/voice/vosk-model-small-fr-0.22"
 
 # Permet de print ou non dans le terminal utile pour tester
@@ -28,12 +30,17 @@ SPELLS = {
     "feu": {
         "keywords": ["boule de feu", "plus de feu"],
         "message": "Boule de feu lancée",
-        "action": "FIREBALL",
+        "action": SpellList.FIREBALL,
     },
     "glace": {
         "keywords": ["pic de glace", "pic de classe"],
         "message": "Jet de glace lancé",
-        "action": "ICE",
+        "action": SpellList.ICE,
+    },
+    "soin": {
+        "keywords": ["soin"],
+        "message": "Vie régénérée",
+        "action": SpellList.HEAL,
     },
     "foudre": {
         "keywords": ["éclair", "tonnerre"],

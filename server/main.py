@@ -72,6 +72,11 @@ def handle_client(conn: socket.socket, player_id: str):
                         for sid, spell_data in player_spells.items():
                             spell = Spell.from_dict(spell_data)
                             network.game_state.spells.update(sid, spell)
+                case MessageType.PLAYER_HEAL:
+                    player_id = msg.data["id"]
+                    player = network.game_state.players.get(player_id)
+                    if player:
+                        player.heal()
 
         except Exception as e:
             print(f"Error with player {player_id}: {e}")

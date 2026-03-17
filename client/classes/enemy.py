@@ -155,6 +155,7 @@ class Enemy(Serializable):
                 self.size,
             ),
         )
+        self.hitbox.draw(surface, offset)
 
     def set_target_position(self, x, y):
         """
@@ -163,6 +164,7 @@ class Enemy(Serializable):
         """
         self.target_x = float(x)
         self.target_y = float(y)
+        self.hitbox.update(int(x), int(y), self.world_layer)
 
     @staticmethod
     def draw_all(

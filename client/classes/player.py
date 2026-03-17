@@ -58,7 +58,9 @@ class Player(Serializable):
         )
 
         # Pour gerer le systeme vie/degat
+        self.max_hp = hp
         self.hp = hp
+        self.heal_amount = 25
 
         # pour donner aux sorts et identifier le thrower
         self.THROWER_TYPE = "player"
@@ -127,6 +129,9 @@ class Player(Serializable):
 
     def take_dmg(self, dmg: int) -> None:
         self.hp -= dmg
+
+    def heal(self):
+        self.hp = min(self.max_hp, self.heal_amount + self.hp)
 
     def update(self, keys=None):
         self.handle_input(keys)
@@ -225,6 +230,7 @@ class Player(Serializable):
         """
         self.target_x = float(x)
         self.target_y = float(y)
+        self.hitbox.update(int(x), int(y), self.world_layer)
 
     @staticmethod
     def update_local_player(current_player: "Player"):

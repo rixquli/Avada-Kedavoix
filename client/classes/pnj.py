@@ -121,6 +121,7 @@ class PNJ(Serializable):
             (int(cx - half), int(cy)),  # gauche
         ]
         pygame.draw.polygon(surface, self.color, points)
+        self.hitbox.draw(surface, offset)
 
     def set_target_position(self, x, y):
         """
@@ -129,6 +130,7 @@ class PNJ(Serializable):
         """
         self.target_x = float(x)
         self.target_y = float(y)
+        self.hitbox.update(int(x), int(y), self.world_layer)
 
     @staticmethod
     def draw_all(

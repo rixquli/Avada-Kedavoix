@@ -90,6 +90,13 @@ class ClientManager:
         )
         self.network.send_message(msg)
 
+    def heal(self):
+        msg = Message(
+            MessageType.PLAYER_HEAL,
+            {"id": self.my_player_id},
+        )
+        self.network.send_message(msg)
+
     # Start Game Part
 
     def start_local_server(self, adress=None, port=None, max_player=5, is_solo=False):

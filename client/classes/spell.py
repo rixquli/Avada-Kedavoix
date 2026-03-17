@@ -3,11 +3,19 @@ Classe pour la gestion des spells (sorts)
 """
 
 import time
-import pygame
-from client.layerList import Layer
+from enum import Enum
 
+import pygame
+
+from client.layerList import Layer
 from server.classes.serializable import Serializable
 from client.classes.hitbox import HitBox
+
+
+class SpellList(Enum):
+    FIREBALL = 1
+    ICE = 2
+    HEAL = 3
 
 
 class Spell(Serializable):
@@ -82,6 +90,7 @@ class Spell(Serializable):
         """
         self.target_x = float(x)
         self.target_y = float(y)
+        self.hitbox.update(int(x), int(y), self.world_layer)
 
     def server_update(self):
         # le set_target_position est automatique
@@ -106,6 +115,7 @@ class Spell(Serializable):
             (int(self.display_x + offset[0]), int(self.display_y + offset[1])),
             self.radius,
         )
+        self.hitbox.draw(surface, offset)
 
     @staticmethod
     def draw_all(
@@ -128,3 +138,11 @@ class Spell(Serializable):
                     spell.draw(surface, offset)
             else:
                 all_spells.draw(surface, offset)
+
+    @staticmethod
+    def get_spell_type(spell_type: SpellList, **keyargs):
+        match spell_type:
+            case SpellList.FIREBALL:
+                return Spell(radius=10, color=(255, 0, 0), **keyargs)
+            case _:
+                return Spell(radius=8, color=(50, 150, 255), **keyargs)
