@@ -1,13 +1,15 @@
 import random
 from typing import Any, Dict, List, Tuple
 
-DungeonEnemyList: List[List[Tuple[int, Dict[str, Any]]]] = [
+from client.classes.enemy import EnemyList
+
+DungeonEnemyList: List[List[Tuple[int, EnemyList, Dict[str, Any]]]] = [
     # Etage 1
-    [(5, {"color": (0, 0, 0)}), (5, {"color": (255, 0, 0)})],
+    [(5, EnemyList.GOBELIN_MASSUE, {}), (5, EnemyList.SKELETON, {})],
     # Etage 2
-    [(10, {"color": (255, 0, 0)})],
+    [(10, EnemyList.GOBELIN_MASSUE, {})],
     # Etage restant
-    [(10, {"color": (255, 255, 255)})],
+    [(10, EnemyList.DRAGON, {})],
 ]
 
 
@@ -28,11 +30,11 @@ class EnemySpawner:
 
         level = min(len(DungeonEnemyList) - 1, level)
         for levelEnemies in DungeonEnemyList[level]:
-            count, kwargs = levelEnemies
+            count, enemy_type, kwargs = levelEnemies
             for _ in range(count):
                 rand = (
                     random.randint(area[0][0], area[1][0]),
                     random.randint(area[0][1], area[1][1]),
                 )
-                enemy = Enemy(rand[0], rand[1], world_layer=world_layer, **kwargs)
+                enemy = Enemy.get_enemy_type(enemy_type, x = rand[0], y = rand[1], world_layer=world_layer, **kwargs)
                 self.network.game_state.enemies.addEntity(enemy)

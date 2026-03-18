@@ -17,6 +17,8 @@ class SpellList(Enum):
     ICE = 2
     HEAL = 3
     TELEPORTATION = 4
+    PUNCH = 5
+    BASIC = 6
 
 
 class Spell(Serializable):
@@ -145,5 +147,7 @@ class Spell(Serializable):
         match spell_type:
             case SpellList.FIREBALL:
                 return Spell(radius=10, color=(255, 0, 0), **keyargs)
+            case SpellList.PUNCH:
+                return Spell(radius=15, color=(200, 200, 200), speed = 5, lifetime = 0.1, **keyargs)
             case _:
                 return Spell(radius=8, color=(50, 150, 255), **keyargs)

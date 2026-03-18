@@ -55,6 +55,15 @@ class SpellsManager:
                         "Need to implement or remove: " + vocal_action
                     )
 
+    def cast_spell_type(self, type: SpellList, **kwargs):
+        spell = Spell.get_spell_type(
+            type,
+            **kwargs,
+        )
+
+        self.gameManager.client_manager.cast_spell(spell)
+
+
     def cast_basic_spell(self):
         # Quand on clique ca lance un sort dans la direction de la souris
         my_player = self.gameManager.client_manager.get_player()
@@ -72,7 +81,7 @@ class SpellsManager:
             dir_y = dy / length
         else:
             dir_x, dir_y = 1, 0
-
+        """
         # Créer le sort localement (pour eviter les latences)
         spell = Spell(
             x=my_player.x,
@@ -84,5 +93,14 @@ class SpellsManager:
             thrower=my_player.THROWER_TYPE,
             world_layer=my_player.world_layer,
         )
+        """
+        spell = Spell.get_spell_type(
+                SpellList.PUNCH,
+                x=my_player.x,
+                y=my_player.y,
+                player_id=self.gameManager.client_manager.my_player_id,
+                dir=(dir_x, dir_y),
+                thrower=my_player.THROWER_TYPE,
+                world_layer=my_player.world_layer,)
 
         self.gameManager.client_manager.cast_spell(spell)
