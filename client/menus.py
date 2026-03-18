@@ -13,6 +13,7 @@ Ex:
 import os
 import sys
 
+from client.ui.dialogBox import DialogBox
 from client.ui.image import Image
 
 from client.ui.image import Image
@@ -28,6 +29,9 @@ from client.ui.textInput import TextInput
 
 # Récupere l'instance du GameManager
 game_manager = GameManager()
+
+# Etat UI du HUD conservé entre les refresh.
+hud_state = {"show_dialog": True}
 
 
 # fonction auxiliaire utilisé plus bas
@@ -204,7 +208,7 @@ def press_e(menu_name):
     ]
 
 
-def hud():
+def hud(menu_name):
     elements = []
     player = game_manager.client_manager.get_player()
 
@@ -245,6 +249,28 @@ def hud():
     return elements
 
 
+def dialog(menu_name):
+    elements = []
+
+    def closeDialog():
+        # dialog.hide()
+        # hud_state["show_dialog"] = False
+        game_manager.ui.hide(menu_name)
+        game_manager.ui.refresh(menu_name)
+
+    # if hud_state["show_dialog"]:
+    dialog = DialogBox(
+        "Jean Pormanov",
+        ["Yokoso"],
+        position=(0, -10),
+        close_callback=closeDialog,
+    )
+
+    elements.append(dialog)
+
+    return elements
+
+
 # Contient la liste de tout les menus accessibles dupuis GameManager().ui
 # Pour en rajouter suivre les exemples deja presents
 Menus = [
@@ -264,6 +290,11 @@ Menus = [
     {
         "name": "hud",
         "content": hud,
+        "is_showing": False,
+    },
+    {
+        "name": "dialog",
+        "content": dialog,
         "is_showing": False,
     },
 ]

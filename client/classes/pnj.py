@@ -2,6 +2,8 @@
 Classe pour la gestion des pnj
 """
 
+import math
+
 import pygame
 from client.layerList import Layer
 from server.classes.serializable import Serializable
@@ -19,6 +21,8 @@ class PNJ(Serializable):
         vy: float = 0,
         id: int = None,
         hp: int = 1,
+        text="",
+        name="",
         world_layer: int | Layer = Layer.OVERWORLD,
     ):
         self.id = id
@@ -64,8 +68,42 @@ class PNJ(Serializable):
             world_layer.value if isinstance(world_layer, Layer) else int(world_layer)
         )
 
+        self.text = text
+        self.name = name
+
+        from client.gameManager import GameManager
+
+        self.game_manager = GameManager()
+        self.distance_trigger = 50
+        self.shown = False
+
     def is_dead(self) -> bool:
         return self.hp <= 0
+
+    def local_update(self):
+        current_player = self.game_manager.client_manager.game_state.players.get(
+            self.game_manager.client_manager.my_player_id
+        )
+        if not current_player:
+            return
+
+        if current_player.world_layer != self.world_layer:
+            return
+
+        distance = abs(
+            math.sqrt(
+                (current_player.x - self.x) ** 2 + (current_player.y - self.y) ** 2
+            )
+        )
+        if (
+            distance < self.distance_trigger
+            and current_player.world_layer == self.world_layer
+        ):
+            self.shown = True
+            self.game_manager.ui.show("press_e")
+        elif self.shown:
+            self.shown = False
+            self.game_manager.ui.hide("press_e")
 
     def server_update(self):
         # le set_target_position est automatique
@@ -153,3 +191,33 @@ class PNJ(Serializable):
                     pnj.draw(surface, offset)
             else:
                 pnjs.draw(surface, offset)
+
+    def handle_event(self, event):
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
+            current_player = self.game_manager.client_manager.game_state.players.get(
+                self.game_manager.client_manager.my_player_id
+            )
+            if not current_player:
+                return
+
+            if current_player.world_layer != self.world_layer:
+                return
+
+            distance = abs(
+                math.sqrt(
+                    (current_player.x - self.x) ** 2 + (current_player.y - self.y) ** 2
+                )
+            )
+            if (
+                distance < self.distance_trigger
+                and current_player.world_layer == self.world_layer
+            ):
+                # Passer le nom et le texte du NPC au dialogue avant de l'afficher
+                # Convertir self.text en liste si c'est une string
+                text_data = (
+                    [self.text]
+                    if isinstance(self.text, str)
+                    else (self.text if self.text else [""])
+                )
+                self.game_manager.ui.set_dialog_data("dialog", self.name, text_data)
+                self.game_manager.ui.show("dialog")

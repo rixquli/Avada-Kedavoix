@@ -30,6 +30,8 @@ class Menu:
 
     def update(self, screen):
         for comp in self.ui_components:
+            if hasattr(comp, "update"):
+                comp.update()
             if hasattr(comp, "draw"):
                 comp.draw(screen)
 
@@ -154,6 +156,30 @@ class UI:
     def handle_event(self, event):
         for menu_name in self.get_visible_menus():
             self.menus[menu_name].handle_event(event)
+
+    def set_dialog_data(self, dialog_name, npc_name, text_list):
+        """
+        Met à jour les données du DialogBox (nom du NPC et texte du dialogue)
+        """
+        if dialog_name not in self.menus:
+            raise ValueError(dialog_name, ": this dialog menu does not exist")
+
+        # Convertir le texte en liste s'il n'en est pas une
+        if isinstance(text_list, str):
+            text_list = [text_list]
+
+        # Parcourir les composants du menu pour trouver le DialogBox
+        for component in self.menus[dialog_name].ui_components:
+            # Vérifier si c'est un DialogBox en regardant ses attributs
+            if hasattr(component, "nameComp") and hasattr(component, "textComp"):
+                # Mettre à jour le nom du NPC
+                component.nameComp.change_text(npc_name)
+
+                # Mettre à jour le texte et réinitialiser l'index
+                component.text = text_list
+                component.textIndex = 0
+                component.textComp.change_text(text_list[0])
+                break
 
     def import_menus(self, menus):
         for menu in menus:
