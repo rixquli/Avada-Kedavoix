@@ -41,9 +41,6 @@ class Wall(Serializable, pygame.sprite.Sprite):
     def _tile_texture(self, texture_path: str, tile_size: int | None):
         """
         Charge une texture et la répète en tuile pour remplir la surface du mur.
-        Args:
-            texture_path: chemin vers l'image de la tuile
-            tile_size: taille en pixels du carré de tuile (None = taille originale)
         """
         tile = ImageTool.load(texture_path)
         if tile_size is not None:

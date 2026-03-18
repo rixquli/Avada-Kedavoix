@@ -7,6 +7,10 @@ import pygame
 import time
 from enum import Enum
 
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from client.classes.animator import Animator
 from client.classes.clientOnly.healthBar import HealthBar
 from client.classes.spell import Spell, SpellList
 from client.layerList import Layer
@@ -87,6 +91,36 @@ class Enemy(Serializable):
         self.game_manager = GameManager()
         self.healthBar = HealthBar(y_offset=20)
 
+        #pour les animations
+        self.animator = Animator(
+                size=(self.size * 5, self.size * 5), animation_speed=10 / 60
+        )
+
+        ennemy_type = ""
+        match color:
+            case (0, 255, 255):
+                ennemy_type = "Gobelin_massue"
+            case _:
+                ennemy_type = "Dragon"
+
+        # Chemin vers la racine du projet
+        PROJECT_ROOT = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..")
+        )
+
+        self.animator.state_manager.add_state(
+            "idle",
+            os.path.join(
+                PROJECT_ROOT,
+                "client",
+                "ressources",
+                "Ennemy",
+                ennemy_type,
+                "idle",
+            ),
+        )
+
+
     #! Server Side
     def do_attack(self, dir: Tuple[float, float]) -> None:
         """
@@ -149,16 +183,20 @@ class Enemy(Serializable):
         # Permet d'eviter les mouvements sacadé
         self.interpolate_position()
 
-        pygame.draw.rect(
-            surface,
-            self.color,
-            pygame.Rect(
-                self.display_x + offset[0],
-                self.display_y + offset[1],
-                self.size,
-                self.size,
-            ),
-        )
+      #  pygame.draw.rect(
+      #      surface,
+      #      self.color,
+      #      pygame.Rect(
+      #          self.display_x + offset[0],
+      #          self.display_y + offset[1],
+      #          self.size,
+      #          self.size,
+      #      ),
+      #  )
+
+        pos = (self.display_x + offset[0], self.display_y + offset[1])
+        self.animator.blit_sprite(surface, pos)
+
         self.hitbox.draw(surface, offset)
         self.healthBar.draw(
             surface,
@@ -167,6 +205,7 @@ class Enemy(Serializable):
             self.hp,
             self.max_hp,
         )
+
 
     def set_target_position(self, x, y):
         """
@@ -179,11 +218,10 @@ class Enemy(Serializable):
 
     @staticmethod
     def draw_all(
-        surface,
-        offset: tuple[float, float],
-        enemies: list["Enemy"],
-        active_world_layer: int | None = None,
-    ):
+            surface, offset: tuple[float, float],
+            enemies: list["Enemy"],
+            active_world_layer: int | None = None,
+            ):
         """
         Dessine tout les ennemi
         """

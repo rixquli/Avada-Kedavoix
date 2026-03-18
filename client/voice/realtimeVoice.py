@@ -8,12 +8,19 @@ import re
 import sys
 import threading
 import queue
+import tempfile
+import ctypes
+from pathlib import Path
+from urllib.request import urlretrieve
+from zipfile import ZipFile
 from vosk import Model, KaldiRecognizer
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from client.classes.spell import SpellList
 
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "vosk-model-small-fr-0.22")
+MODEL_NAME = "vosk-model-small-fr-0.22"
+MODEL_URL = f"https://alphacephei.com/vosk/models/{MODEL_NAME}.zip"
+MODEL_BASE_DIR = Path(__file__).resolve().parent
 
 # Permet de print ou non dans le terminal utile pour tester
 verbose = True
@@ -106,6 +113,68 @@ def detect_spells_stream(text: str, previous_counts: dict[str, int]) -> list[dic
     return triggered_spells
 
 
+def is_valid_model_dir(path: Path) -> bool:
+    required = [
+        path / "am" / "final.mdl",
+        path / "conf" / "model.conf",
+    ]
+    return all(p.exists() for p in required)
+
+
+def ensure_local_model(model_name: str) -> str:
+    target_dir = MODEL_BASE_DIR / model_name
+
+    if is_valid_model_dir(target_dir):
+        if verbose:
+            print(f"Modèle Vosk local trouvé: {target_dir}")
+        return str(target_dir)
+
+    if verbose:
+        print(f"Modèle Vosk absent. Téléchargement: {MODEL_URL}")
+
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as tmp_zip:
+        zip_path = Path(tmp_zip.name)
+
+    try:
+        urlretrieve(MODEL_URL, zip_path)
+        with ZipFile(zip_path, "r") as zip_file:
+            zip_file.extractall(MODEL_BASE_DIR)
+    finally:
+        if zip_path.exists():
+            zip_path.unlink()
+
+    if not is_valid_model_dir(target_dir):
+        raise RuntimeError(f"Téléchargement du modèle incomplet: {target_dir}")
+
+    if verbose:
+        print(f"Modèle Vosk téléchargé: {target_dir}")
+    return str(target_dir)
+
+
+def windows_short_path(path: str) -> str | None:
+    if os.name != "nt":
+        return None
+
+    get_short_path_name = ctypes.windll.kernel32.GetShortPathNameW
+    output_buffer = ctypes.create_unicode_buffer(4096)
+    result = get_short_path_name(path, output_buffer, len(output_buffer))
+    if result == 0:
+        return None
+    return output_buffer.value
+
+
+def load_model_with_fallback(model_path: str) -> Model:
+    try:
+        return Model(model_path=model_path)
+    except Exception as first_error:
+        short_path = windows_short_path(model_path)
+        if short_path and short_path != model_path:
+            if verbose:
+                print(f"Échec via chemin Unicode, retry via chemin court: {short_path}")
+            return Model(model_path=short_path)
+        raise first_error
+
+
 def voice_listener():
     """
     Thread d'écoute vocale non-bloquant.
@@ -176,13 +245,14 @@ def start_voice_recognition():
 
     if recognizer is None:
         try:
-            model = Model(os.path.abspath(MODEL_PATH))
+            model_path = ensure_local_model(MODEL_NAME)
+            model = load_model_with_fallback(model_path)
             recognizer = KaldiRecognizer(model, 16000)
         except Exception as exc:
             if verbose:
                 print(
                     "Reconnaissance vocale désactivée: modèle Vosk introuvable/invalide à "
-                    f"{os.path.abspath(MODEL_PATH)} ({exc})"
+                    f"{MODEL_NAME} ({exc})"
                 )
             return None
 
