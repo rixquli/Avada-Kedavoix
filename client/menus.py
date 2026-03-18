@@ -64,10 +64,15 @@ def main_menu(menu_name):
 
     title = Text(
         "AVADA KEDAVOIX",
-        (0, 50),
-        font_size=50,
-        color=(255, 255, 255),
+        (0, 100),
+        font_size=100,
+        color=(0, 0, 0),
+        bg_alpha=0,
+        width=1000,
+        height=150,
         anchor=Anchor.MIDTOP,
+        background=True,
+        bg_border=False,
     )
     start_single_player = Button(
         "SOLO",
