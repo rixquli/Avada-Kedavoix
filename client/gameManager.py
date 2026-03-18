@@ -142,6 +142,8 @@ class GameManager:
     def render(self):
         """Fait un rendu du jeu a executer a chaque tick"""
         if not self.running:
+            self.client_manager.network.close_server()
+            self.client_manager.network.close_client_socket()
             pygame.quit()
             sys.exit()
             return
