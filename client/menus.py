@@ -237,14 +237,21 @@ def hud(menu_name):
         "idle",
         "idle_1.png",
     )
-
+    background = Image(
+        path="client/ressources/UI/background.png",
+        width=170,
+        height=170,
+        position=(5, -5),
+        anchor=Anchor.BOTTOMLEFT,
+    )
     avatar = Image(
         path=path,
         width=150,
         height=150,
-        position=(0, 0),
+        position=(15, -20),
         anchor=Anchor.BOTTOMLEFT,
     )
+    elements.append(background)
     elements.append(avatar)
     return elements
 
@@ -260,8 +267,7 @@ def dialog(menu_name):
 
     # if hud_state["show_dialog"]:
     dialog = DialogBox(
-        "Jean Pormanov",
-        ["Yokoso"],
+        [{"name": "Jean Pormanov", "text": "Yokoso"}],
         position=(0, -10),
         close_callback=closeDialog,
     )

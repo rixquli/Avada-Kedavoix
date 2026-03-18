@@ -3,15 +3,16 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "maps/main.tmx",
+    "activeFile": "",
     "expandedProjectPaths": [
-        "maps",
-        "tiles/maps",
-        "tiles/tilesets",
         "tilesets",
         ".",
-        "tiles"
+        "tiles/tilesets",
+        "tiles/maps",
+        "tiles",
+        "maps"
     ],
+    "file.lastUsedOpenFilter": "Tous les Fichiers (*)",
     "fileStates": {
         ":tilesets/automap-tiles.tsx": {
             "dynamicWrapping": true,
@@ -25,8 +26,8 @@
             "scale": 0.125,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 3000,
-                "y": 1640
+                "x": 848,
+                "y": 1448
             }
         },
         "tilesets/Props.tsx": {
@@ -52,19 +53,14 @@
     "map.lastUsedFormat": "tmx",
     "map.renderOrder": "3",
     "openFiles": [
-        "tilesets/grass.tsx",
-        "maps/main.tmx",
-        "tilesets/wall.tsx",
-        ":tilesets/automap-tiles.tsx",
-        "tilesets/Props.tsx"
     ],
     "project": "map.tiled-project",
     "recentFiles": [
+        "maps/main.tmx",
         "tilesets/grass.tsx",
-        "tilesets/Props.tsx",
-        ":tilesets/automap-tiles.tsx",
         "tilesets/wall.tsx",
-        "maps/main.tmx"
+        "tilesets/Props.tsx",
+        ":tilesets/automap-tiles.tsx"
     ],
     "tileset.lastUsedFormat": "tsx"
 }

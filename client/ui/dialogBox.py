@@ -11,7 +11,6 @@ from client.ui.uiUtils import UIUtils
 class DialogBox:
     def __init__(
         self,
-        name,
         text,
         position,
         close_callback,
@@ -46,7 +45,7 @@ class DialogBox:
         self.textIndex = 0
 
         self.nameComp = Text(
-            name,
+            text[0].get("name", ""),
             (position[0] - 425, position[1] - 200),
             height=50,
             width=230,
@@ -54,7 +53,7 @@ class DialogBox:
             background=True,
         )
         self.textComp = Text(
-            text[0],
+            text[0].get("text", ""),
             (position[0], position[1] - 10),
             width=1080,
             height=180,
@@ -88,7 +87,8 @@ class DialogBox:
     def next_text(self):
         if self.textIndex < len(self.text) - 1:
             self.textIndex += 1
-            self.textComp.change_text(self.text[self.textIndex])
+            self.nameComp.change_text(self.text[self.textIndex].get("name", ""))
+            self.textComp.change_text(self.text[self.textIndex].get("text", ""))
         else:
             if self.close_callback is not None:
                 self.close_callback()

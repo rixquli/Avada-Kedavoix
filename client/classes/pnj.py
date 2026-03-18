@@ -214,10 +214,5 @@ class PNJ(Serializable):
             ):
                 # Passer le nom et le texte du NPC au dialogue avant de l'afficher
                 # Convertir self.text en liste si c'est une string
-                text_data = (
-                    [self.text]
-                    if isinstance(self.text, str)
-                    else (self.text if self.text else [""])
-                )
-                self.game_manager.ui.set_dialog_data("dialog", self.name, text_data)
+                self.game_manager.ui.set_dialog_data("dialog", self.text)
                 self.game_manager.ui.show("dialog")
