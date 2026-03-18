@@ -58,6 +58,9 @@ class NetworkManager:
 
         return tuple(server_adress)
 
+    def close_server(self):
+        self.socket.close()
+
     # Méthode du client
     def connect_to_server(self, host="0.0.0.0", port=12345):
         my_player_id = None
@@ -78,6 +81,10 @@ class NetworkManager:
         except Exception as e:
             # print(f"Connection failed: {e}")
             return my_player_id
+
+    def close_client_socket(self):
+        if hasattr(self, "client_socket"):
+            self.client_socket.close()
 
     # Méthodes du serveur et du client
     def send_message(self, message: Message):
