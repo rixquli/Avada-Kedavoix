@@ -98,7 +98,7 @@ class Enemy(Serializable):
 
         ennemy_type = ""
         match color:
-            case (0, 255, 255):
+            case (0, 255, 255)|(0, 255, 0):
                 ennemy_type = "Gobelin_massue"
             case _:
                 ennemy_type = "Dragon"
