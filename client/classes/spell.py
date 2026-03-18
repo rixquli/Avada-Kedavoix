@@ -2,11 +2,14 @@
 Classe pour la gestion des spells (sorts)
 """
 
+import os
 import time
+import math
 from enum import Enum
 
 import pygame
 
+from client.classes.animator import Animator
 from client.layerList import Layer
 from server.classes.serializable import Serializable
 from client.classes.hitbox import HitBox
@@ -70,6 +73,36 @@ class Spell(Serializable):
         # pour savoir a qui ne pas infliger de degat
         self.thrower = thrower
 
+        # pour les animations
+        self.animator = Animator(
+            size=(self.radius * 5, self.radius * 5), animation_speed=10 / 60
+        )
+        # 0 si l'asset de base regarde a droite, 180 s'il regarde a gauche
+        self.sprite_base_angle = 180
+
+        spell_type = None
+        match color:
+            case (255, 0, 0):
+                spell_type = SpellList.FIREBALL
+            case _:
+                spell_type = SpellList.ICE
+
+        # Chemin vers la racine du projet
+        PROJECT_ROOT = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..")
+        )
+
+        self.animator.state_manager.add_state(
+            "idle",
+            os.path.join(
+                PROJECT_ROOT,
+                "client",
+                "ressources",
+                "Sorts",
+                spell_type.name,
+            ),
+        )
+
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
         x_diff = self.target_x - self.display_x
@@ -110,12 +143,27 @@ class Spell(Serializable):
         # Permet d'eviter les mouvements sacadé
         self.interpolate_position()
 
-        pygame.draw.circle(
-            surface,
-            self.color,
-            (int(self.display_x + offset[0]), int(self.display_y + offset[1])),
-            self.radius,
-        )
+        # pygame.draw.circle(
+        #     surface,
+        #     self.color,
+        #     (int(self.display_x + offset[0]), int(self.display_y + offset[1])),
+        #     self.radius,
+        # )
+        pos = (self.display_x + offset[0], self.display_y + offset[1])
+
+        sprite = self.animator.state_manager.get_current_sprite()
+        if sprite is not None:
+            # pour tourner le spirte dans la direction ou il se dirige
+            angle = (
+                -math.degrees(math.atan2(self.dir[1], self.dir[0]))
+                + self.sprite_base_angle
+            )
+            rotated_sprite = pygame.transform.rotate(sprite, angle)
+            rect = rotated_sprite.get_rect(center=pos)
+            surface.blit(rotated_sprite, rect)
+        else:
+            self.animator.blit_sprite(surface, pos)
+
         self.hitbox.draw(surface, offset)
 
     @staticmethod
