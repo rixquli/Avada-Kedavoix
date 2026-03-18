@@ -19,13 +19,17 @@ class Text:
         width=None,
         height=None,
         color=(20, 20, 20),
+        bg_alpha=255,
         bg_color=(200, 200, 200),
         anchor: Anchor = Anchor.TOPLEFT,
         text_align: str = "center",
+        bg_border=True,
     ):
         self.position = position
         self.color = color
         self.bg_color = bg_color
+        self.bg_alpha = bg_alpha
+        self.bg_border = bg_border
         self.font_size = font_size
         self.font_name = font_name
         self.font = pygame.font.SysFont(self.font_name, self.font_size)
@@ -146,12 +150,21 @@ class Text:
         self.update_position()
 
         if self.background:
-            pygame.draw.rect(
-                window, self.bg_color, self.backgroundRect, border_radius=10
+            bg_surface = pygame.Surface(
+                (self.backgroundRect.width, self.backgroundRect.height),
+                pygame.SRCALPHA,
+            )
+            bg_color = pygame.Color(
+                self.bg_color[0], self.bg_color[1], self.bg_color[2], self.bg_alpha
             )
             pygame.draw.rect(
-                window, (255, 255, 255), self.backgroundRect, 2, border_radius=10
+                bg_surface, bg_color, bg_surface.get_rect(), border_radius=10
             )
+            window.blit(bg_surface, self.backgroundRect.topleft)
+            if self.bg_border:
+                pygame.draw.rect(
+                    window, (255, 255, 255), self.backgroundRect, 2, border_radius=10
+                )
 
             # Rendre les lignes avec l'alignement du texte
             line_height = self.font.get_height()
