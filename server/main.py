@@ -155,11 +155,9 @@ def broadcast_game_state():
 
 # TODO: Enlever cette fonction elle ne doit rester que en développement ou etre adapté
 def spawn_element_at_start():
-    enemy1 = network.game_state.enemies.addEntity(Enemy(200, 200, (0, 255, 255)))
-    enemy2 = network.game_state.enemies.addEntity(Enemy(350, 350, (0, 255, 255)))
-    enemy2 = network.game_state.enemies.addEntity(
-        Enemy(350, 350, (0, 255, 255), world_layer=2)
-    )
+    from client.classes.enemy import EnemyList
+    enemy1 = network.game_state.enemies.addEntity(Enemy.get_enemy_type(EnemyList.GOBELIN_MASSUE, x = 200, y = 200))
+    enemy2 = network.game_state.enemies.addEntity(Enemy.get_enemy_type(EnemyList.GOBELIN_MASSUE, x = 350, y = 350))
 
     pnj1 = network.game_state.pnjs.addEntity(PNJ(-150, -150, (255, 0, 255)))
     pnj2 = network.game_state.pnjs.addEntity(PNJ(-100, -100, (255, 0, 255)))

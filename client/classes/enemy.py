@@ -271,6 +271,6 @@ class Enemy(Serializable):
             case EnemyList.DRAGON:
                 return Enemy(color=(255,0,0), spell_type = SpellList.FIREBALL, reach = 500, dist_from = 100, **keyargs)
             case EnemyList.SKELETON:
-                return Enemy(color=(100, 100, 100), spell_type = SpellList.BASIC, reach = 500, dist_from = 100, **keyargs)
+                return Enemy(color=(100, 100, 100), spell_type = SpellList.ICE, reach = 500, dist_from = 100, **keyargs)
             case _:
                 return Enemy(color=(255,255,255), **keyargs)
