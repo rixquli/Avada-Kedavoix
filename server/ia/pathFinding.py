@@ -1,5 +1,8 @@
-from client.classes.hitbox import HitBox
+"""
+fichier pour effectuer la recherche de chemin
+"""
 
+from client.classes.hitbox import HitBox
 
 
 class Pix:
@@ -7,11 +10,12 @@ class Pix:
     pour stocker les donnes d'un pixel et y acceder plus vite
     (position/ distance/ chemin pour y arriver)
     """
-    def __init__(self, pos: tuple[float, float], dist_e: float=0):
+
+    def __init__(self, pos: tuple[float, float], dist_e: float = 0):
         self.x = int(pos[0])
         self.y = int(pos[1])
-        self.dist = 0           # distance a parcourir entre la position de depart et le pixel
-        self.dist_e = dist_e    # distance a vol d'oiseau entre le pixel et l'arrivee
+        self.dist = 0  # distance a parcourir entre la position de depart et le pixel
+        self.dist_e = dist_e  # distance a vol d'oiseau entre le pixel et l'arrivee
         self.origin = None
         self.len_path = 0
 
@@ -34,9 +38,9 @@ class Pix:
         self.dist += pix.dist + dist
         self.len_path = pix.len_path + 1
 
-    def get_path(self)  -> list[tuple[int, int]]:
+    def get_path(self) -> list[tuple[int, int]]:
         """renvois le chemin j'usqua la position de depart"""
-        if self.origin == None:
+        if self.origin is None:
             return []
         path = self.origin.get_path()
         path.append((self.x, self.y))
@@ -65,10 +69,10 @@ class Path:
         self.precision = precision
 
     def update_pos(self, x: int, y: int):
-        self.pos = tuple((int(x//self.precision*self.precision),int(y//self.precision*self.precision)))
+        self.pos = tuple((int(x), int(y)))
 
     def update_dest(self, x: int, y: int):
-        self.dest = tuple((int(x//self.precision*self.precision),int(y//self.precision*self.precision)))
+        self.dest = tuple((int(x), int(y)))
 
     def dist_euclide(
         self, x: int, y: int, x_target: int = None, y_target: int = None
@@ -106,6 +110,7 @@ class Path:
         a reexecuter lorsque le chemin est vide
         UTILISES A*
         """
+        # TODO solve oscillation entre 2 calculs si bloque derriere mur
         visited = list()
         to_visit = list()
         to_visit.append(Pix(self.pos, self.dist_euclide(self.pos[0], self.pos[1])))
@@ -164,4 +169,8 @@ class Path:
         dx = self.path[0][0] - self.pos[0]
         dy = self.path[0][1] - self.pos[1]
         self.path.remove(self.path[0])
+        # TODO solve  vitesse trop grande en diagonale
+        # if dx != 0 and dy != 0:
+        #    return dx/(2**0.5), dy/(2**0.5)
+        # else:
         return dx, dy

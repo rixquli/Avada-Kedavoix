@@ -81,9 +81,8 @@ class Enemy(Serializable):
         self.spell_type = spell_type
 
         from server.managers.iaManager import Ia
-        self.x_target = self.x
-        self.y_target = self.y
-        self.ia = Ia("enemy_ia",self)
+
+        self.ia = Ia("enemy_ia", self)
         self.path = None
 
         # pour interagir avec le reste
@@ -149,7 +148,6 @@ class Enemy(Serializable):
         # actualises la position et les datas de l'ia
         self.ia.update()
 
-        """
         # Appliquer le mouvement horizontal
         self.hitbox.update(int(self.x + self.vx), int(self.y), self.world_layer)
 
@@ -165,9 +163,6 @@ class Enemy(Serializable):
         collided = self.hitbox.get_server_collided()
         if not collided:
             self.y += self.vy
-        """
-        self.x += self.vx
-        self.y += self.vy
 
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""

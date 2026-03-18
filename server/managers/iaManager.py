@@ -1,10 +1,11 @@
-#to manage an ia
+"""
+to manage ias
+"""
 
 import time
 from random import randint
 import math
 
-from client.gameManager import GameManager
 from client.classes.pnj import PNJ
 from client.classes.enemy import Enemy
 from server.NetworkManager import NetworkManager
@@ -171,5 +172,3 @@ class ListIa:
             else:
                 pnj.vx = (pnj.x_target - pnj.x) / pnj.dist
                 pnj.vy = (pnj.y_target - pnj.y) / pnj.dist
-
-
