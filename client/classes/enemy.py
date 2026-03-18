@@ -42,7 +42,7 @@ class Enemy(Serializable):
         spell_type: SpellList = SpellList.PUNCH,
         reach: int = -1,
         dist_from: int | None = 3,
-        debug: bool = True,
+        debug: bool = False,
         dmg=10,
     ):
         self.id = id
