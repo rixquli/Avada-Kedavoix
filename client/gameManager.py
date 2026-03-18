@@ -31,7 +31,7 @@ from client.classes.pnj import PNJ
 from client.classes.wall import Wall
 from client.layerList import Layer
 from client.spellsManager import SpellsManager
-from client.voice.realtimeVoice import get_voice_command, start_voice_recognition
+#from client.voice.realtimeVoice import get_voice_command, start_voice_recognition
 
 
 # To import module from other folder
@@ -66,7 +66,7 @@ class GameManager:
         self.client_manager = ClientManager(self)
 
         # Setup voice recognition
-        start_voice_recognition()
+        #start_voice_recognition()
 
         self.spellManager = SpellsManager(self)
 
@@ -158,7 +158,7 @@ class GameManager:
             if event.type == pygame.QUIT:
                 self.running = False
             self.handle_event(event)
-        self.handle_voice_event()
+        #self.handle_voice_event()
 
         self.screen.fill((0, 0, 0))  # Dessine le fond noir
 
