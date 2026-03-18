@@ -4,7 +4,14 @@ gestion de l'objet afficher a l'ecran
 et de la gestion des déplacement pour le joueur local
 """
 
-from typing import List, Tuple
+import os
+import sys
+
+from client.classes.clientOnly.healthBar import HealthBar
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from client.classes.animator import Animator
+from client.layerList import Layer
 import pygame
 from client.classes.hitbox import HitBox
 from server.classes.serializable import Serializable
@@ -15,12 +22,13 @@ class Player(Serializable):
         self,
         x: float,
         y: float,
-        color: Tuple[int, int, int],
+        color: tuple[int, int, int],
         radius: int = 10,
         vx: float = 0,
         vy: float = 0,
         id: int = None,
         hp: int = 100,
+        world_layer: int | Layer = Layer.OVERWORLD,
     ):
         self.id = id
         self.color = tuple(color)
@@ -47,19 +55,92 @@ class Player(Serializable):
         # Pour gerer les collisions
         #! Attention hibox_size sera envoyé au serveur mais pas hitbox (qui correspond a l'objet pygame de l'hitbox)
         self.hitbox_size = (25, 25)
-        self.hitbox = HitBox(x, y, self.hitbox_size[0], self.hitbox_size[1])
+        self.hitbox = HitBox(
+            int(x), int(y), self.hitbox_size[0], self.hitbox_size[1], world_layer
+        )
 
         # Pour gerer le systeme vie/degat
+        self.max_hp = hp
         self.hp = hp
+        self.heal_amount = 25
 
         # pour donner aux sorts et identifier le thrower
         self.THROWER_TYPE = "player"
+        self.world_layer = (
+            world_layer.value if isinstance(world_layer, Layer) else int(world_layer)
+        )
+
+        # Pour les animations
+        self.animator = Animator(
+            size=(self.radius * 5, self.radius * 5), animation_speed=10 / 60
+        )
+
+        wizard_type = ""
+        match color:
+            case (255, 0, 0):
+                wizard_type = "wizard_fire"
+            case (0, 0, 255):
+                wizard_type = "wizard_ice"
+            case _:
+                wizard_type = "wizard"
+
+        # Chemin vers la racine du projet
+        PROJECT_ROOT = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..")
+        )
+
+        self.animator.state_manager.add_state(
+            "idle",
+            os.path.join(
+                PROJECT_ROOT,
+                "client",
+                "ressources",
+                "wizzard-test",
+                "PNG",
+                wizard_type,
+                "idle",
+            ),
+        )
+        self.animator.state_manager.add_state(
+            "walk",
+            os.path.join(
+                PROJECT_ROOT,
+                "client",
+                "ressources",
+                "wizzard-test",
+                "PNG",
+                wizard_type,
+                "walk",
+            ),
+        )
+        self.animator.state_manager.add_state(
+            "run",
+            os.path.join(
+                PROJECT_ROOT,
+                "client",
+                "ressources",
+                "wizzard-test",
+                "PNG",
+                wizard_type,
+                "run",
+            ),
+        )
+
+        self.healthBar = HealthBar(y_offset=20)
 
     def is_dead(self) -> bool:
         return self.hp <= 0
 
-    def take_dmg(self,dmg: int) -> None:
+    def take_dmg(self, dmg: int) -> None:
         self.hp -= dmg
+
+    def heal(self):
+        self.hp = min(self.max_hp, self.heal_amount + self.hp)
+
+    def teleport(self, x, y, world_layer: int):
+        self.x = x
+        self.y = y
+        self.world_layer = world_layer
 
     def update(self, keys=None):
         self.handle_input(keys)
@@ -70,23 +151,23 @@ class Player(Serializable):
         Sinon si aucune collision n'est détectée a la prochaine position alors on applique le mouvement
         """
         # Appliquer le mouvement horizontal
-        self.hitbox.update(self.x + self.vx, self.y)
+        self.hitbox.update(int(self.x + self.vx), int(self.y), self.world_layer)
 
         # Vérifier les collisions horizontales
-        collided = self.hitbox.get_collided()
+        collided = self.hitbox.get_local_collided()
         if not collided:
             self.x += self.vx
 
         # Appliquer le mouvement vertical
-        self.hitbox.update(self.x, self.y + self.vy)
+        self.hitbox.update(int(self.x), int(self.y + self.vy), self.world_layer)
 
         # Vérifier les collisions verticales
-        collided = self.hitbox.get_collided()
+        collided = self.hitbox.get_local_collided()
         if not collided:
             self.y += self.vy
 
         # Mettre à jour la hitbox à la position finale
-        self.hitbox.update(self.x, self.y)
+        self.hitbox.update(int(self.x), int(self.y), self.world_layer)
 
         # Defini la target pour calculer l'interpolation
         self.set_target_position(self.x, self.y)
@@ -127,15 +208,30 @@ class Player(Serializable):
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             self.vx = speed
 
-    def draw(self, surface, offset: Tuple[float, float]):
-        pygame.draw.circle(
-            surface,
-            self.color,
-            (self.display_x + offset[0], self.display_y + offset[1]),
-            self.radius,
-        )
+        if self.vx > 0:
+            self.animator.flip_y("right")
+        elif self.vx < 0:
+            self.animator.flip_y("left")
+
+        if self.vx != 0 or self.vy != 0:
+            self.animator.set_state("run")
+        else:
+            self.animator.set_state("idle")
+
+    def draw(self, surface, offset: tuple[float, float]):
+        self.interpolate_position()
+        # pygame.draw.circle(
+        #     surface,
+        #     self.color,
+        #     (self.display_x + offset[0], self.display_y + offset[1]),
+        #     self.radius,
+        # )
+        pos = (self.display_x + offset[0], self.display_y + offset[1])
+
+        self.animator.blit_sprite(surface, pos)
 
         self.hitbox.draw(surface, offset)
+        self.healthBar.draw(surface, pos[0], pos[1], self.hp, self.max_hp)
 
     def set_target_position(self, x, y):
         """
@@ -144,6 +240,7 @@ class Player(Serializable):
         """
         self.target_x = float(x)
         self.target_y = float(y)
+        self.hitbox.update(int(x), int(y), self.world_layer)
 
     @staticmethod
     def update_local_player(current_player: "Player"):
@@ -156,9 +253,10 @@ class Player(Serializable):
     @staticmethod
     def draw_all(
         surface,
-        offset: Tuple[float, float],
+        offset: tuple[float, float],
         current_player: "Player",
-        other_players: List["Player"],
+        other_players: list["Player"],
+        active_world_layer: int | None = None,
     ):
         """
         Dessine met a jour tout les joueurs
@@ -166,9 +264,19 @@ class Player(Serializable):
         if other_players:
             if isinstance(other_players, list):
                 for player in other_players:
+                    if (
+                        active_world_layer is not None
+                        and player.world_layer != active_world_layer
+                    ):
+                        continue
                     player.draw(surface, offset)
             else:
                 other_players.draw(surface, offset)
 
         if current_player:
+            if (
+                active_world_layer is not None
+                and current_player.world_layer != active_world_layer
+            ):
+                return
             current_player.draw(surface, offset)

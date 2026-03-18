@@ -18,6 +18,8 @@ game_manager = GameManager()
 
 
 def main():
+    game_manager.setup()
+
     while True:
         game_manager.render()
 

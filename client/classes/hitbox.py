@@ -5,19 +5,30 @@ Exemple: gestion des collision entre le joueur et les murs
 """
 
 import pygame
+from client.layerList import Layer
+from server.classes.serializable import Serializable
 
 
 class HitBox(pygame.sprite.Sprite):
-    def __init__(self, x, y, w, h, debug=False):
+    def __init__(
+        self,
+        x: int,
+        y: int,
+        w: int,
+        h: int,
+        world_layer: int | Layer = Layer.OVERWORLD,
+        debug: bool = False,
+    ):
         super().__init__()
-        self.w = w
-        self.h = h
-        self.x = x
-        self.y = y
+        self.w = int(w)
+        self.h = int(h)
+        self.x = int(x)
+        self.y = int(y)
         self.image = pygame.Surface((w, h))
         self.image.fill((0, 255, 0))
         self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
+        self.rect.center = (int(x), int(y))
+        self.world_layer = world_layer
 
         self.debug = debug
 
@@ -25,8 +36,15 @@ class HitBox(pygame.sprite.Sprite):
 
         self.game_manager = GameManager()
 
-    def update(self, x, y):
+        from server.NetworkManager import NetworkManager
+
+        self.network = NetworkManager()
+
+    def update(self, x: int, y: int, world_layer: int | Layer = Layer.OVERWORLD):
+        self.x = int(x)
+        self.y = int(y)
         self.rect.center = (x, y)
+        self.world_layer = world_layer
 
     def draw(self, surface, offset=(0, 0)):
         if self.debug:
@@ -38,22 +56,44 @@ class HitBox(pygame.sprite.Sprite):
                 2,  # Épaisseur du contour (2 pixels)
             )
 
-    def get_collided(self):
-        """
+    def get_local_collided(self) -> bool:
+        obstacles = self.game_manager.collision_manager.client_collider_groups.get(
+            "obstacle"
+        )
+        if obstacles is None:
+            return False
+
+        filtered = [o for o in obstacles if o.world_layer == self.world_layer]
         return pygame.sprite.spritecollide(
             self,
-            self.game_manager.client_manager.game_state.collision_manager.client_collider_groups.get(
-                "obstacle"
-            ),
+            filtered,
             False,
         )
-        """
-        for wall in self.game_manager.walls:
-            if self.collide(wall):
-                return True
-        return False
 
-    def collide(self, entity):
+    def get_server_collided(self) -> bool:
+        obstacles = (
+            self.network.game_state.collision_manager.client_collider_groups.get(
+                "obstacle"
+            )
+        )
+        if obstacles is None:
+            return False
+
+        filtered = [o for o in obstacles if o.world_layer == self.world_layer]
+        return pygame.sprite.spritecollide(
+            self,
+            filtered,
+            False,
+        )
+
+    def collide(self, entity: Serializable) -> bool:
+        if (
+            not self.world_layer
+            or not entity.world_layer
+            or entity.world_layer != self.world_layer
+        ):
+            return False
+
         if hasattr(entity, "rect"):
             return self.rect.colliderect(entity.rect)
         return self.rect.colliderect(entity.hitbox.rect)

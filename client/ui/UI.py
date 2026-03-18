@@ -83,6 +83,11 @@ class UI:
             raise ValueError(menu_name, ": this menu do not exist")
         self.menus[menu_name].add(ui_components)
 
+    def on_resize(self):
+        """Quand la taille de la fentre change on met a jour tout les menus visibles"""
+        for menu in self.get_visible_menus():
+            self.refresh(menu)
+
     def refresh(self, menu_name):
         """
         Ecrase le menu donné avec le meme

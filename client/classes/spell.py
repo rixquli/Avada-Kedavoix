@@ -3,11 +3,22 @@ Classe pour la gestion des spells (sorts)
 """
 
 import time
-from typing import List, Tuple
+from enum import Enum
+
 import pygame
 
+from client.layerList import Layer
 from server.classes.serializable import Serializable
 from client.classes.hitbox import HitBox
+
+
+class SpellList(Enum):
+    FIREBALL = 1
+    ICE = 2
+    HEAL = 3
+    TELEPORTATION = 4
+    PUNCH = 5
+    BASIC = 6
 
 
 class Spell(Serializable):
@@ -15,15 +26,16 @@ class Spell(Serializable):
         self,
         x: float,
         y: float,
-        player_id: int,
-        color: Tuple[int, int, int],
-        dir: Tuple[int, int],
+        player_id: int | None,
+        color: tuple[int, int, int],
+        dir: tuple[float, float],
         radius: int = 10,
         id: int = None,
         lifetime: float = 5.0,
         dmg: int = 1,
         thrower: str = "Enemy",
-        speed: float = 1.0,
+        speed: float = 20.0,
+        world_layer: int | Layer = Layer.OVERWORLD,
     ):
         self.id = id
         self.x = float(x)
@@ -35,6 +47,9 @@ class Spell(Serializable):
         self.lifetime = float(lifetime)
         self.creation_time = time.time()
         self.speed = float(speed)
+        self.world_layer = (
+            world_layer.value if isinstance(world_layer, Layer) else int(world_layer)
+        )
 
         # Position affiché
         self.display_x = float(x)
@@ -47,13 +62,14 @@ class Spell(Serializable):
         self.min_threshold = 0.01
 
         self.hitbox_size = (radius, radius)
-        self.hitbox = HitBox(x, y, self.hitbox_size[0], self.hitbox_size[1])
-
+        self.hitbox = HitBox(
+            int(x), int(y), self.hitbox_size[0], self.hitbox_size[1], world_layer
+        )
 
         # Pour gerer le systeme vie/degat
         self.dmg = int(dmg)
 
-        #pour savoir a qui ne pas infliger de degat
+        # pour savoir a qui ne pas infliger de degat
         self.thrower = thrower
 
     def interpolate_position(self):
@@ -70,25 +86,28 @@ class Spell(Serializable):
         else:
             self.display_y = self.target_y
 
-    def set_target_position(self, x, y):
+    def set_target_position(self, x: float, y: float):
         """
         Applique une interpolation lors de l'application des positions recu du serveur
         permettant d'éviter des mouvements sacadés
         """
         self.target_x = float(x)
         self.target_y = float(y)
+        self.hitbox.update(int(x), int(y), self.world_layer)
 
     def server_update(self):
+        # le set_target_position est automatique
+        # potentielle ia a ajouter (si nessecaire)
         self.x += self.dir[0] * self.speed
         self.y += self.dir[1] * self.speed
 
-        self.hitbox.update(self.x, self.y)
+        self.hitbox.update(int(self.x), int(self.y), self.world_layer)
 
     def is_expired(self) -> bool:
         """Verifie si le sort a depasse sa duree de vie"""
         return time.time() - self.creation_time > self.lifetime
 
-    def draw(self, surface, offset: Tuple[float, float]):
+    def draw(self, surface, offset: tuple[float, float]):
         # Interpolation vers la position cible
         # Permet d'eviter les mouvements sacadé
         self.interpolate_position()
@@ -99,15 +118,36 @@ class Spell(Serializable):
             (int(self.display_x + offset[0]), int(self.display_y + offset[1])),
             self.radius,
         )
+        self.hitbox.draw(surface, offset)
 
     @staticmethod
-    def draw_all(surface, offset: Tuple[float, float], all_spells: List["Spell"]):
+    def draw_all(
+        surface,
+        offset: tuple[float, float],
+        all_spells: list["Spell"],
+        active_world_layer: int | None = None,
+    ):
         """
         Dessine tout les spells
         """
         if all_spells:
             if isinstance(all_spells, list):
                 for spell in all_spells:
+                    if (
+                        active_world_layer is not None
+                        and spell.world_layer != active_world_layer
+                    ):
+                        continue
                     spell.draw(surface, offset)
             else:
                 all_spells.draw(surface, offset)
+
+    @staticmethod
+    def get_spell_type(spell_type: SpellList, **keyargs):
+        match spell_type:
+            case SpellList.FIREBALL:
+                return Spell(radius=10, color=(255, 0, 0), **keyargs)
+            case SpellList.PUNCH:
+                return Spell(radius=15, color=(200, 200, 200), speed = 5, lifetime = 0.1, **keyargs)
+            case _:
+                return Spell(radius=8, color=(50, 150, 255), **keyargs)

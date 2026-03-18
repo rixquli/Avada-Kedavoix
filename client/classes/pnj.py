@@ -2,11 +2,9 @@
 Classe pour la gestion des pnj
 """
 
-from typing import List, Tuple
-
 import pygame
+from client.layerList import Layer
 from server.classes.serializable import Serializable
-from random import randint
 from client.classes.hitbox import HitBox
 
 
@@ -15,12 +13,13 @@ class PNJ(Serializable):
         self,
         x: float,
         y: float,
-        color: Tuple[int, int, int],
+        color: tuple[int, int, int],
         size: int = 10,
         vx: float = 0,
         vy: float = 0,
         id: int = None,
         hp: int = 1,
+        world_layer: int | Layer = Layer.OVERWORLD,
     ):
         self.id = id
         self.color = tuple(color)
@@ -46,7 +45,8 @@ class PNJ(Serializable):
 
         # Pour IA
         from server.managers.iaManager import Ia
-        self.ia = Ia("pnj_ia",self)
+
+        self.ia = Ia("pnj_ia", self)
         self.x_target = float(x)
         self.y_target = float(y)
         self.dist = 0
@@ -54,38 +54,42 @@ class PNJ(Serializable):
         self.dir_y = 0
 
         self.hitbox_size = (10, 10)
-        self.hitbox = HitBox(x, y, self.hitbox_size[0], self.hitbox_size[1])
+        self.hitbox = HitBox(
+            int(x), int(y), self.hitbox_size[0], self.hitbox_size[1], world_layer
+        )
 
         # Pour gerer le systeme vie/degat
         self.hp = hp
+        self.world_layer = (
+            world_layer.value if isinstance(world_layer, Layer) else int(world_layer)
+        )
 
     def is_dead(self) -> bool:
         return self.hp <= 0
 
-
     def server_update(self):
-        # TODO: Ajouter l'ia ici pour le comportement des créatures
-        # Utiliser set_target_postion pour modifier la position de la créature
+        # le set_target_position est automatique
+        # actualises la position et les datas de l'ia
         self.ia.update()
 
         # Appliquer le mouvement horizontal
-        self.hitbox.update(self.x + self.vx, self.y)
+        self.hitbox.update(int(self.x + self.vx), int(self.y), self.world_layer)
 
         # Vérifier les collisions horizontales
-        collided = self.hitbox.get_collided()
+        collided = self.hitbox.get_server_collided()
         if not collided:
             self.x += self.vx
 
         # Appliquer le mouvement vertical
-        self.hitbox.update(self.x, self.y + self.vy)
+        self.hitbox.update(int(self.x), int(self.y + self.vy), self.world_layer)
 
         # Vérifier les collisions verticales
-        collided = self.hitbox.get_collided()
+        collided = self.hitbox.get_server_collided()
         if not collided:
             self.y += self.vy
 
         # Mettre à jour la hitbox à la position finale
-        self.hitbox.update(self.x, self.y)
+        self.hitbox.update(int(self.x), int(self.y), self.world_layer)
 
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
@@ -101,7 +105,7 @@ class PNJ(Serializable):
         else:
             self.display_y = self.target_y
 
-    def draw(self, surface, offset: Tuple[float, float]):
+    def draw(self, surface, offset: tuple[float, float]):
         # Interpolation vers la position cible
         # Permet d'eviter les mouvements sacadé
         self.interpolate_position()
@@ -117,6 +121,7 @@ class PNJ(Serializable):
             (int(cx - half), int(cy)),  # gauche
         ]
         pygame.draw.polygon(surface, self.color, points)
+        self.hitbox.draw(surface, offset)
 
     def set_target_position(self, x, y):
         """
@@ -125,15 +130,26 @@ class PNJ(Serializable):
         """
         self.target_x = float(x)
         self.target_y = float(y)
+        self.hitbox.update(int(x), int(y), self.world_layer)
 
     @staticmethod
-    def draw_all(surface, offset: Tuple[float, float], pnjs: List["PNJ"]):
+    def draw_all(
+        surface,
+        offset: tuple[float, float],
+        pnjs: list["PNJ"],
+        active_world_layer: int | None = None,
+    ):
         """
         Dessine tout les pnj
         """
         if pnjs:
             if isinstance(pnjs, list):
                 for pnj in pnjs:
+                    if (
+                        active_world_layer is not None
+                        and pnj.world_layer != active_world_layer
+                    ):
+                        continue
                     pnj.draw(surface, offset)
             else:
                 pnjs.draw(surface, offset)

@@ -1,9 +1,8 @@
-from typing import TYPE_CHECKING, Callable, List, Tuple, Type
+from typing import TYPE_CHECKING, Callable
 
 import pygame
 
 from server.classes.serializable import Serializable
-
 
 if TYPE_CHECKING:
     from server.gameState import GameState
@@ -13,10 +12,10 @@ class CollisionManager:
     def __init__(self, game_state: "GameState"):
         self.game_state = game_state
 
-        self.handled_collisions: List[
-            Tuple[
-                Type[Serializable],
-                Type[Serializable],
+        self.handled_collisions: list[
+            tuple[
+                type[Serializable],
+                type[Serializable],
                 Callable[[Serializable, Serializable], None],
             ]
         ] = []
@@ -45,11 +44,25 @@ class CollisionManager:
     def add_collision(self, entity1_type, entity2_type, handler):
         self.handled_collisions.append((entity1_type, entity2_type, handler))
 
-    def do_collide(self, entity1, entity2) -> bool:
-        """
-        AABB vs. AABB collision
-        https://developer.mozilla.org/en-US/docs/Games/Techniques/3D_collision_detection#aabb_vs._aabb
-        """
+    @staticmethod
+    def do_collide(entity1, entity2) -> bool:
+        if (
+            not entity1.world_layer
+            or not entity2.world_layer
+            or entity1.world_layer != entity2.world_layer
+        ):
+            return False
+
+        # from client.classes.spell import Spell
+        # from client.classes.player import Player
+
+        # if isinstance(entity2, Player) and isinstance(entity1, Spell):
+        #     print("==================================")
+        #     print(entity1.hitbox.collide(entity2))
+        #     print(entity1.hitbox.rect)
+        #     print(entity1.hitbox.rect.size)
+        #     print(entity2.hitbox.rect)
+        #     print(entity2.hitbox.rect.size)
         return entity1.hitbox.collide(entity2)
 
     def get_handler_collision_between(self, entity_type1, entity_type2):
@@ -59,7 +72,7 @@ class CollisionManager:
         return None
 
     def handle_collision(
-        self, entity_list: List[Tuple[Type[Serializable], Serializable]]
+        self, entity_list: list[tuple[type[Serializable], list[Serializable]]]
     ):
         for entity_type1, entities1 in entity_list:
             for entity_type2, entities2 in entity_list:
@@ -67,5 +80,12 @@ class CollisionManager:
                 if handler is not None:
                     for entity1 in entities1:
                         for entity2 in entities2:
+                            if (
+                                not entity1.world_layer
+                                or not entity2.world_layer
+                                or entity1.world_layer != entity2.world_layer
+                            ):
+                                continue
+
                             if self.do_collide(entity1, entity2):
                                 handler(self, entity1, entity2)
