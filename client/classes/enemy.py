@@ -37,6 +37,8 @@ class Enemy(Serializable):
         attack_delay: float = 5.0,
         world_layer: int | Layer = Layer.OVERWORLD,
         spell_type: SpellList = SpellList.PUNCH,
+        reach: int = -1,
+        dist_from: int | None = None,
         debug: bool = True,
     ):
         self.id = id
@@ -88,6 +90,13 @@ class Enemy(Serializable):
         self.path = list()
         self.next_pos_vect = (0, 0)
         self.next_pos_sign = (1, 1)
+        #distance a partir de laquelle les ennemis suivent le joueur
+        self.reach = reach
+        #distance a partir de laquelle les ennemis arretent de suivre le joueur
+        if dist_from is not None:
+            self.dist_from = dist_from
+        else:
+            self.dist_from = self.vitesse
 
         # pour interagir avec le reste
         from client.gameManager import GameManager
@@ -167,10 +176,6 @@ class Enemy(Serializable):
         collided = self.hitbox.get_server_collided()
         if not collided:
             self.y += self.vy
-        """
-        self.x += self.vx
-        self.y += self.vy
-        """
 
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
@@ -216,13 +221,14 @@ class Enemy(Serializable):
         )
 
         if self.debug:
-            for pos in self.path:
-                pygame.draw.circle(
-                    surface,
-                    self.color,
-                    (pos[0]+offset[0], pos[1]+offset[1]),
-                    2,
-                )
+            if self. path is not None:
+                for pos in self.path:
+                    pygame.draw.circle(
+                        surface,
+                        self.color,
+                        (pos[0]+offset[0], pos[1]+offset[1]),
+                        2,
+                    )
 
 
 
@@ -261,10 +267,10 @@ class Enemy(Serializable):
     def get_enemy_type(enemy_type: EnemyList, **keyargs):
         match enemy_type:
             case EnemyList.GOBELIN_MASSUE:
-                return Enemy(color=(0,255,0), spell_type = SpellList.PUNCH, **keyargs)
+                return Enemy(color=(0,255,0), spell_type = SpellList.PUNCH, reach = 500, **keyargs)
             case EnemyList.DRAGON:
-                return Enemy(color=(255,0,0), spell_type = SpellList.FIREBALL, **keyargs)
+                return Enemy(color=(255,0,0), spell_type = SpellList.FIREBALL, reach = 500, dist_from = 100, **keyargs)
             case EnemyList.SKELETON:
-                return Enemy(color=(100, 100, 100), spell_type = SpellList.BASIC, **keyargs)
+                return Enemy(color=(100, 100, 100), spell_type = SpellList.BASIC, reach = 500, dist_from = 100, **keyargs)
             case _:
                 return Enemy(color=(255,255,255), **keyargs)

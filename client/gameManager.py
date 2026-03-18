@@ -19,6 +19,7 @@ Elle gere:
 
 import os
 import sys
+import time
 
 from client.classes.CameraBlackFade import CameraBlackFade
 from client.classes.clientOnly.clientElements import ClientElements
@@ -74,6 +75,8 @@ class GameManager:
 
         # Setup ui/menus
         self.ui = UI(self.screen)
+
+
 
     def setup_server(self):
         """
@@ -139,8 +142,11 @@ class GameManager:
         # for wall in self.walls:
         #     self.groups["obstacle"].add(wall)
 
+        self.debug = False
+
     def render(self):
         """Fait un rendu du jeu a executer a chaque tick"""
+        t = time.time()
         if not self.running:
             self.client_manager.network.close_server()
             self.client_manager.network.close_client_socket()
@@ -163,6 +169,8 @@ class GameManager:
         pygame.display.flip()  # Met a jour l'ecran
 
         self.deltatime = self.clock.tick(60)
+        if self.debug:
+            print(1/(time.time() - t))
 
     def handle_event(self, event):
         """
