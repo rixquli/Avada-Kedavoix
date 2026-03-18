@@ -30,6 +30,8 @@ class Menu:
 
     def update(self, screen):
         for comp in self.ui_components:
+            if hasattr(comp, "update"):
+                comp.update()
             if hasattr(comp, "draw"):
                 comp.draw(screen)
 
@@ -37,6 +39,11 @@ class Menu:
         for comp in self.ui_components:
             if hasattr(comp, "handle_event"):
                 comp.handle_event(event)
+
+    def on_resize(self):
+        for comp in self.ui_components:
+            if hasattr(comp, "on_resize"):
+                comp.on_resize()
 
 
 class UI:
@@ -83,10 +90,26 @@ class UI:
             raise ValueError(menu_name, ": this menu do not exist")
         self.menus[menu_name].add(ui_components)
 
+    def _resolve_menu_components(self, menu_def, menu_name):
+        """Construit la liste des composants en supportant du contenu statique ou callable."""
+        content = menu_def.get("content", [])
+
+        if callable(content):
+            try:
+                components = content(menu_name)
+            except TypeError:
+                components = content()
+        else:
+            components = content
+
+        if components is None:
+            return []
+        return components
+
     def on_resize(self):
-        """Quand la taille de la fentre change on met a jour tout les menus visibles"""
-        for menu in self.get_visible_menus():
-            self.refresh(menu)
+        """Quand la taille de la fenetre change on recalcule les positions ancrées."""
+        for menu_name in self.get_visible_menus():
+            self.menus[menu_name].on_resize()
 
     def refresh(self, menu_name):
         """
@@ -107,8 +130,7 @@ class UI:
             new_menu = Menu(menu_name, is_showing)
 
             # résoudre le contenu (accepte callable(menu_name) ou callable())
-            content = menu_def.get("content", [])
-            components = content
+            components = self._resolve_menu_components(menu_def, menu_name)
 
             # ajouter les composants (ignorer None)
             for comp in components:
@@ -135,10 +157,29 @@ class UI:
         for menu_name in self.get_visible_menus():
             self.menus[menu_name].handle_event(event)
 
+    def set_dialog_data(self, dialog_name, text_list):
+        """
+        Met à jour les données du DialogBox (nom du NPC et texte du dialogue)
+        """
+        if dialog_name not in self.menus:
+            raise ValueError(dialog_name, ": this dialog menu does not exist")
+
+        # Parcourir les composants du menu pour trouver le DialogBox
+        for component in self.menus[dialog_name].ui_components:
+            # Vérifier si c'est un DialogBox en regardant ses attributs
+            if hasattr(component, "nameComp") and hasattr(component, "textComp"):
+                # Mettre à jour le texte et réinitialiser l'index
+                component.text = text_list
+                component.textIndex = 0
+                component.nameComp.change_text(text_list[0].get("name", ""))
+                component.textComp.change_text(text_list[0].get("text", ""))
+                break
+
     def import_menus(self, menus):
         for menu in menus:
             name = menu["name"]
             is_showing = menu.get("is_showing", False)
             self.createMenu(name, is_showing)
-            for component in menu["content"]:
+            components = self._resolve_menu_components(menu, name)
+            for component in components:
                 self.addTo(name, component)

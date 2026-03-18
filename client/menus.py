@@ -13,6 +13,11 @@ Ex:
 import os
 import sys
 
+from client.ui.dialogBox import DialogBox
+from client.ui.image import Image
+
+from client.ui.image import Image
+
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -24,6 +29,9 @@ from client.ui.textInput import TextInput
 
 # Récupere l'instance du GameManager
 game_manager = GameManager()
+
+# Etat UI du HUD conservé entre les refresh.
+hud_state = {"show_dialog": True}
 
 
 # fonction auxiliaire utilisé plus bas
@@ -56,10 +64,15 @@ def main_menu(menu_name):
 
     title = Text(
         "AVADA KEDAVOIX",
-        (0, 50),
-        font_size=50,
-        color=(255, 255, 255),
+        (0, 100),
+        font_size=100,
+        color=(0, 0, 0),
+        bg_alpha=0,
+        width=1000,
+        height=150,
         anchor=Anchor.MIDTOP,
+        background=True,
+        bg_border=False,
     )
     start_single_player = Button(
         "SOLO",
@@ -85,8 +98,24 @@ def main_menu(menu_name):
         onclickFunction=lambda: close_and_exec(menu_name, joinButtonClicked),
         anchor=Anchor.CENTER,
     )
+    background = Image(
+        path="client/ressources/UI/main_screen.png",
+        width=1920,
+        height=1080,
+        position=(0, 0),
+        anchor=Anchor.TOPLEFT,
+    )
+    background = Image(
+        path="client/ressources/UI/main_screen.png",
+        width=1920,
+        height=1080,
+        position=(0, 0),
+        anchor=Anchor.TOPLEFT,
+    )
 
     return [
+        background,
+        background,
         title,
         start_single_player,
         start_hosting_player,
@@ -121,6 +150,8 @@ def join_menu(menu_name):
             # Remet un text vierge au cas ou
             error_text.change_text("")
             game_manager.ui.hide(menu_name)
+
+            game_manager.ui.show("hud")
         else:
             # Met à jour le texte d'erreur
             error_text.change_text(f"Error, can not join {ip}:{port}")
@@ -182,20 +213,99 @@ def press_e(menu_name):
     ]
 
 
+def hud(menu_name):
+    elements = []
+    player = game_manager.client_manager.get_player()
+
+    if player is None:
+        return elements
+
+    wizard_type = player.wizard_type
+    wizard_folder = {
+        "fire": "wizard_fire",
+        "ice": "wizard_ice",
+    }.get(wizard_type, "wizard")
+
+    PROJECT_ROOT = os.path.abspath(
+        os.path.join(
+            os.path.dirname(__file__),
+            "..",
+        )
+    )
+    path = os.path.join(
+        PROJECT_ROOT,
+        "client",
+        "ressources",
+        "wizzard-test",
+        "PNG",
+        wizard_folder,
+        "idle",
+        "idle_1.png",
+    )
+    background = Image(
+        path="client/ressources/UI/background.png",
+        width=170,
+        height=170,
+        position=(5, -5),
+        anchor=Anchor.BOTTOMLEFT,
+    )
+    avatar = Image(
+        path=path,
+        width=150,
+        height=150,
+        position=(15, -20),
+        anchor=Anchor.BOTTOMLEFT,
+    )
+    elements.append(background)
+    elements.append(avatar)
+    return elements
+
+
+def dialog(menu_name):
+    elements = []
+
+    def closeDialog():
+        # dialog.hide()
+        # hud_state["show_dialog"] = False
+        game_manager.ui.hide(menu_name)
+        game_manager.ui.refresh(menu_name)
+
+    # if hud_state["show_dialog"]:
+    dialog = DialogBox(
+        [{"name": "Jean Pormanov", "text": "Yokoso"}],
+        position=(0, -10),
+        close_callback=closeDialog,
+    )
+
+    elements.append(dialog)
+
+    return elements
+
+
 # Contient la liste de tout les menus accessibles dupuis GameManager().ui
 # Pour en rajouter suivre les exemples deja presents
 Menus = [
     {
         "name": "MainMenu",
-        "content": main_menu("MainMenu"),
+        "content": main_menu,
         "is_showing": True,  # permet au menu d'apparaitre au demarage de l'app de base is_showing = False
     },
     {
         "name": "JoinMenu",
-        "content": join_menu("JoinMenu"),  # Version sans le message d'erreur
+        "content": join_menu,  # Version sans le message d'erreur
     },
     {
         "name": "press_e",
-        "content": press_e("press_e"),
+        "content": press_e,
+    },
+    {
+        "name": "hud",
+        "content": hud,
+        "is_showing": False,
+    },
+    {
+        "name": "dialog",
+        "content": dialog,
+        "is_showing": False,
     },
 ]

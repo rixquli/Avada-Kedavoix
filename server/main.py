@@ -159,8 +159,72 @@ def spawn_element_at_start():
     enemy1 = network.game_state.enemies.addEntity(Enemy.get_enemy_type(EnemyList.GOBELIN_MASSUE, x = 200, y = 200))
     enemy2 = network.game_state.enemies.addEntity(Enemy.get_enemy_type(EnemyList.GOBELIN_MASSUE, x = 350, y = 350))
 
-    pnj1 = network.game_state.pnjs.addEntity(PNJ(-150, -150, (255, 0, 255)))
-    pnj2 = network.game_state.pnjs.addEntity(PNJ(-100, -100, (255, 0, 255)))
+    pnj1 = network.game_state.pnjs.addEntity(
+        PNJ(
+            -150,
+            -150,
+            (255, 0, 255),
+            text=[
+                {
+                    "name": "Le joueur",
+                    "text": "Bonjour, sauriez vous comment apprendre un nouveau sort ?",
+                },
+                {
+                    "name": "Boulanger",
+                    "text": "Je ne sais pas… Mais je crois me souvenir qu’un sorcier autrefois m'avait donné un parchemin que je n’ai jamais pu déchiffrer, peut-être qu’il t'intéressera.",
+                },
+                {
+                    "name": "Boulanger",
+                    "text": "Si tu arrives à trouver un moyen de le traduire, je te le donnerai",
+                },
+                {
+                    "name": "Boulanger",
+                    "text": "Enfonce toi dans le labyrinthe de la tour, déchiffre le message et ramène moi les indices qui t'ont aidé. Alors peut-être tu développera de nouvelles compétences.",
+                },
+                {
+                    "name": "Le joueur",
+                    "text": "Ça semble dangereux… mais je suis prêt.",
+                },
+                {
+                    "name": "Boulanger",
+                    "text": "Bien. Fais preuve de courage et de sagesse.",
+                },
+            ],
+        )
+    )
+    pnj2 = network.game_state.pnjs.addEntity(
+        PNJ(
+            -100,
+            -100,
+            (255, 0, 255),
+            text=[
+                {
+                    "name": "Le joueur",
+                    "text": "Bonjour, sauriez vous comment apprendre un nouveau sort ?",
+                },
+                {
+                    "name": "Boulanger",
+                    "text": "Je ne sais pas… Mais je crois me souvenir qu’un sorcier autrefois m'avait donné un parchemin que je n’ai jamais pu déchiffrer, peut-être qu’il t'intéressera.",
+                },
+                {
+                    "name": "Boulanger",
+                    "text": "Si tu arrives à trouver un moyen de le traduire, je te le donnerai",
+                },
+                {
+                    "name": "Boulanger",
+                    "text": "Enfonce toi dans le labyrinthe de la tour, déchiffre le message et ramène moi les indices qui t'ont aidé. Alors peut-être tu développera de nouvelles compétences.",
+                },
+                {
+                    "name": "Le joueur",
+                    "text": "Ça semble dangereux… mais je suis prêt.",
+                },
+                {
+                    "name": "Boulanger",
+                    "text": "Bien. Fais preuve de courage et de sagesse.",
+                },
+            ],
+        )
+    )
 
     walls = [
         Wall(-500, -500, 1000, 50, texture_path=None),

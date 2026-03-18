@@ -1,3 +1,5 @@
+import sys
+
 import pygame
 
 from client.classes.spell import Spell, SpellList
@@ -50,6 +52,9 @@ class SpellsManager:
                     self.gameManager.client_manager.heal()
                 case SpellList.TELEPORTATION:
                     my_player.teleport(0, 0, Layer.OVERWORLD.value)
+                case SpellList.CLOSE:
+                    pygame.quit()
+                    sys.exit()
                 case _:
                     raise NotImplementedError(
                         "Need to implement or remove: " + vocal_action

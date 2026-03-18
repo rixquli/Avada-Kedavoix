@@ -26,8 +26,9 @@ class UIUtils:
         # Extraire la valeur string de l'Enum
         anchor_value = anchor.value
 
-        if pygame.display.get_surface().get_size():
-            screen_width, screen_height = pygame.display.get_surface().get_size()
+        surface = pygame.display.get_surface()
+        if surface:
+            screen_width, screen_height = surface.get_size()
 
             temp_rect = pygame.Rect(0, 0, rect_width, rect_height)
 

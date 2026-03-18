@@ -75,14 +75,14 @@ class Player(Serializable):
             size=(self.radius * 5, self.radius * 5), animation_speed=10 / 60
         )
 
-        wizard_type = ""
+        self.wizard_type = ""
         match color:
             case (255, 0, 0):
-                wizard_type = "wizard_fire"
+                self.wizard_type = "wizard_fire"
             case (0, 0, 255):
-                wizard_type = "wizard_ice"
+                self.wizard_type = "wizard_ice"
             case _:
-                wizard_type = "wizard"
+                self.wizard_type = "wizard"
 
         # Chemin vers la racine du projet
         PROJECT_ROOT = os.path.abspath(
@@ -97,7 +97,7 @@ class Player(Serializable):
                 "ressources",
                 "wizzard-test",
                 "PNG",
-                wizard_type,
+                self.wizard_type,
                 "idle",
             ),
         )
@@ -109,7 +109,7 @@ class Player(Serializable):
                 "ressources",
                 "wizzard-test",
                 "PNG",
-                wizard_type,
+                self.wizard_type,
                 "walk",
             ),
         )
@@ -121,7 +121,7 @@ class Player(Serializable):
                 "ressources",
                 "wizzard-test",
                 "PNG",
-                wizard_type,
+                self.wizard_type,
                 "run",
             ),
         )

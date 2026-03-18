@@ -44,6 +44,8 @@ class ClientManager:
 
         self.old_player_pos = None
 
+        self.firstGameStateReceived = True
+
     def get_player(self):
         return self.game_state.players.get(self.my_player_id)
 
@@ -69,6 +71,10 @@ class ClientManager:
                         self.game_state.apply_state(
                             msg.data, my_player_id=self.my_player_id
                         )
+                        if self.firstGameStateReceived:
+                            self.firstGameStateReceived = False
+                            self.game_manager.ui.show("hud")
+                            self.game_manager.ui.refresh("hud")
                     case MessageType.DUNGEON_DATA:
                         for i, e in enumerate(msg.data):
                             self.game_manager.clientsElements.add(
