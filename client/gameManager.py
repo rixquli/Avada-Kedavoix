@@ -10,14 +10,27 @@ Elle gere:
     - la mise a jour des element locaux comme le joueur
 """
 
+"""
+3 choses a changer pour recuperer la reconaissance vocale:
+    -enlever # ligne 33
+    -enlever # ligne 68
+    -enlever # ligne 153
+"""
+
 import os
 import sys
 
+from client.classes.CameraBlackFade import CameraBlackFade
+from client.classes.clientOnly.clientElements import ClientElements
+from client.classes.clientOnly.dungeonEntrance import DungeonEntrance
 from client.classes.enemy import Enemy
+from client.classes.mapBackground import MapBackground
 from client.classes.player import Player
 from client.classes.pnj import PNJ
 from client.classes.wall import Wall
-#from client.voice.realtimeVoice import get_voice_command, start_voice_recognition
+from client.layerList import Layer
+from client.spellsManager import SpellsManager
+from client.voice.realtimeVoice import get_voice_command, start_voice_recognition
 
 
 # To import module from other folder
@@ -26,6 +39,7 @@ import pygame
 from client.classes.spell import Spell
 from client.clientManager import ClientManager
 from client.ui.UI import UI
+
 
 
 class GameManager:
@@ -48,10 +62,12 @@ class GameManager:
         """
         Execute setup uniquement lors du lancement du programme mais client seulement
         """
-        self.client_manager = ClientManager()
+        self.client_manager = ClientManager(self)
 
         # Setup voice recognition
-        #start_voice_recognition()
+        start_voice_recognition()
+
+        self.spellManager = SpellsManager(self)
 
         # Setup pygame
         self.setup_pygame()
@@ -77,6 +93,37 @@ class GameManager:
         self.clock = pygame.time.Clock()
         self.clock.tick(60)
         self.running = True
+
+        self.world_layer = Layer.OVERWORLD.value
+        self.layer_switch_cooldown_ms = 200
+        self.last_layer_switch_ms = -self.layer_switch_cooldown_ms
+
+        # TODO: à deplacer
+        self.clientsElements = ClientElements()
+
+        # TODO: enlever/deplacer
+        self.maps = [
+            MapBackground(
+                os.path.normpath(
+                    os.path.join(os.path.dirname(__file__), "tiles", "maps", "main.tmx")
+                ),
+                world_layer=Layer.OVERWORLD,
+            )
+        ]
+
+        dungeonEntrance = DungeonEntrance(
+            250, 0, world_layer=Layer.OVERWORLD, target_world_layer=Layer.DUNGEON_BASE
+        )
+        dungeonExit = DungeonEntrance(
+            250,
+            0,
+            world_layer=Layer.DUNGEON_BASE,
+            target_world_layer=Layer.OVERWORLD,
+        )
+        self.clientsElements.add(dungeonEntrance)
+        self.clientsElements.add(dungeonExit)
+
+        self.cameraBlackFade = CameraBlackFade()
 
         # Group pour gerer les collisions
         # self.groups = {"obstacle": pygame.sprite.Group()}
@@ -105,59 +152,32 @@ class GameManager:
             if event.type == pygame.QUIT:
                 self.running = False
             self.handle_event(event)
-        #self.handle_voice_event()
+        self.handle_voice_event()
 
         self.screen.fill((0, 0, 0))  # Dessine le fond noir
 
         self.local_update()  # Met a jour les elements qui se mette a jour localement comme le joueur qui ses propres mouvements
-        self.ui.update()  # Dessine les elements des interfaces
         self.draw_elements()  # Dessine les elements de la scene
+        self.ui.update()  # Dessine les elements des interfaces
 
         pygame.display.flip()  # Met a jour l'ecran
 
         self.deltatime = self.clock.tick(60)
 
-    # TODO: déplacer ailleur:
-    def cast_basic_spell(self):
-        # Quand on clique ca lance un sort dans la direction de la souris
-        my_player = self.client_manager.get_player()
-        if not my_player:
-            return
-
-        # Calculer la direction normalisée vers le curseur de la souris
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-        dx = mouse_x - (self.screen.get_width() / 2)
-        dy = mouse_y - (self.screen.get_height() / 2)
-        length = (dx**2 + dy**2) ** 0.5
-
-        if length > 0:
-            dir_x = dx / length
-            dir_y = dy / length
-        else:
-            dir_x, dir_y = 1, 0
-
-            # Créer le sort localement (pour eviter les latences)
-            spell = Spell(
-                x=my_player.x,
-                y=my_player.y,
-                player_id=self.client_manager.my_player_id,
-                color=(50, 150, 255),
-                dir=(dir_x, dir_y),
-                radius=8,
-                thrower=my_player.THROWER_TYPE,
-            )
-
-        self.client_manager.cast_spell(spell)
-
     def handle_event(self, event):
         """
         Gere le evennements (ex: touches claviers, souris, ...)
         """
+        if event.type == pygame.VIDEORESIZE:
+            self.ui.on_resize()
+
         self.ui.handle_event(event)  # Gere les evenement des elements des interfaces
+
+        self.clientsElements.handle_event(event)
 
         # TODO: déplacer la logique dans une classe spécifique pour les actions
         if event.type == pygame.MOUSEBUTTONDOWN:
-            self.cast_basic_spell()
+            self.spellManager.cast_basic_spell()
 
     def handle_voice_event(self):
         vocal_action = get_voice_command()
@@ -167,8 +187,9 @@ class GameManager:
         else:
             return
 
+        self.spellManager.cast_spell(vocal_action)
         if vocal_action == "SPELL":
-            self.cast_basic_spell()
+            self.spellManager.cast_basic_spell()
 
     def local_update(self):
         """
@@ -177,6 +198,7 @@ class GameManager:
         """
         # Update local player
         self.update_local_player()
+        self.clientsElements.local_update_all()
 
     def get_camera_offset(self) -> tuple[float, float]:
         """
@@ -207,32 +229,67 @@ class GameManager:
             return
 
         offset: tuple[float, float] = self.get_camera_offset()
+        self.world_layer = current_player.world_layer
+
+        # Dessine la map de fond
+        MapBackground.draw_all(
+            self.screen, offset, self.maps, active_world_layer=self.world_layer
+        )
+
+        # Dessine les éléments cotés clients seulements
+        self.clientsElements.draw_all(
+            self.screen, offset, active_world_layer=self.world_layer
+        )
 
         # Dessine les joueurs
         other_players = self.client_manager.game_state.players.get_except_list(
             self.client_manager.my_player_id
         )
-        Player.draw_all(self.screen, offset, current_player, other_players)
+        Player.draw_all(
+            self.screen,
+            offset,
+            current_player,
+            other_players,
+            active_world_layer=self.world_layer,
+        )
 
         # Dessine les spells
         Spell.draw_all(
-            self.screen, offset, self.client_manager.game_state.spells.get_list()
+            self.screen,
+            offset,
+            self.client_manager.game_state.spells.get_list(),
+            active_world_layer=self.world_layer,
         )
 
         # Dessine les ennemis
         Enemy.draw_all(
-            self.screen, offset, self.client_manager.game_state.enemies.get_list()
+            self.screen,
+            offset,
+            self.client_manager.game_state.enemies.get_list(),
+            active_world_layer=self.world_layer,
         )
 
         # Dessine les PNJ
         PNJ.draw_all(
-            self.screen, offset, self.client_manager.game_state.pnjs.get_list()
+            self.screen,
+            offset,
+            self.client_manager.game_state.pnjs.get_list(),
+            active_world_layer=self.world_layer,
         )
 
         # Dessine les murs
         Wall.draw_all(
-            self.screen, offset, self.client_manager.game_state.walls.get_list()
+            self.screen,
+            offset,
+            self.client_manager.game_state.walls.get_list(),
+            active_world_layer=self.world_layer,
         )
+
+        if self.world_layer > Layer.OVERWORLD.value:
+            self.cameraBlackFade.draw(
+                self.screen,
+                (self.screen.get_width() // 2, self.screen.get_height() // 2),
+            )
 
     def update_local_player(self):
         # Met a jour tout les joueurs
@@ -258,3 +315,24 @@ class GameManager:
     @property
     def collision_manager(self):
         return self.client_manager.game_state.collision_manager
+
+    # TODO: Move to specialized manager
+    def switch_player_layer(self, target_layer):
+        now_ms = pygame.time.get_ticks()
+        if now_ms - self.last_layer_switch_ms < self.layer_switch_cooldown_ms:
+            return False
+
+        current_player = self.client_manager.get_player()
+        if not current_player:
+            return False
+
+        target_layer_value = (
+            target_layer.value if isinstance(target_layer, Layer) else int(target_layer)
+        )
+
+        if current_player.world_layer == target_layer_value:
+            return False
+
+        current_player.world_layer = target_layer_value
+        self.last_layer_switch_ms = now_ms
+        return True

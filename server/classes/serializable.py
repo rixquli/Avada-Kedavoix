@@ -18,7 +18,7 @@ from typing import Any, Dict
 class Serializable:
     """
     super classe pour les joueurs/ enemy/ spell ...
-    permet d'effectuer des transformation d'objet a dictionnaireet inversement
+    permet d'effectuer des transformation d'objet a dictionnaire et inversement
     """
 
     def to_dict(self, diff=False) -> Dict[str, Any]:
@@ -34,6 +34,7 @@ class Serializable:
             "game_manager",  # Singleton GameManager
             "image",  # Surface Pygame
             "rect",  # Rect Pygame
+            "healthBar",
         }
 
         for key, value in self.__dict__.items():
@@ -56,6 +57,7 @@ class Serializable:
             "game_manager",  # Singleton GameManager
             "image",  # Surface Pygame
             "rect",  # Rect Pygame
+            "healthBar",
         }
 
         first_call = False
@@ -86,7 +88,10 @@ class Serializable:
                 if not key.startswith("_") and key not in exclude:
                     # Vérifier si la valeur est sérialisable
                     if self._is_serializable(value):
-                        if self._previous[key] != value or key not in self._previous:
+                        if (
+                            key not in self._previous
+                            or self._previous[key] != value
+                        ):
                             self._previous[key] = copy.deepcopy(value)
                             diff[key] = value
 

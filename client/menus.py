@@ -170,6 +170,18 @@ def join_menu(menu_name):
     ]
 
 
+def press_e(menu_name):
+    return [
+        Text(
+            "PRESS E",
+            (0, -50),
+            font_size=50,
+            color=(255, 255, 255),
+            anchor=Anchor.MIDBOTTOM,
+        ),
+    ]
+
+
 # Contient la liste de tout les menus accessibles dupuis GameManager().ui
 # Pour en rajouter suivre les exemples deja presents
 Menus = [
@@ -181,5 +193,9 @@ Menus = [
     {
         "name": "JoinMenu",
         "content": join_menu("JoinMenu"),  # Version sans le message d'erreur
+    },
+    {
+        "name": "press_e",
+        "content": press_e("press_e"),
     },
 ]

@@ -58,11 +58,13 @@ class Path:
         pos: tuple[float, float],
         dest: tuple[float, float],
         hitbox: HitBox,
+        world_layer,
         precision: int = 1,
     ):
         self.pos = tuple((int(pos[0]), int(pos[1])))
         self.dest = tuple((int(dest[0]), int(dest[1])))
-        self.hitbox = HitBox(hitbox.x, hitbox.y, hitbox.w, hitbox.h)
+        self.world_layer = world_layer
+        self.hitbox = HitBox(hitbox.x, hitbox.y, hitbox.w, hitbox.h, world_layer)
         self.path = list()
         self.precision = precision
 
@@ -137,7 +139,7 @@ class Path:
             for pos, dist in self.adj(current_pix.get_tuple()):
                 pix = Pix(pos, self.dist_euclide(pos[0], pos[1]))
                 pix.add_origin(current_pix, dist)
-                self.hitbox.update(pix.x, pix.y)
+                self.hitbox.update(pix.x, pix.y, self.world_layer)
 
                 if (
                     self.dist_euclide(pix.x, pix.y) <= self.precision

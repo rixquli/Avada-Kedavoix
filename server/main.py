@@ -6,11 +6,16 @@ De plus,
 "python server/main.py" permet de lancer juste un serveur rejoingnable en entrant son ip local
 """
 
+import pickle
 import time
 from _thread import start_new_thread
 import socket
 import os
 import sys
+
+from client.classes.clientOnly.dungeonEntrance import DungeonEntrance
+from client.layerList import Layer
+from server.world_elements import dungeonWalls
 
 
 # To import module from other folder
@@ -68,6 +73,11 @@ def handle_client(conn: socket.socket, player_id: str):
                         for sid, spell_data in player_spells.items():
                             spell = Spell.from_dict(spell_data)
                             network.game_state.spells.update(sid, spell)
+                case MessageType.PLAYER_HEAL:
+                    player_id = msg.data["id"]
+                    player = network.game_state.players.get(player_id)
+                    if player:
+                        player.heal()
 
         except Exception as e:
             print(f"Error with player {player_id}: {e}")
@@ -97,8 +107,6 @@ def handle_conn():
                 radius=10,
             )
         )
-
-        network.player_connections[conn] = player_id
         print(f"Player {player_id} connected")
 
         # Envoi synchronisé du CONNECT + snapshot complet au nouveau client
@@ -109,6 +117,11 @@ def handle_conn():
             full_state = network.game_state.get_game_state(diff=False)
             full_msg = Message(MessageType.GAME_STATE, full_state)
             conn.sendall(full_msg.serialize())
+            full_msg = Message(MessageType.DUNGEON_DATA, dungeonWalls.dungeonWalls)
+            conn.sendall(full_msg.serialize())
+
+            # Ajouter le client au broadcast uniquement après l'envoi du snapshot complet.
+            network.player_connections[conn] = player_id
         except Exception as e:
             print(f"Failed to send initial data to {player_id}: {e}")
 
@@ -121,12 +134,18 @@ def broadcast_game_state():
         # Les joueurs s'update coté client
         network.game_state.update_all()
 
+        # layersToRender = []
+        # for player in network.game_state.players.get_list():
+        #     layer = player.world_layer
+        #     if layer not in layersToRender:
+        #         layersToRender.append(layer)
+
         state = network.game_state.get_game_state(diff=True)
         msg = Message(MessageType.GAME_STATE, state)
 
+        data = msg.serialize()
         for conn in list(network.player_connections.keys()):
             try:
-                data = msg.serialize()
                 conn.sendall(data)
             except:
                 pass
@@ -138,22 +157,41 @@ def broadcast_game_state():
 def spawn_element_at_start():
     enemy1 = network.game_state.enemies.addEntity(Enemy(200, 200, (0, 255, 255)))
     enemy2 = network.game_state.enemies.addEntity(Enemy(350, 350, (0, 255, 255)))
+    enemy2 = network.game_state.enemies.addEntity(
+        Enemy(350, 350, (0, 255, 255), world_layer=2)
+    )
 
     pnj1 = network.game_state.pnjs.addEntity(PNJ(-150, -150, (255, 0, 255)))
     pnj2 = network.game_state.pnjs.addEntity(PNJ(-100, -100, (255, 0, 255)))
 
     walls = [
-        Wall(-500, -500, 1000, 50),
-        Wall(-500, 500, 1050, 50),
-        Wall(-500, -500, 50, 1000),
-        Wall(500, -500, 50, 1000),
-        Wall(100, 100, 100, 50),
+        Wall(-500, -500, 1000, 50, texture_path=None),
+        Wall(-500, 500, 1050, 50, texture_path=None),
+        Wall(-500, -500, 50, 1000, texture_path=None),
+        Wall(500, -500, 50, 1000, texture_path=None),
+        Wall(100, 100, 100, 50, texture_path=None),
     ]
     for wall in walls:
         network.game_state.walls.addEntity(wall)
         network.game_state.collision_manager.client_collider_groups["obstacle"].add(
             wall
         )
+
+    for i, e in enumerate(dungeonWalls.dungeonWalls):
+        for data in e.walls:
+            wall = Wall(
+                data[0],
+                data[1],
+                data[2],
+                data[3],
+                Layer.DUNGEON_BASE.value + i,
+                texture_path=None,
+            )
+            network.game_state.walls.addEntity(wall)
+            network.game_state.collision_manager.client_collider_groups["obstacle"].add(
+                wall
+            )
+        network.enemySpawner.dungeon_generate(Layer.DUNGEON_BASE.value + i, i)
 
 
 def start_game_server(adress=None, port=None, max_player=5, is_solo=False):

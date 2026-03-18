@@ -13,9 +13,13 @@ import time
 import sys
 from _thread import *
 
+from client.layerList import Layer
+
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from client.classes.clientOnly.dungeonEntrance import DungeonEntrance
+from client.classes.mapBackground import MapBackground
 from server.gameState import GameState
 from server.NetworkManager import NetworkManager
 from server.message import Message, MessageType
@@ -31,9 +35,10 @@ class State(Enum):
 
 
 class ClientManager:
-    def __init__(self):
+    def __init__(self, game_manager):
         self.network = NetworkManager()
         self.game_state = GameState()
+        self.game_manager = game_manager
         self.my_player_id = None
         self.state = State.MAIN_MENU
 
@@ -64,9 +69,40 @@ class ClientManager:
                         self.game_state.apply_state(
                             msg.data, my_player_id=self.my_player_id
                         )
+                    case MessageType.DUNGEON_DATA:
+                        for i, e in enumerate(msg.data):
+                            self.game_manager.clientsElements.add(
+                                DungeonEntrance(
+                                    e.teleport_pos[0],
+                                    e.teleport_pos[1],
+                                    world_layer=Layer.DUNGEON_BASE.value + i,
+                                    target_world_layer=Layer.DUNGEON_BASE.value + i + 1,
+                                )
+                            )
+                            self.game_manager.clientsElements.add(
+                                DungeonEntrance(
+                                    e.teleport_pos[0],
+                                    e.teleport_pos[1],
+                                    world_layer=Layer.DUNGEON_BASE.value + i + 1,
+                                    target_world_layer=Layer.DUNGEON_BASE.value + i,
+                                )
+                            )
+                            self.game_manager.maps.append(
+                                MapBackground(
+                                    os.path.normpath(
+                                        os.path.join(
+                                            os.path.dirname(__file__),
+                                            "tiles",
+                                            "maps",
+                                            "dungeon_floor.tmx",
+                                        )
+                                    ),
+                                    world_layer=Layer.DUNGEON_BASE.value + i,
+                                )
+                            )
 
             except Exception as e:
-                print(f"Error: {e}")
+                print(f"Error while receiving msg: {e}")
                 break
 
     def send_my_position(self):
@@ -87,6 +123,13 @@ class ClientManager:
         msg = Message(
             MessageType.PLAYER_CAST_SPELL,
             {"id": spell_id, "spell_data": spell.to_dict()},
+        )
+        self.network.send_message(msg)
+
+    def heal(self):
+        msg = Message(
+            MessageType.PLAYER_HEAL,
+            {"id": self.my_player_id},
         )
         self.network.send_message(msg)
 

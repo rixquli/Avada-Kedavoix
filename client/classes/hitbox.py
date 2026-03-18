@@ -5,11 +5,20 @@ Exemple: gestion des collision entre le joueur et les murs
 """
 
 import pygame
+from client.layerList import Layer
 from server.classes.serializable import Serializable
 
 
 class HitBox(pygame.sprite.Sprite):
-    def __init__(self, x: int, y: int, w: int, h: int, debug: bool = False):
+    def __init__(
+        self,
+        x: int,
+        y: int,
+        w: int,
+        h: int,
+        world_layer: int | Layer = Layer.OVERWORLD,
+        debug: bool = False,
+    ):
         super().__init__()
         self.w = int(w)
         self.h = int(h)
@@ -19,6 +28,7 @@ class HitBox(pygame.sprite.Sprite):
         self.image.fill((0, 255, 0))
         self.rect = self.image.get_rect()
         self.rect.center = (int(x), int(y))
+        self.world_layer = world_layer
 
         self.debug = debug
 
@@ -30,8 +40,11 @@ class HitBox(pygame.sprite.Sprite):
 
         self.network = NetworkManager()
 
-    def update(self, x: int, y: int):
+    def update(self, x: int, y: int, world_layer: int | Layer = Layer.OVERWORLD):
+        self.x = int(x)
+        self.y = int(y)
         self.rect.center = (x, y)
+        self.world_layer = world_layer
 
     def draw(self, surface, offset=(0, 0)):
         if self.debug:
@@ -44,22 +57,43 @@ class HitBox(pygame.sprite.Sprite):
             )
 
     def get_local_collided(self) -> bool:
+        obstacles = self.game_manager.collision_manager.client_collider_groups.get(
+            "obstacle"
+        )
+        if obstacles is None:
+            return False
+
+        filtered = [o for o in obstacles if o.world_layer == self.world_layer]
         return pygame.sprite.spritecollide(
             self,
-            self.game_manager.collision_manager.client_collider_groups.get("obstacle"),
+            filtered,
             False,
         )
 
     def get_server_collided(self) -> bool:
-        return pygame.sprite.spritecollide(
-            self,
+        obstacles = (
             self.network.game_state.collision_manager.client_collider_groups.get(
                 "obstacle"
-            ),
+            )
+        )
+        if obstacles is None:
+            return False
+
+        filtered = [o for o in obstacles if o.world_layer == self.world_layer]
+        return pygame.sprite.spritecollide(
+            self,
+            filtered,
             False,
         )
 
     def collide(self, entity: Serializable) -> bool:
+        if (
+            not self.world_layer
+            or not entity.world_layer
+            or entity.world_layer != self.world_layer
+        ):
+            return False
+
         if hasattr(entity, "rect"):
             return self.rect.colliderect(entity.rect)
         return self.rect.colliderect(entity.hitbox.rect)

@@ -91,27 +91,29 @@ class EntityManager:
 
             entity = self.entities[entity_id]
 
-            # Si l'entite supporte l'interpolation, utiliser set_target_position
-            if (
-                hasattr(entity, "set_target_position")
-                and "x" in entity_data
-                and "y" in entity_data
-            ):
-                # Mettre à jour les autres propriétés d'abord (sauf position et vélocité)
-                for key, value in entity_data.items():
-                    if hasattr(entity, key):
-                        setattr(entity, key, value)
+            # Mise à jour classique: remplacer les anciennes valeurs par les nouvelles
+            # mais seulement si elles sont présentes dans la nouvelle version.
+            for key, value in entity_data.items():
+                if hasattr(entity, key):
+                    setattr(entity, key, value)
 
-                # Ensuite, définir la position cible pour l'interpolation (affichage fluide)
-                # Cela met à jour target_x et target_y pour l'interpolation visuelle
-                entity.set_target_position(entity_data["x"], entity_data["y"])
-            else:
-                # Sinon, mise à jour classique en replacant les ancienne valeur par les nouvelles
-                # mais seulement si elles sont présente dans la nouvelle version sinon on garde
-                # les données locales
-                for key, value in entity_data.items():
-                    if hasattr(entity, key):
-                        setattr(entity, key, value)
+            # Si l'entité supporte l'interpolation, il faut aussi gérer les mises à jour
+            # partielles (x seul ou y seul) envoyées via diff_to_dict().
+            if hasattr(entity, "set_target_position") and (
+                "x" in entity_data or "y" in entity_data
+            ):
+                entity.set_target_position(entity.x, entity.y)
+
+            # Cote serveur, garantir que la hitbox suit toujours la position logique
+            # meme quand les updates recues sont partielles.
+            if (
+                hasattr(entity, "hitbox")
+                and hasattr(entity, "x")
+                and hasattr(entity, "y")
+                and hasattr(entity.hitbox, "update")
+            ):
+                world_layer = getattr(entity, "world_layer", entity.hitbox.world_layer)
+                entity.hitbox.update(int(entity.x), int(entity.y), world_layer)
         else:
             raise TypeError(f"entity_data doit être un Spell ou un dict")
 
