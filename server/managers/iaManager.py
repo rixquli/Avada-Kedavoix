@@ -102,6 +102,10 @@ class BasicIaUtility:
 
         return pos0, pos1
 
+    @staticmethod
+    def is_dest_reached(x, y, dest_x, dest_y, precision):
+        return abs(dest_x - x) <= precision and abs(dest_y - y) <= precision
+
 
 class ListIa:
     """
@@ -156,7 +160,7 @@ class ListIa:
     @staticmethod
     def pnj_ia(pnj: PNJ) -> None:
         """ia des pnj: deplacement aleatoires (wandering)"""
-        if abs(pnj.x_target - pnj.x) < 1 and abs(pnj.y_target - pnj.y) < 1:
+        if BasicIaUtility.is_dest_reached(pnj.x, pnj.y, pnj.target_x, pnj.target_y, 1):
             pnj.x_target = randint(int(pnj.y - 100), int(pnj.x + 100))
             pnj.y_target = randint(int(pnj.y - 100), int(pnj.y + 100))
             pnj.dist = (

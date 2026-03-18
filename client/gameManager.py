@@ -10,6 +10,13 @@ Elle gere:
     - la mise a jour des element locaux comme le joueur
 """
 
+"""
+3 choses a changer pour recuperer la reconaissance vocale:
+    -enlever # ligne 33
+    -enlever # ligne 68
+    -enlever # ligne 153
+"""
+
 import os
 import sys
 
@@ -32,6 +39,7 @@ import pygame
 from client.classes.spell import Spell
 from client.clientManager import ClientManager
 from client.ui.UI import UI
+
 
 
 class GameManager:
@@ -134,6 +142,8 @@ class GameManager:
     def render(self):
         """Fait un rendu du jeu a executer a chaque tick"""
         if not self.running:
+            self.client_manager.network.close_server()
+            self.client_manager.network.close_client_socket()
             pygame.quit()
             sys.exit()
             return

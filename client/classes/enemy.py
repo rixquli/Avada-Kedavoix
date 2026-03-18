@@ -5,16 +5,22 @@ Classe pour la gestion des ennemis
 from typing import Tuple
 import pygame
 import time
+from enum import Enum
 
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from client.classes.animator import Animator
 from client.classes.clientOnly.healthBar import HealthBar
-from client.classes.spell import Spell
+from client.classes.spell import Spell, SpellList
 from client.layerList import Layer
 from server.classes.serializable import Serializable
 from client.classes.hitbox import HitBox
+
+class EnemyList(Enum):
+    GOBELIN_MASSUE = 1
+    SKELETON = 2
+    DRAGON = 3
 
 class Enemy(Serializable):
     def __init__(
@@ -30,6 +36,7 @@ class Enemy(Serializable):
         vitesse: int = 1,
         attack_delay: float = 5.0,
         world_layer: int | Layer = Layer.OVERWORLD,
+        spell_type: SpellList = SpellList.PUNCH,
     ):
         self.id = id
         self.color = tuple(color)
@@ -71,6 +78,7 @@ class Enemy(Serializable):
 
         self.attack_delay = float(attack_delay)
         self.prec_attack_time = time.time()
+        self.spell_type = spell_type
 
         from server.managers.iaManager import Ia
 
@@ -90,7 +98,7 @@ class Enemy(Serializable):
 
         ennemy_type = ""
         match color:
-            case (0, 255, 255):
+            case (0, 255, 255)|(0, 255, 0):
                 ennemy_type = "Gobelin_massue"
             case _:
                 ennemy_type = "Dragon"
@@ -118,22 +126,16 @@ class Enemy(Serializable):
         """
         Methode du serveur car le serveur s'occupe de tout mettre a jour donc il gere l'envoie des projectiles
         """
-        spell = Spell(
-            x=self.x,
-            y=self.y,
-            player_id=None,
-            color=(50, 150, 255),
-            dir=dir,
-            radius=4,
-            thrower=self.THROWER_TYPE,
-            speed=2,
-            world_layer=self.world_layer,
+        self.game_manager.spellManager.cast_spell_type(
+            self.spell_type,
+            thrower = self.THROWER_TYPE,
+            x = self.x,
+            y = self.y,
+            dir = dir,
+            world_layer = self.world_layer,
+            player_id = None,
         )
 
-        # TODO: Nettoyer ce bout et utiliser une classe singloton ou autre
-        from server.main import network
-
-        network.game_state.spells.addEntity(spell)
 
     def take_dmg(self, dmg: int) -> None:
         self.hp -= dmg
@@ -216,8 +218,8 @@ class Enemy(Serializable):
 
     @staticmethod
     def draw_all(
-            surface, offset: tuple[float, float], 
-            enemies: list["Enemy"], 
+            surface, offset: tuple[float, float],
+            enemies: list["Enemy"],
             active_world_layer: int | None = None,
             ):
         """
@@ -234,3 +236,15 @@ class Enemy(Serializable):
                     enemy.draw(surface, offset)
             else:
                 enemies.draw(surface, offset)
+
+    @staticmethod
+    def get_enemy_type(enemy_type: EnemyList, **keyargs):
+        match enemy_type:
+            case EnemyList.GOBELIN_MASSUE:
+                return Enemy(color=(0,255,0), spell_type = SpellList.PUNCH, **keyargs)
+            case EnemyList.DRAGON:
+                return Enemy(color=(255,0,0), spell_type = SpellList.FIREBALL, **keyargs)
+            case EnemyList.SKELETON:
+                return Enemy(color=(100, 100, 100), spell_type = SpellList.BASIC, **keyargs)
+            case _:
+                return Enemy(color=(255,255,255), **keyargs)
