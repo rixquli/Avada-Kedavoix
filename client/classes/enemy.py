@@ -37,6 +37,7 @@ class Enemy(Serializable):
         attack_delay: float = 5.0,
         world_layer: int | Layer = Layer.OVERWORLD,
         spell_type: SpellList = SpellList.PUNCH,
+        debug: bool = True,
     ):
         self.id = id
         self.color = tuple(color)
@@ -83,8 +84,10 @@ class Enemy(Serializable):
         from server.managers.iaManager import Ia
 
         self.ia = Ia("enemy_ia", self)
-        self.path = None
+        self.path_finder = None
+        self.path = list()
         self.next_pos_vect = (0, 0)
+        self.next_pos_sign = (1, 1)
 
         # pour interagir avec le reste
         from client.gameManager import GameManager
@@ -121,6 +124,7 @@ class Enemy(Serializable):
             ),
         )
 
+        self.debug = debug
 
     #! Server Side
     def do_attack(self, dir: Tuple[float, float]) -> None:
@@ -198,6 +202,7 @@ class Enemy(Serializable):
       #      ),
       #  )
 
+
         pos = (self.display_x + offset[0], self.display_y + offset[1])
         self.animator.blit_sprite(surface, pos)
 
@@ -209,6 +214,17 @@ class Enemy(Serializable):
             self.hp,
             self.max_hp,
         )
+
+        if self.debug:
+            for pos in self.path:
+                pygame.draw.circle(
+                    surface,
+                    self.color,
+                    (pos[0]+offset[0], pos[1]+offset[1]),
+                    2,
+                )
+
+
 
 
     def set_target_position(self, x, y):

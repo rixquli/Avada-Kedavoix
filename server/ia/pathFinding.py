@@ -1,6 +1,8 @@
 """
 fichier pour effectuer la recherche de chemin
 """
+import pygame
+
 
 from client.classes.hitbox import HitBox
 
@@ -161,16 +163,25 @@ class Path:
     def find_path(self, nb_frame: int = 5):
         """met a jour le chemin en en calculant un nouveau"""
         self.path = self.search(nb_frame)
+        return self.path
 
-    def follow_path(self):
+    @staticmethod
+    def follow_path(path, pos):
         """renvois la direction de la prochaine position"""
-        if len(self.path) == 0:
+        if len(path) == 0:
             return 0, 0
-        dx = self.path[0][0] - self.pos[0]
-        dy = self.path[0][1] - self.pos[1]
-        self.path.remove(self.path[0])
-        # TODO solve  vitesse trop grande en diagonale
-        # if dx != 0 and dy != 0:
-        #    return dx/(2**0.5), dy/(2**0.5)
-        # else:
+        dx = path[0][0] - pos[0]
+        dy = path[0][1] - pos[1]
+        path.pop(0)
         return dx, dy
+
+    @staticmethod
+    def draw_path(surface, path: list[tuple[int, int]]) -> None:
+        for pos in path:
+            pygame.draw.circle(
+                surface,
+                (0, 255, 0),
+                pos,
+                1,
+            )
+
