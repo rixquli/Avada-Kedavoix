@@ -166,6 +166,11 @@ class Player(Serializable):
         if not collided:
             self.y += self.vy
 
+        if self.is_dead():
+            print("dead")
+            self.teleport(0, 0, Layer.OVERWORLD.value)
+            self.hp = self.max_hp
+
         # Mettre à jour la hitbox à la position finale
         self.hitbox.update(int(self.x), int(self.y), self.world_layer)
 
