@@ -105,16 +105,8 @@ def main_menu(menu_name):
         position=(0, 0),
         anchor=Anchor.TOPLEFT,
     )
-    background = Image(
-        path="client/ressources/UI/main_screen.png",
-        width=1920,
-        height=1080,
-        position=(0, 0),
-        anchor=Anchor.TOPLEFT,
-    )
 
     return [
-        background,
         background,
         title,
         start_single_player,
@@ -159,13 +151,25 @@ def join_menu(menu_name):
             game_manager.ui.refresh(menu_name)
 
     return [
+        Image(
+            path="client/ressources/UI/main_screen.png",
+            width=1920,
+            height=1080,
+            position=(0, 0),
+            anchor=Anchor.TOPLEFT,
+        ),
         # title
         Text(
             "AVADA KEDAVOIX",
-            (0, 50),
-            font_size=50,
-            color=(255, 255, 255),
+            (0, 100),
+            font_size=100,
+            color=(0, 0, 0),
+            bg_alpha=0,
+            width=1000,
+            height=150,
             anchor=Anchor.MIDTOP,
+            background=True,
+            bg_border=False,
         ),
         # adress_input
         TextInput(

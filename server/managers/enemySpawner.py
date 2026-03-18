@@ -5,7 +5,7 @@ from client.classes.enemy import EnemyList
 
 DungeonEnemyList: List[List[Tuple[int, EnemyList, Dict[str, Any]]]] = [
     # Etage 1
-    [(5, EnemyList.GOBELIN_MASSUE, {}), (5, EnemyList.SKELETON, {})],
+    [(5, EnemyList.GOBELIN_MASSUE, {}), (5, EnemyList.DRAGON, {})],
     # Etage 2
     [(10, EnemyList.GOBELIN_MASSUE, {})],
     # Etage restant
@@ -36,5 +36,7 @@ class EnemySpawner:
                     random.randint(area[0][0], area[1][0]),
                     random.randint(area[0][1], area[1][1]),
                 )
-                enemy = Enemy.get_enemy_type(enemy_type, x = rand[0], y = rand[1], world_layer=world_layer, **kwargs)
+                enemy = Enemy.get_enemy_type(
+                    enemy_type, x=rand[0], y=rand[1], world_layer=world_layer, **kwargs
+                )
                 self.network.game_state.enemies.addEntity(enemy)

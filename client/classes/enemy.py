@@ -9,6 +9,7 @@ from enum import Enum
 
 import sys
 import os
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from client.classes.animator import Animator
 from client.classes.clientOnly.healthBar import HealthBar
@@ -17,10 +18,12 @@ from client.layerList import Layer
 from server.classes.serializable import Serializable
 from client.classes.hitbox import HitBox
 
+
 class EnemyList(Enum):
     GOBELIN_MASSUE = 1
     SKELETON = 2
     DRAGON = 3
+
 
 class Enemy(Serializable):
     def __init__(
@@ -34,17 +37,19 @@ class Enemy(Serializable):
         id: int = None,
         hp: int = 5,
         vitesse: int = 1,
-        attack_delay: float = 5.0,
+        attack_delay: float = 3.0,
         world_layer: int | Layer = Layer.OVERWORLD,
         spell_type: SpellList = SpellList.PUNCH,
         reach: int = -1,
-        dist_from: int | None = None,
+        dist_from: int | None = 3,
         debug: bool = True,
+        dmg=10,
     ):
         self.id = id
         self.color = tuple(color)
         self.size = int(size)
         self.vitesse = vitesse
+        self.dmg = dmg
 
         # Vértable position envoyées au serveur
         self.x = float(x)
@@ -90,9 +95,9 @@ class Enemy(Serializable):
         self.path = list()
         self.next_pos_vect = (0, 0)
         self.next_pos_sign = (1, 1)
-        #distance a partir de laquelle les ennemis suivent le joueur
+        # distance a partir de laquelle les ennemis suivent le joueur
         self.reach = reach
-        #distance a partir de laquelle les ennemis arretent de suivre le joueur
+        # distance a partir de laquelle les ennemis arretent de suivre le joueur
         if dist_from is not None:
             self.dist_from = dist_from
         else:
@@ -104,14 +109,14 @@ class Enemy(Serializable):
         self.game_manager = GameManager()
         self.healthBar = HealthBar(y_offset=20)
 
-        #pour les animations
+        # pour les animations
         self.animator = Animator(
-                size=(self.size * 5, self.size * 5), animation_speed=10 / 60
+            size=(self.size * 5, self.size * 5), animation_speed=10 / 60
         )
 
         ennemy_type = ""
         match color:
-            case (0, 255, 255)|(0, 255, 0):
+            case (0, 255, 255) | (0, 255, 0):
                 ennemy_type = "Gobelin_massue"
             case _:
                 ennemy_type = "Dragon"
@@ -142,14 +147,14 @@ class Enemy(Serializable):
         """
         self.game_manager.spellManager.cast_spell_type(
             self.spell_type,
-            thrower = self.THROWER_TYPE,
-            x = self.x,
-            y = self.y,
-            dir = dir,
-            world_layer = self.world_layer,
-            player_id = None,
+            thrower=self.THROWER_TYPE,
+            x=self.x,
+            y=self.y,
+            dir=dir,
+            world_layer=self.world_layer,
+            player_id=None,
+            dmg=self.dmg,
         )
-
 
     def take_dmg(self, dmg: int) -> None:
         self.hp -= dmg
@@ -196,17 +201,16 @@ class Enemy(Serializable):
         # Permet d'eviter les mouvements sacadé
         self.interpolate_position()
 
-      #  pygame.draw.rect(
-      #      surface,
-      #      self.color,
-      #      pygame.Rect(
-      #          self.display_x + offset[0],
-      #          self.display_y + offset[1],
-      #          self.size,
-      #          self.size,
-      #      ),
-      #  )
-
+        #  pygame.draw.rect(
+        #      surface,
+        #      self.color,
+        #      pygame.Rect(
+        #          self.display_x + offset[0],
+        #          self.display_y + offset[1],
+        #          self.size,
+        #          self.size,
+        #      ),
+        #  )
 
         pos = (self.display_x + offset[0], self.display_y + offset[1])
         self.animator.blit_sprite(surface, pos)
@@ -221,17 +225,14 @@ class Enemy(Serializable):
         )
 
         if self.debug:
-            if self. path is not None:
+            if self.path is not None:
                 for pos in self.path:
                     pygame.draw.circle(
                         surface,
                         self.color,
-                        (pos[0]+offset[0], pos[1]+offset[1]),
+                        (pos[0] + offset[0], pos[1] + offset[1]),
                         2,
                     )
-
-
-
 
     def set_target_position(self, x, y):
         """
@@ -244,10 +245,11 @@ class Enemy(Serializable):
 
     @staticmethod
     def draw_all(
-            surface, offset: tuple[float, float],
-            enemies: list["Enemy"],
-            active_world_layer: int | None = None,
-            ):
+        surface,
+        offset: tuple[float, float],
+        enemies: list["Enemy"],
+        active_world_layer: int | None = None,
+    ):
         """
         Dessine tout les ennemi
         """
@@ -267,10 +269,29 @@ class Enemy(Serializable):
     def get_enemy_type(enemy_type: EnemyList, **keyargs):
         match enemy_type:
             case EnemyList.GOBELIN_MASSUE:
-                return Enemy(color=(0,255,0), spell_type = SpellList.PUNCH, reach = 500, **keyargs)
+                return Enemy(
+                    color=(0, 255, 0),
+                    spell_type=SpellList.PUNCH,
+                    reach=500,
+                    dist_from=50,
+                    attack_delay=1,
+                    **keyargs,
+                )
             case EnemyList.DRAGON:
-                return Enemy(color=(255,0,0), spell_type = SpellList.FIREBALL, reach = 500, dist_from = 100, **keyargs)
+                return Enemy(
+                    color=(255, 0, 0),
+                    spell_type=SpellList.FIREBALL,
+                    reach=500,
+                    dist_from=100,
+                    **keyargs,
+                )
             case EnemyList.SKELETON:
-                return Enemy(color=(100, 100, 100), spell_type = SpellList.ICE, reach = 500, dist_from = 100, **keyargs)
+                return Enemy(
+                    color=(100, 100, 100),
+                    spell_type=SpellList.ICE,
+                    reach=500,
+                    dist_from=100,
+                    **keyargs,
+                )
             case _:
-                return Enemy(color=(255,255,255), **keyargs)
+                return Enemy(color=(255, 255, 255), **keyargs)

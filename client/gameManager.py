@@ -42,7 +42,6 @@ from client.clientManager import ClientManager
 from client.ui.UI import UI
 
 
-
 class GameManager:
     def __new__(cls):
         """
@@ -75,8 +74,6 @@ class GameManager:
 
         # Setup ui/menus
         self.ui = UI(self.screen)
-
-
 
     def setup_server(self):
         """
@@ -171,7 +168,7 @@ class GameManager:
 
         self.deltatime = self.clock.tick(60)
         if self.debug:
-            print(1/(time.time() - t))
+            print(1 / (time.time() - t))
 
     def handle_event(self, event):
         """
@@ -188,8 +185,8 @@ class GameManager:
             pnj.handle_event(event)
 
         # TODO: déplacer la logique dans une classe spécifique pour les actions
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            self.spellManager.cast_basic_spell()
+        # if event.type == pygame.MOUSEBUTTONDOWN:
+        #     self.spellManager.cast_basic_spell()
 
     def handle_voice_event(self):
         vocal_action = get_voice_command()

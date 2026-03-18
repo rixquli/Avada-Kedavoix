@@ -210,7 +210,7 @@ class Spell(Serializable):
                 return Spell(radius=15, color=(0, 0, 255), **keyargs)
             case SpellList.PUNCH:
                 return Spell(
-                    radius=15, color=(200, 200, 200), speed=5, lifetime=0.1, **keyargs
+                    radius=15, color=(200, 200, 200), speed=15, lifetime=0.25, **keyargs
                 )
             case _:
                 return Spell(radius=8, color=(50, 150, 255), **keyargs)

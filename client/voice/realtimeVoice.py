@@ -54,7 +54,7 @@ SPELLS = {
         "action": SpellList.ICE,
     },
     "soin": {
-        "keywords": ["soin"],
+        "keywords": ["soin", "soins"],
         "message": "Vie régénérée",
         "action": SpellList.HEAL,
     },

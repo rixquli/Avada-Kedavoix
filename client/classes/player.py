@@ -6,6 +6,7 @@ et de la gestion des déplacement pour le joueur local
 
 import os
 import sys
+import time
 
 from client.classes.clientOnly.healthBar import HealthBar
 
@@ -128,14 +129,26 @@ class Player(Serializable):
 
         self.healthBar = HealthBar(y_offset=20)
 
+        self.serveur_pos = None
+
     def is_dead(self) -> bool:
         return self.hp <= 0
 
     def take_dmg(self, dmg: int) -> None:
         self.hp -= dmg
+        self.hp = max(self.hp, 0)
+        if self.is_dead():
+            print("dead")
+            self.serveur_pos = (0, 0, 1, time.time_ns())
+            self.heal_max()
 
-    def heal(self):
-        self.hp = min(self.max_hp, self.heal_amount + self.hp)
+    def heal(self, heal_amount=None):
+        if heal_amount is None:
+            heal_amount = self.heal_amount
+        self.hp = min(self.max_hp, heal_amount + self.hp)
+
+    def heal_max(self):
+        self.hp = self.max_hp
 
     def teleport(self, x, y, world_layer: int):
         self.x = x
@@ -150,6 +163,12 @@ class Player(Serializable):
         Si on est dans un objet comme un mur alors on applique pas le mouvement dans cette direction
         Sinon si aucune collision n'est détectée a la prochaine position alors on applique le mouvement
         """
+        if self.serveur_pos is not None:
+            self.x = self.serveur_pos[0]
+            self.y = self.serveur_pos[1]
+            self.world_layer = self.serveur_pos[2]
+            self.serveur_pos = None
+
         # Appliquer le mouvement horizontal
         self.hitbox.update(int(self.x + self.vx), int(self.y), self.world_layer)
 
@@ -165,11 +184,6 @@ class Player(Serializable):
         collided = self.hitbox.get_local_collided()
         if not collided:
             self.y += self.vy
-
-        if self.is_dead():
-            print("dead")
-            self.teleport(0, 0, Layer.OVERWORLD.value)
-            self.hp = self.max_hp
 
         # Mettre à jour la hitbox à la position finale
         self.hitbox.update(int(self.x), int(self.y), self.world_layer)
