@@ -53,8 +53,7 @@ class SpellsManager:
                 case SpellList.TELEPORTATION:
                     my_player.teleport(0, 0, Layer.OVERWORLD.value)
                 case SpellList.CLOSE:
-                    pygame.quit()
-                    sys.exit()
+                    self.gameManager.quit()
                 case _:
                     raise NotImplementedError(
                         "Need to implement or remove: " + vocal_action

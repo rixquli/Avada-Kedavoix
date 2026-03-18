@@ -145,10 +145,7 @@ class GameManager:
         """Fait un rendu du jeu a executer a chaque tick"""
         t = time.time()
         if not self.running:
-            self.client_manager.network.close_server()
-            self.client_manager.network.close_client_socket()
-            pygame.quit()
-            sys.exit()
+            self.quit()
             return
 
         for event in pygame.event.get():
@@ -169,6 +166,12 @@ class GameManager:
         self.deltatime = self.clock.tick(60)
         if self.debug:
             print(1 / (time.time() - t))
+
+    def quit(self):
+        self.client_manager.network.close_server()
+        self.client_manager.network.close_client_socket()
+        pygame.quit()
+        sys.exit()
 
     def handle_event(self, event):
         """
