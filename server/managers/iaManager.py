@@ -64,17 +64,13 @@ class BasicIaUtility:
     ) -> tuple[float, float] | None:
 
         players_pos = BasicIaUtility.get_players_pos(world_layer=world_layer)
-        print(players_pos)
         if len(players_pos) != 0:
             player_pos = (x,y)
             for pos in players_pos:
                 dist = ((pos[0] - x) ** 2 + (pos[1] - y) ** 2)**0.5
-                print(dist, dist_min)
                 if dist < dist_min or dist_min == -1:
-                    print("+yep")
                     dist_min = dist
                     player_pos = pos
-            print(player_pos)
             return player_pos
         return None
 
