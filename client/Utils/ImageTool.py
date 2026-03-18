@@ -1,7 +1,25 @@
+from pathlib import Path
+
 import pygame
 
 
 class ImageTool:
+    @staticmethod
+    def _resolve_texture_path(texture_path: str) -> str:
+        """
+        Résout un chemin de texture de façon robuste, quel que soit l'OS
+        et le dossier courant d'exécution.
+        """
+        path = Path(texture_path)
+        if path.is_file():
+            return str(path)
+
+        client_root = Path(__file__).resolve().parents[1]
+        candidate = (client_root / texture_path).resolve()
+        if candidate.is_file():
+            return str(candidate)
+
+        return texture_path
 
     @staticmethod
     def load(path: str, size: tuple[int, int] = (0, 0)) -> pygame.Surface:
@@ -11,6 +29,7 @@ class ImageTool:
             path: chemin vers l'image
             size: taille souhaitée, (0, 0) pour garder la taille originale
         """
+        path = ImageTool._resolve_texture_path(path)
         img = pygame.image.load(path)
         if size and size[0] > 0 and size[1] > 0:
             img = pygame.transform.smoothscale(img, size)

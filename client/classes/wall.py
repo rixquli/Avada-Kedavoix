@@ -2,6 +2,8 @@
 Classe pour la gestion des murs
 """
 
+from pathlib import Path
+
 import pygame
 from client.layerList import Layer
 from client.Utils.ImageTool import ImageTool
