@@ -82,28 +82,31 @@ class Spell(Serializable):
         # 0 si l'asset de base regarde a droite, 180 s'il regarde a gauche
         self.sprite_base_angle = 180
 
-        spell_type = None
+        self.spell_type = None
         match color:
             case (255, 0, 0):
-                spell_type = SpellList.FIREBALL
+                self.spell_type = SpellList.FIREBALL
+            case (200, 200, 200):
+                self.spell_type = SpellList.PUNCH
             case _:
-                spell_type = SpellList.ICE
+                self.spell_type = SpellList.ICE
 
         # Chemin vers la racine du projet
         PROJECT_ROOT = os.path.abspath(
             os.path.join(os.path.dirname(__file__), "..", "..")
         )
 
-        self.animator.state_manager.add_state(
-            "idle",
-            os.path.join(
-                PROJECT_ROOT,
-                "client",
-                "ressources",
-                "Sorts",
-                spell_type.name,
-            ),
-        )
+        if self.spell_type != SpellList.PUNCH:
+            self.animator.state_manager.add_state(
+                "idle",
+                os.path.join(
+                    PROJECT_ROOT,
+                    "client",
+                    "ressources",
+                    "Sorts",
+                    self.spell_type.name,
+                ),
+            )
 
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
@@ -141,6 +144,10 @@ class Spell(Serializable):
         return time.time() - self.creation_time > self.lifetime
 
     def draw(self, surface, offset: tuple[float, float]):
+        # si le sort est punch on ne le dessine pas
+        if self.spell_type == SpellList.PUNCH:
+            self.hitbox.draw(surface, offset)
+            return
         # Interpolation vers la position cible
         # Permet d'eviter les mouvements sacadé
         self.interpolate_position()
@@ -196,6 +203,8 @@ class Spell(Serializable):
             case SpellList.FIREBALL:
                 return Spell(radius=10, color=(255, 0, 0), **keyargs)
             case SpellList.PUNCH:
-                return Spell(radius=15, color=(200, 200, 200), speed = 5, lifetime = 0.1, **keyargs)
+                return Spell(
+                    radius=15, color=(200, 200, 200), speed=5, lifetime=0.1, **keyargs
+                )
             case _:
                 return Spell(radius=8, color=(50, 150, 255), **keyargs)
