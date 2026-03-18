@@ -104,7 +104,7 @@ class BasicIaUtility:
 
     @staticmethod
     def is_dest_reached(x, y, dest_x, dest_y, precision):
-        return abs(dest_x - x) <= precision and abs(dest_y - y) <= precision
+        return abs(dest_x - x) <= precision and abs(dest_y - y) < precision
 
 
 class ListIa:
@@ -118,36 +118,49 @@ class ListIa:
     @staticmethod
     def enemy_ia(enemy: Enemy) -> None:
         """ia des ennemis: target = joueur le plus proche, chemin = path finding"""
-        cible_pos = BasicIaUtility.get_pos_closest_player(
-            enemy.x, enemy.y, world_layer=enemy.world_layer
-        )
-        if cible_pos is None:
-            enemy.vx = 0
-            enemy.vy = 0
-            enemy.path = None
-            return
-
-        if (
-            BasicIaUtility.get_dist(enemy.x, enemy.y, cible_pos[0], cible_pos[1]) < 20
-            and False
-        ):
-            enemy.vx, enemy.vy = BasicIaUtility.dir_target(
+        if enemy.next_pos_vect[0]<=0 or enemy.next_pos_vect[1]<=0:
+            cible_pos = BasicIaUtility.get_pos_closest_player(
                 enemy.x, enemy.y, world_layer=enemy.world_layer
             )
-        else:
-            if enemy.path is None:
-                enemy.path = Path(
-                    (int(enemy.x), int(enemy.y)),
-                    cible_pos,
-                    enemy.hitbox,
-                    enemy.world_layer,
-                    enemy.vitesse,
+            if cible_pos is None:
+                enemy.vx = 0
+                enemy.vy = 0
+                enemy.path = None
+                return
+
+            if (
+                BasicIaUtility.get_dist(enemy.x, enemy.y, cible_pos[0], cible_pos[1]) <= enemy.vitesse
+            ):
+                enemy.vx, enemy.vy = BasicIaUtility.dir_target(
+                    enemy.x, enemy.y, world_layer=enemy.world_layer
                 )
-            elif len(enemy.path.path) == 0:
-                enemy.path.update_dest(cible_pos[0], cible_pos[1])
-                enemy.path.update_pos(enemy.x, enemy.y)
-                enemy.path.find_path(5)
-            enemy.vx, enemy.vy = enemy.path.follow_path()
+            else:
+                if enemy.path is None:
+                    enemy.path = Path(
+                        (int(enemy.x), int(enemy.y)),
+                        cible_pos,
+                        enemy.hitbox,
+                        enemy.world_layer,
+                        enemy.vitesse,
+                    )
+                elif len(enemy.path.path) == 0:
+                    enemy.path.update_dest(cible_pos[0], cible_pos[1])
+                    enemy.path.update_pos(enemy.x, enemy.y)
+                    enemy.path.find_path(50)
+                enemy.next_pos_vect = enemy.path.follow_path()
+                print("yep")
+        d = (enemy.next_pos_vect[0]**2 + enemy.next_pos_vect[1]**2)**0.5
+        if d == 0:
+            enemy.vx,enemy.vy = (0,0)
+            print(enemy.next_pos_vect)
+        else:
+            enemy.vx = enemy.next_pos_vect[0]/d *enemy.vitesse *5
+            enemy.vy = enemy.next_pos_vect[1]/d *enemy.vitesse *5
+            vect_x = enemy.next_pos_vect[0] - enemy.vx
+            vect_y = enemy.next_pos_vect[1] - enemy.vy
+            enemy.next_pos_vect = (vect_x, vect_y)
+            print(enemy.next_pos_vect)
+
 
         if time.time() - enemy.prec_attack_time > enemy.attack_delay:
             attack_dir = BasicIaUtility.dir_target(

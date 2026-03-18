@@ -84,6 +84,7 @@ class Enemy(Serializable):
 
         self.ia = Ia("enemy_ia", self)
         self.path = None
+        self.next_pos_vect = (0, 0)
 
         # pour interagir avec le reste
         from client.gameManager import GameManager
@@ -147,7 +148,6 @@ class Enemy(Serializable):
         # le set_target_position est automatique
         # actualises la position et les datas de l'ia
         self.ia.update()
-
         # Appliquer le mouvement horizontal
         self.hitbox.update(int(self.x + self.vx), int(self.y), self.world_layer)
 
@@ -163,6 +163,10 @@ class Enemy(Serializable):
         collided = self.hitbox.get_server_collided()
         if not collided:
             self.y += self.vy
+        """
+        self.x += self.vx
+        self.y += self.vy
+        """
 
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
