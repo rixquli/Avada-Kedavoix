@@ -22,7 +22,7 @@ from server.world_elements import dungeonWalls
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from client.classes.wall import Wall
 from client.classes.pnj import PNJ
-from client.classes.enemy import Enemy
+from client.classes.enemy import Enemy, EnemyList
 from client.classes.player import Player
 from client.classes.spell import Spell
 from server.NetworkManager import NetworkManager
@@ -155,10 +155,12 @@ def broadcast_game_state():
 
 # TODO: Enlever cette fonction elle ne doit rester que en développement ou etre adapté
 def spawn_element_at_start():
-    from client.classes.enemy import EnemyList
-    enemy1 = network.game_state.enemies.addEntity(Enemy.get_enemy_type(EnemyList.GOBELIN_MASSUE, x = 200, y = 200))
-    enemy2 = network.game_state.enemies.addEntity(Enemy.get_enemy_type(EnemyList.GOBELIN_MASSUE, x = 350, y = 350))
+    enemy1 = network.game_state.enemies.addEntity(Enemy.get_enemy_type(EnemyList.GOBELIN_MASSUE, x = 200, y = 200, world_layer=1))
+    enemy2 = network.game_state.enemies.addEntity(Enemy.get_enemy_type(EnemyList.BOSS, x = 350, y = 350, world_layer=1))
+    enemy2 = network.game_state.enemies.addEntity(
+        Enemy(350, 350, (0, 255, 255), world_layer=2))
 
+    # TODO: deplacer les texts a l'exterieur du prograamme
     pnj1 = network.game_state.pnjs.addEntity(
         PNJ(
             -150,

@@ -202,15 +202,13 @@ class Spell(Serializable):
                 all_spells.draw(surface, offset)
 
     @staticmethod
-    def get_spell_type(spell_type: SpellList, **keyargs):
+    def get_spell_type(spell_type: SpellList, dmg_mult: int = 1, **keyargs):
         match spell_type:
             case SpellList.FIREBALL:
-                return Spell(radius=10, color=(255, 0, 0), **keyargs)
+                return Spell(radius=10, color=(255, 0, 0), dmg = 10 * dmg_mult, **keyargs)
             case SpellList.ICE:
                 return Spell(radius=15, color=(0, 0, 255), **keyargs)
             case SpellList.PUNCH:
-                return Spell(
-                    radius=15, color=(200, 200, 200), speed=15, lifetime=0.25, **keyargs
-                )
+                return Spell(radius=15, color=(200, 200, 200), speed=15, lifetime=0.25, dmg = 15 * dmg_mult, **keyargs)
             case _:
-                return Spell(radius=8, color=(50, 150, 255), **keyargs)
+                return Spell(radius=8, color=(50, 150, 255), dmg = 5 * dmg_mult, **keyargs)

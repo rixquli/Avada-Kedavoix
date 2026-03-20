@@ -8,8 +8,11 @@ DungeonEnemyList: List[List[Tuple[int, EnemyList, Dict[str, Any]]]] = [
     [(5, EnemyList.GOBELIN_MASSUE, {}), (5, EnemyList.DRAGON, {})],
     # Etage 2
     [(10, EnemyList.GOBELIN_MASSUE, {})],
-    # Etage restant
+    # Etage 3
     [(10, EnemyList.DRAGON, {})],
+    # Etage restant
+    [(10, EnemyList.DRAGON, {}), (1, EnemyList.BOSS, {})]
+
 ]
 
 

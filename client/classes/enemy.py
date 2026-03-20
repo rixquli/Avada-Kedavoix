@@ -23,6 +23,7 @@ class EnemyList(Enum):
     GOBELIN_MASSUE = 1
     SKELETON = 2
     DRAGON = 3
+    BOSS = 4
 
 
 class Enemy(Serializable):
@@ -37,19 +38,19 @@ class Enemy(Serializable):
         id: int = None,
         hp: int = 5,
         vitesse: int = 1,
-        attack_delay: float = 3.0,
+        attack_delay: float = 5.0,
         world_layer: int | Layer = Layer.OVERWORLD,
         spell_type: SpellList = SpellList.PUNCH,
         reach: int = -1,
         dist_from: int | None = 3,
         debug: bool = False,
-        dmg=10,
+        dmg_mult : float = 1,
     ):
         self.id = id
         self.color = tuple(color)
         self.size = int(size)
         self.vitesse = vitesse
-        self.dmg = dmg
+        self.dmg_mult = dmg_mult
 
         # Vértable position envoyées au serveur
         self.x = float(x)
@@ -153,7 +154,7 @@ class Enemy(Serializable):
             dir=dir,
             world_layer=self.world_layer,
             player_id=None,
-            dmg=self.dmg,
+            dmg=self.dmg_mult,
         )
 
     def take_dmg(self, dmg: int) -> None:
@@ -166,6 +167,7 @@ class Enemy(Serializable):
         # le set_target_position est automatique
         # actualises la position et les datas de l'ia
         self.ia.update()
+
         # Appliquer le mouvement horizontal
         self.hitbox.update(int(self.x + self.vx), int(self.y), self.world_layer)
 
@@ -291,6 +293,16 @@ class Enemy(Serializable):
                     spell_type=SpellList.ICE,
                     reach=500,
                     dist_from=100,
+                    **keyargs,
+                )
+            case EnemyList.BOSS:
+                return Enemy(
+                    color=(0, 0, 0),
+                    spell_type=SpellList.FIREBALL,
+                    reach = -1,
+                    dist_from = 100,
+                    hp = 100,
+                    dmg_mult = 5,
                     **keyargs,
                 )
             case _:
