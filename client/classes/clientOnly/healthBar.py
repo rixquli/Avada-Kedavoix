@@ -10,6 +10,8 @@ class HealthBar:
         bg_color: tuple[int, int, int] = (50, 50, 50),
         fg_color: tuple[int, int, int] = (40, 220, 40),
         border_color: tuple[int, int, int] = (0, 0, 0),
+        is_pos_fixed: bool = False,
+        pos_fixed: tuple[int, int] = (0, 0),
     ):
         self.width = width
         self.height = height
@@ -17,6 +19,8 @@ class HealthBar:
         self.bg_color = bg_color
         self.fg_color = fg_color
         self.border_color = border_color
+        self.is_pos_fixed = is_pos_fixed
+        self.pos_fixed = pos_fixed
 
     def draw(
         self,

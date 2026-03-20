@@ -36,7 +36,7 @@ class Enemy(Serializable):
         vx: float = 0,
         vy: float = 0,
         id: int = None,
-        hp: int = 5,
+        hp: int = 20,
         vitesse: int = 1,
         attack_delay: float = 5.0,
         world_layer: int | Layer = Layer.OVERWORLD,
@@ -44,7 +44,8 @@ class Enemy(Serializable):
         reach: int = -1,
         dist_from: int | None = 3,
         debug: bool = False,
-        dmg_mult : float = 1,
+        dmg_mult: float = 1,
+        is_boss: bool = False,
     ):
         self.id = id
         self.color = tuple(color)
@@ -70,7 +71,7 @@ class Enemy(Serializable):
         self.interpolation_speed = 0.1
         self.min_threshold = 0.1
 
-        self.hitbox_size = (25, 25)
+        self.hitbox_size = (size, size)
         self.hitbox = HitBox(
             int(x), int(y), self.hitbox_size[0], self.hitbox_size[1], world_layer
         )
@@ -108,7 +109,10 @@ class Enemy(Serializable):
         from client.gameManager import GameManager
 
         self.game_manager = GameManager()
-        self.healthBar = HealthBar(y_offset=20)
+        if not is_boss:
+            self.healthBar = HealthBar(y_offset=20, width=self.max_hp)
+        else:
+            self.healthBar = HealthBar(y_offset=0, width=self.max_hp)
 
         # pour les animations
         self.animator = Animator(
@@ -154,7 +158,7 @@ class Enemy(Serializable):
             dir=dir,
             world_layer=self.world_layer,
             player_id=None,
-            dmg=self.dmg_mult,
+            dmg_mult=self.dmg_mult,
         )
 
     def take_dmg(self, dmg: int) -> None:
@@ -303,6 +307,7 @@ class Enemy(Serializable):
                     dist_from = 100,
                     hp = 100,
                     dmg_mult = 5,
+                    size = 100,
                     **keyargs,
                 )
             case _:
