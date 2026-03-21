@@ -75,6 +75,13 @@ class GameState:
             res.append((entities_manager.entity_type, entities_manager.get_list()))
         return res
 
+    def get_entities_list_layer(self, layer) -> list[tuple[type[Serializable], list[Serializable]]]:
+        res = []
+        for entities_manager in self.all_entities_manager:
+            res.append((entities_manager.entity_type, entities_manager.get_list_layer(layer)))
+        return res
+
+
     def update_all(self):
         """Update all entities here"""
 
@@ -101,6 +108,34 @@ class GameState:
 
         # Collision handler (events)
         self.collision_manager.handle_collision(entity_list=self.get_entities_list())
+
+    def update_all_layer(self, layer):
+        """Update all entities here"""
+
+        # Spells
+        for spell in list(self.spells.entities.values()):
+            if spell.is_expired():
+                self.spells.remove(spell.id)
+            elif layer == spell.world_layer:
+                spell.server_update()
+
+        # Enemies
+        for enemy in list(self.enemies.entities.values()):
+            if enemy.is_dead():
+                self.enemies.remove(enemy.id)
+            elif layer == enemy.world_layer:
+                enemy.server_update()
+
+        # PNJ
+        for pnj in list(self.pnjs.entities.values()):
+            if pnj.is_dead():
+                self.pnjs.remove(pnj.id)
+            elif layer == pnj.world_layer:
+                pnj.server_update()
+
+        # Collision handler (events)
+        self.collision_manager.handle_collision(entity_list=self.get_entities_list_layer(layer))
+
 
     # Executer coté client
     def apply_state(self, state, my_player_id=None):

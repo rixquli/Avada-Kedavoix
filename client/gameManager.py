@@ -139,7 +139,7 @@ class GameManager:
         # for wall in self.walls:
         #     self.groups["obstacle"].add(wall)
 
-        self.debug = False
+        self.debug = True
 
     def render(self):
         """Fait un rendu du jeu a executer a chaque tick"""

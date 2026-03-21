@@ -132,13 +132,14 @@ def broadcast_game_state():
     """Thread qui diffuse l'état du jeu à tous les clients"""
     while True:
         # Les joueurs s'update coté client
-        network.game_state.update_all()
+        # network.game_state.update_all()
 
-        # layersToRender = []
-        # for player in network.game_state.players.get_list():
-        #     layer = player.world_layer
-        #     if layer not in layersToRender:
-        #         layersToRender.append(layer)
+        layersToRender = []
+        for player in network.game_state.players.get_list():
+            layer = player.world_layer
+            if layer not in layersToRender:
+                layersToRender.append(layer)
+                network.game_state.update_all_layer(layer)
 
         state = network.game_state.get_game_state(diff=True)
         msg = Message(MessageType.GAME_STATE, state)
