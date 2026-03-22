@@ -64,7 +64,7 @@ class EntityManager:
         """
         return [e for e in self.get_list() if e.id != id]
 
-    def get_except_list_llayer(self, id, layer):
+    def get_except_list_layer(self, id, layer):
         """
         Renvoie une liste des élément qui ont un id différent du paramètre
         """

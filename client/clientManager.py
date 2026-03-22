@@ -77,22 +77,23 @@ class ClientManager:
                             self.game_manager.ui.refresh("hud")
                     case MessageType.DUNGEON_DATA:
                         for i, e in enumerate(msg.data):
-                            self.game_manager.clientsElements.add(
-                                DungeonEntrance(
-                                    e.teleport_pos[0],
-                                    e.teleport_pos[1],
-                                    world_layer=Layer.DUNGEON_BASE.value + i,
-                                    target_world_layer=Layer.DUNGEON_BASE.value + i + 1,
+                            if e is not None:
+                                self.game_manager.clientsElements.add(
+                                    DungeonEntrance(
+                                        e.teleport_pos[0],
+                                        e.teleport_pos[1],
+                                        world_layer=Layer.DUNGEON_BASE.value + i,
+                                        target_world_layer=Layer.DUNGEON_BASE.value + i + 1,
+                                    )
                                 )
-                            )
-                            self.game_manager.clientsElements.add(
-                                DungeonEntrance(
-                                    e.teleport_pos[0],
-                                    e.teleport_pos[1],
-                                    world_layer=Layer.DUNGEON_BASE.value + i + 1,
-                                    target_world_layer=Layer.DUNGEON_BASE.value + i,
+                                self.game_manager.clientsElements.add(
+                                    DungeonEntrance(
+                                        e.teleport_pos[0],
+                                        e.teleport_pos[1],
+                                        world_layer=Layer.DUNGEON_BASE.value + i + 1,
+                                        target_world_layer=Layer.DUNGEON_BASE.value + i,
+                                    )
                                 )
-                            )
                             self.game_manager.maps.append(
                                 MapBackground(
                                     os.path.normpath(
@@ -136,6 +137,13 @@ class ClientManager:
         msg = Message(
             MessageType.PLAYER_HEAL,
             {"id": self.my_player_id},
+        )
+        self.network.send_message(msg)
+
+    def send_changing_layer(self, layer):
+        msg = Message(
+            MessageType.CHANGE_LAYER,
+            {"layer": layer}
         )
         self.network.send_message(msg)
 

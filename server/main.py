@@ -78,6 +78,25 @@ def handle_client(conn: socket.socket, player_id: str):
                     player = network.game_state.players.get(player_id)
                     if player:
                         player.heal()
+                case MessageType.CHANGE_LAYER:
+                    layer = msg.data["layer"] - 2
+                    if network.Dungeon.dungeonWalls[layer] is None:
+                        result = network.Dungeon.generate_layer(layer)
+                        if result == 0:
+                            for data in network.Dungeon.dungeonWalls[layer].walls:
+                                wall = Wall(
+                                    data[0],
+                                    data[1],
+                                    data[2],
+                                    data[3],
+                                    layer + 2,
+                                    texture_path=None,
+                                )
+                                network.game_state.walls.addEntity(wall)
+                                network.game_state.collision_manager.client_collider_groups["obstacle"].add(
+                                    wall
+                                )
+                            network.enemySpawner.dungeon_generate(layer + 2, layer)
 
         except Exception as e:
             print(f"Error with player {player_id}: {e}")
@@ -117,7 +136,7 @@ def handle_conn():
             full_state = network.game_state.get_game_state(diff=False)
             full_msg = Message(MessageType.GAME_STATE, full_state)
             conn.sendall(full_msg.serialize())
-            full_msg = Message(MessageType.DUNGEON_DATA, dungeonWalls.dungeonWalls)
+            full_msg = Message(MessageType.DUNGEON_DATA, network.Dungeon.dungeonWalls)
             conn.sendall(full_msg.serialize())
 
             # Ajouter le client au broadcast uniquement après l'envoi du snapshot complet.
@@ -161,7 +180,7 @@ def spawn_element_at_start():
     enemy2 = network.game_state.enemies.addEntity(
         Enemy(350, 350, (0, 255, 255), world_layer=2))
 
-    # TODO: deplacer les texts a l'exterieur du prograamme
+    # TODO: deplacer les texts a l'exterieur du programme
     pnj1 = network.game_state.pnjs.addEntity(
         PNJ(
             -150,
@@ -241,8 +260,9 @@ def spawn_element_at_start():
         network.game_state.collision_manager.client_collider_groups["obstacle"].add(
             wall
         )
-
+    """
     for i, e in enumerate(dungeonWalls.dungeonWalls):
+        print(i, e)
         for data in e.walls:
             wall = Wall(
                 data[0],
@@ -257,7 +277,7 @@ def spawn_element_at_start():
                 wall
             )
         network.enemySpawner.dungeon_generate(Layer.DUNGEON_BASE.value + i, i)
-
+    """
 
 def start_game_server(adress=None, port=None, max_player=5, is_solo=False):
     network.start_server(adress, port, max_player=max_player, is_solo=is_solo)

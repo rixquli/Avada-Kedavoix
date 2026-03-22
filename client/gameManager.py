@@ -32,6 +32,7 @@ from client.classes.wall import Wall
 from client.layerList import Layer
 from client.spellsManager import SpellsManager
 from client.voice.realtimeVoice import get_voice_command, start_voice_recognition
+from server.world_elements.dungeonWalls import Dungeon
 
 
 # To import module from other folder
@@ -139,7 +140,7 @@ class GameManager:
         # for wall in self.walls:
         #     self.groups["obstacle"].add(wall)
 
-        self.debug = True
+        self.debug = False
 
     def render(self):
         """Fait un rendu du jeu a executer a chaque tick"""
@@ -348,5 +349,8 @@ class GameManager:
             return False
 
         current_player.world_layer = target_layer_value
+
+        self.client_manager.send_changing_layer(target_layer_value)
+
         self.last_layer_switch_ms = now_ms
         return True
