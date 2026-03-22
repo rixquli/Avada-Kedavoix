@@ -64,11 +64,21 @@ class EntityManager:
         """
         return [e for e in self.get_list() if e.id != id]
 
+    def get_except_list_layer(self, id, layer):
+        """
+        Renvoie une liste des élément qui ont un id différent du paramètre
+        """
+        return [e for e in self.get_list() if e.id != id and e.world_layer == layer]
+
+
     def get_all(self):
         return self.entities
 
     def get_list(self):
         return list(self.entities.values())
+
+    def get_list_layer(self, layer):
+        return [entity for entity in self.entities.values() if entity.world_layer == layer]
 
     def filter_by(self, **kwargs) -> List[Serializable]:
         result = []

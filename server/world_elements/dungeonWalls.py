@@ -344,12 +344,33 @@ class DungeonGenerator:
         )
 
 
-generator = DungeonGenerator(wall_thickness=25, room_min=350, room_max=750)
+class Dungeon:
+    def __init__(self, nb_level: int = 10):
+        self.generator = DungeonGenerator(wall_thickness=25, room_min=350, room_max=750)
 
+        self.dungeonWalls: list[DungeonLevel | None] = [None] * nb_level
+        self.required_point: list[tuple[int, int] | None] = [None] * (nb_level + 1)
+        self.required_point[0] = (250, 0)
+        self.nb_level = nb_level
 
-dungeonWalls = []
-required_point = (250, 0)
-for i in range(10):
-    level = generator.generate_level(required_point=required_point)
-    dungeonWalls.append(DungeonLevel(level.walls, level.teleport_pos))
-    required_point = level.teleport_pos
+    def generate_all_layer(self):
+        for i in range(self.nb_level):
+            level = self.generator.generate_level(required_point=self.required_point[i])
+            self.dungeonWalls.append(DungeonLevel(level.walls, level.teleport_pos))
+            self.required_point[i + 1] = level.teleport_pos
+
+    def generate_layer(self, level_value:int):
+        if level_value > 0 and self.dungeonWalls[level_value - 1] == None:
+            print(f"impossible to generate layer: {level_value} (precedent does not exist)")
+            return 1
+        if self.dungeonWalls[level_value] != None:
+            print(f"layer: {level_value} already generated")
+            return 2
+        if level_value >= self.nb_level or level_value < 0:
+            print(f"impossible to generate layer: {level_value} (layer to big or to small)")
+            return 3
+
+        level = self.generator.generate_level(required_point=self.required_point[level_value])
+        self.dungeonWalls[level_value] = level
+        self.required_point[level_value+1] = level.teleport_pos
+        return 0

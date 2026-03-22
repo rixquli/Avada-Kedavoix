@@ -52,6 +52,11 @@ class State(Serializable):
 
         self.sprites = sprites
 
+    def resize(self, new_size):
+        self.size = new_size
+        for img in self.sprites:
+            img = pygame.transform.smoothscale(img, self.size)
+
     def get_sprite(self):
         t = time.time()
         if self.last_draw is None or t - self.last_draw > self.animation_speed:

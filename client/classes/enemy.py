@@ -23,6 +23,7 @@ class EnemyList(Enum):
     GOBELIN_MASSUE = 1
     SKELETON = 2
     DRAGON = 3
+    BOSS = 4
 
 
 class Enemy(Serializable):
@@ -35,21 +36,22 @@ class Enemy(Serializable):
         vx: float = 0,
         vy: float = 0,
         id: int = None,
-        hp: int = 5,
+        hp: int = 20,
         vitesse: int = 1,
-        attack_delay: float = 3.0,
+        attack_delay: float = 5.0,
         world_layer: int | Layer = Layer.OVERWORLD,
         spell_type: SpellList = SpellList.PUNCH,
         reach: int = -1,
         dist_from: int | None = 3,
         debug: bool = False,
-        dmg=10,
+        dmg_mult: float = 1,
+        is_boss: bool = False,
     ):
         self.id = id
         self.color = tuple(color)
         self.size = int(size)
         self.vitesse = vitesse
-        self.dmg = dmg
+        self.dmg_mult = dmg_mult
 
         # Vértable position envoyées au serveur
         self.x = float(x)
@@ -69,7 +71,7 @@ class Enemy(Serializable):
         self.interpolation_speed = 0.1
         self.min_threshold = 0.1
 
-        self.hitbox_size = (25, 25)
+        self.hitbox_size = (size, size)
         self.hitbox = HitBox(
             int(x), int(y), self.hitbox_size[0], self.hitbox_size[1], world_layer
         )
@@ -107,7 +109,10 @@ class Enemy(Serializable):
         from client.gameManager import GameManager
 
         self.game_manager = GameManager()
-        self.healthBar = HealthBar(y_offset=20)
+        if not is_boss:
+            self.healthBar = HealthBar(y_offset=20, width=self.max_hp)
+        else:
+            self.healthBar = HealthBar(y_offset=0, width=self.max_hp)
 
         # pour les animations
         self.animator = Animator(
@@ -153,7 +158,7 @@ class Enemy(Serializable):
             dir=dir,
             world_layer=self.world_layer,
             player_id=None,
-            dmg=self.dmg,
+            dmg_mult=self.dmg_mult,
         )
 
     def take_dmg(self, dmg: int) -> None:
@@ -166,6 +171,7 @@ class Enemy(Serializable):
         # le set_target_position est automatique
         # actualises la position et les datas de l'ia
         self.ia.update()
+
         # Appliquer le mouvement horizontal
         self.hitbox.update(int(self.x + self.vx), int(self.y), self.world_layer)
 
@@ -291,6 +297,17 @@ class Enemy(Serializable):
                     spell_type=SpellList.ICE,
                     reach=500,
                     dist_from=100,
+                    **keyargs,
+                )
+            case EnemyList.BOSS:
+                return Enemy(
+                    color=(0, 0, 0),
+                    spell_type=SpellList.FIREBALL,
+                    reach = -1,
+                    dist_from = 100,
+                    hp = 100,
+                    dmg_mult = 5,
+                    size = 100,
                     **keyargs,
                 )
             case _:
