@@ -15,8 +15,8 @@ import sys
 
 from client.classes.clientOnly.dungeonEntrance import DungeonEntrance
 from client.layerList import Layer
+from server.classes.saver import Saver
 from server.world_elements import dungeonWalls
-
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -30,6 +30,7 @@ from server.message import Message, MessageType
 
 network = NetworkManager()
 network.setup(is_server=True)
+saver = Saver(network)
 
 
 def handle_client(conn: socket.socket, player_id: str):
@@ -93,7 +94,9 @@ def handle_client(conn: socket.socket, player_id: str):
                                     texture_path=None,
                                 )
                                 network.game_state.walls.addEntity(wall)
-                                network.game_state.collision_manager.client_collider_groups["obstacle"].add(
+                                network.game_state.collision_manager.client_collider_groups[
+                                    "obstacle"
+                                ].add(
                                     wall
                                 )
                             network.enemySpawner.dungeon_generate(layer + 2, layer)
@@ -149,6 +152,7 @@ def handle_conn():
 
 def broadcast_game_state():
     """Thread qui diffuse l'état du jeu à tous les clients"""
+    counter = 0
     while True:
         # Les joueurs s'update coté client
         # network.game_state.update_all()
@@ -171,14 +175,23 @@ def broadcast_game_state():
                 pass
 
         time.sleep(1 / 30)  # 30 fois par seconde
+        counter += 1
+        if counter > 30:
+            counter = 0
+            saver.save()
 
 
 # TODO: Enlever cette fonction elle ne doit rester que en développement ou etre adapté
 def spawn_element_at_start():
-    enemy1 = network.game_state.enemies.addEntity(Enemy.get_enemy_type(EnemyList.GOBELIN_MASSUE, x = 200, y = 200, world_layer=1))
-    enemy2 = network.game_state.enemies.addEntity(Enemy.get_enemy_type(EnemyList.BOSS, x = 350, y = 350, world_layer=1))
+    enemy1 = network.game_state.enemies.addEntity(
+        Enemy.get_enemy_type(EnemyList.GOBELIN_MASSUE, x=200, y=200, world_layer=1)
+    )
     enemy2 = network.game_state.enemies.addEntity(
-        Enemy(350, 350, (0, 255, 255), world_layer=2))
+        Enemy.get_enemy_type(EnemyList.BOSS, x=350, y=350, world_layer=1)
+    )
+    enemy2 = network.game_state.enemies.addEntity(
+        Enemy(350, 350, (0, 255, 255), world_layer=2)
+    )
 
     # TODO: deplacer les texts a l'exterieur du programme
     pnj1 = network.game_state.pnjs.addEntity(
@@ -279,14 +292,18 @@ def spawn_element_at_start():
         network.enemySpawner.dungeon_generate(Layer.DUNGEON_BASE.value + i, i)
     """
 
-def start_game_server(adress=None, port=None, max_player=5, is_solo=False):
+
+def start_game_server(
+    adress=None, port=None, max_player=5, is_solo=False, newGame=False
+):
     network.start_server(adress, port, max_player=max_player, is_solo=is_solo)
 
     # Lance sur un autre thread la gestion des nouveauxjoueur
     start_new_thread(handle_conn, ())
 
     # Fais apparaitre les éléments au demarage de la partie
-    spawn_element_at_start()
+    if newGame or not saver.load_save():
+        spawn_element_at_start()
 
     # Envoie l'etat du monde aux joueurs
     broadcast_game_state()
