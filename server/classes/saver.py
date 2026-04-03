@@ -43,7 +43,7 @@ class Saver:
 
         state = payload.get("game_state", {})
 
-        self.network_manager.game_state.apply_state(state)
+        self.network_manager.game_state.apply_state(state, server=True)
 
         raw_dungeon = payload.get("dungeonWalls", [])
         rebuilt = []

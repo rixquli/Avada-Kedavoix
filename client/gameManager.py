@@ -34,7 +34,6 @@ from client.spellsManager import SpellsManager
 from client.voice.realtimeVoice import get_voice_command, start_voice_recognition
 from server.world_elements.dungeonWalls import Dungeon
 
-
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import pygame

@@ -17,6 +17,7 @@ from client.classes.clientOnly.dungeonEntrance import DungeonEntrance
 from client.layerList import Layer
 from server.classes.saver import Saver
 from server.world_elements import dungeonWalls
+import uuid
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -121,14 +122,19 @@ def handle_conn():
         # Creer le joueur lors de sa connection
         num_players = len(network.game_state.players.entities)
         colors = [(0, 255, 0), (255, 0, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255)]
-        player_id = network.game_state.players.addEntity(
-            Player(
-                x=num_players * 100,
-                y=num_players * 50,
-                color=colors[num_players % len(colors)],
-                radius=10,
+        player_id = f"P{uuid.getnode()}"
+
+        if not network.game_state.players.exist(player_id):
+            network.game_state.players.addEntity(
+                Player(
+                    x=num_players * 100,
+                    y=num_players * 50,
+                    color=colors[num_players % len(colors)],
+                    radius=10,
+                ),
+                fixed_id=player_id,
             )
-        )
+
         print(f"Player {player_id} connected")
 
         # Envoi synchronisé du CONNECT + snapshot complet au nouveau client
@@ -298,12 +304,17 @@ def start_game_server(
 ):
     network.start_server(adress, port, max_player=max_player, is_solo=is_solo)
 
-    # Lance sur un autre thread la gestion des nouveauxjoueur
-    start_new_thread(handle_conn, ())
-
     # Fais apparaitre les éléments au demarage de la partie
-    if newGame or not saver.load_save():
+    load_ok = False
+    if not newGame:
+        load_ok = saver.load_save()
+
+    if newGame or not load_ok:
         spawn_element_at_start()
+
+    # Lance sur un autre thread la gestion des nouveaux joueur
+    # apres le chargement pour eviter d'ecraser les positions de sauvegarde.
+    start_new_thread(handle_conn, ())
 
     # Envoie l'etat du monde aux joueurs
     broadcast_game_state()

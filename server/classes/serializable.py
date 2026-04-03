@@ -88,10 +88,7 @@ class Serializable:
                 if not key.startswith("_") and key not in exclude:
                     # Vérifier si la valeur est sérialisable
                     if self._is_serializable(value):
-                        if (
-                            key not in self._previous
-                            or self._previous[key] != value
-                        ):
+                        if key not in self._previous or self._previous[key] != value:
                             self._previous[key] = copy.deepcopy(value)
                             diff[key] = value
 
