@@ -300,7 +300,7 @@ def spawn_element_at_start():
 
 
 def start_game_server(
-    adress=None, port=None, max_player=5, is_solo=False, newGame=False
+    adress=None, port=None, max_player=5, is_solo=False, newGame=True
 ):
     network.start_server(adress, port, max_player=max_player, is_solo=is_solo)
 
