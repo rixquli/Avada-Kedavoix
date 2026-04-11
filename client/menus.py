@@ -13,11 +13,14 @@ Ex:
 import os
 import sys
 
+import pygame
+
 from client.ui.dialogBox import DialogBox
+from client.ui.eventListener import UIEventListener
 from client.ui.image import Image
 
 from client.ui.image import Image
-
+from client.ui.rect import UIRect
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -282,6 +285,17 @@ def dialog(menu_name):
     return elements
 
 
+def settings(menu_name):
+    return [
+        UIRect(
+            fullscreen=True,
+            color=(0, 0, 0, 125),
+            position=(0, 0),
+            anchor=Anchor.CENTER,
+        ),
+    ]
+
+
 # Contient la liste de tout les menus accessibles dupuis GameManager().ui
 # Pour en rajouter suivre les exemples deja presents
 Menus = [
@@ -306,6 +320,11 @@ Menus = [
     {
         "name": "dialog",
         "content": dialog,
+        "is_showing": False,
+    },
+    {
+        "name": "settings",
+        "content": settings,
         "is_showing": False,
     },
 ]
