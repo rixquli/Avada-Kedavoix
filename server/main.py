@@ -32,6 +32,7 @@ from server.message import Message, MessageType
 network = NetworkManager()
 network.setup(is_server=True)
 saver = Saver(network)
+SAVE_DELAY = 60  # delay de sauvegarde en seconde
 
 
 def handle_client(conn: socket.socket, player_id: str):
@@ -182,7 +183,7 @@ def broadcast_game_state():
 
         time.sleep(1 / 30)  # 30 fois par seconde
         counter += 1
-        if counter > 30:
+        if counter > 30 * SAVE_DELAY:
             counter = 0
             saver.save()
 
