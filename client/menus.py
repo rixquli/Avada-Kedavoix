@@ -13,6 +13,7 @@ Ex:
 import os
 import sys
 
+from client.ui.dropdown import DropDownMenu
 import pygame
 
 from client.ui.dialogBox import DialogBox
@@ -291,6 +292,16 @@ def settings(menu_name):
             fullscreen=True,
             color=(0, 0, 0, 125),
             position=(0, 0),
+            anchor=Anchor.CENTER,
+        ),
+        DropDownMenu(
+            "Test",
+            position=(0, 200),
+            values=[("1", None), ("2", None)],
+            width=250,
+            heigth=75,
+            values_width=250,
+            values_heigth=75,
             anchor=Anchor.CENTER,
         ),
     ]
