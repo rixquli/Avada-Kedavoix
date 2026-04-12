@@ -4,6 +4,8 @@ import pygame
 
 
 class ImageTool:
+    load_buffer = {}
+
     @staticmethod
     def _resolve_texture_path(texture_path: str) -> str:
         """
@@ -29,6 +31,10 @@ class ImageTool:
             path: chemin vers l'image
             size: taille souhaitée, (0, 0) pour garder la taille originale
         """
+        img_buffer = ImageTool.load_buffer.get(path, None)
+        if img_buffer:
+            return img_buffer
+
         path = ImageTool._resolve_texture_path(path)
         img = pygame.image.load(path)
         if size and size[0] > 0 and size[1] > 0:
@@ -37,6 +43,7 @@ class ImageTool:
             img = img.convert_alpha()
         except Exception:
             img = img.convert()
+        ImageTool.load_buffer[path] = img
         return img
 
     @staticmethod
