@@ -15,7 +15,6 @@ import sys
 
 from client.classes.clientOnly.dungeonEntrance import DungeonEntrance
 from client.layerList import Layer
-from server.world_elements import dungeonWalls
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -78,6 +77,9 @@ def handle_client(conn: socket.socket, player_id: str):
                     if player:
                         player.heal()
                 case MessageType.CHANGE_LAYER:
+                    player = network.game_state.players.get(player_id)
+                    if player:
+                        player.world_layer = msg.data["layer"]
                     layer = msg.data["layer"] - 2
                     if network.Dungeon.dungeonWalls[layer] is None:
                         result = network.Dungeon.generate_layer(layer)
@@ -98,6 +100,12 @@ def handle_client(conn: socket.socket, player_id: str):
                                     wall
                                 )
                             network.enemySpawner.dungeon_generate(layer + 2, layer)
+                    layer_state = network.game_state.get_game_state(
+                        diff=False, layer=msg.data["layer"]
+                    )
+                    msg = Message(MessageType.GAME_STATE, layer_state)
+                    data = msg.serialize()
+                    conn.sendall(data)
 
         except Exception as e:
             print(f"Error with player {player_id}: {e}")
@@ -134,7 +142,9 @@ def handle_conn():
             initial_msg = Message(MessageType.CONNECT, {"player_id": player_id})
             conn.sendall(initial_msg.serialize())
 
-            full_state = network.game_state.get_game_state(diff=False)
+            full_state = network.game_state.get_game_state(
+                diff=False, layer=network.game_state.players.get(player_id).world_layer
+            )
             full_msg = Message(MessageType.GAME_STATE, full_state)
             conn.sendall(full_msg.serialize())
             full_msg = Message(MessageType.DUNGEON_DATA, network.Dungeon.dungeonWalls)
@@ -161,12 +171,20 @@ def broadcast_game_state():
                 layersToRender.append(layer)
                 network.game_state.update_all_layer(layer)
 
-        state = network.game_state.get_game_state(diff=True)
-        msg = Message(MessageType.GAME_STATE, state)
+        state_by_layer = {}
+        for layer in layersToRender:
+            state_by_layer[layer] = network.game_state.get_game_state(
+                diff=True, layer=layer
+            )
+        # state = network.game_state.get_game_state(diff=True)
 
-        data = msg.serialize()
         for conn in list(network.player_connections.keys()):
             try:
+                player_layer = network.game_state.players.get(
+                    network.player_connections[conn]
+                ).world_layer
+                msg = Message(MessageType.GAME_STATE, state_by_layer[player_layer])
+                data = msg.serialize()
                 conn.sendall(data)
             except:
                 pass
@@ -267,7 +285,9 @@ def spawn_element_at_start():
             wall
         )
     """
-    for i, e in enumerate(dungeonWalls.dungeonWalls):
+    network.Dungeon.generate_all_layer()
+    print(network.Dungeon.dungeonWalls[0])
+    for i, e in enumerate(network.Dungeon.dungeonWalls):
         print(i, e)
         for data in e.walls:
             wall = Wall(

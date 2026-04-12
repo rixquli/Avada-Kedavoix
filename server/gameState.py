@@ -19,7 +19,6 @@ Pour résumer GameState = Une copie du monde partagée entre clients et serveur
 import os
 import sys
 
-
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from client.classes.wall import Wall
@@ -52,13 +51,13 @@ class GameState:
             self.walls,
         ]
 
-    def get_game_state(self, diff=True):
+    def get_game_state(self, diff=True, layer=None):
         """Retourne l'état complet du jeu pour le broadcast"""
-        players_state = self.players.to_dict(diff)
-        spells_state = self.spells.to_dict(diff)
-        enemies_state = self.enemies.to_dict(diff)
-        pnjs_state = self.pnjs.to_dict(diff)
-        walls_state = self.walls.to_dict(diff)
+        players_state = self.players.to_dict(diff, layer)
+        spells_state = self.spells.to_dict(diff, layer)
+        enemies_state = self.enemies.to_dict(diff, layer)
+        pnjs_state = self.pnjs.to_dict(diff, layer)
+        walls_state = self.walls.to_dict(diff, layer)
 
         return {
             "players": players_state,
@@ -75,12 +74,15 @@ class GameState:
             res.append((entities_manager.entity_type, entities_manager.get_list()))
         return res
 
-    def get_entities_list_layer(self, layer) -> list[tuple[type[Serializable], list[Serializable]]]:
+    def get_entities_list_layer(
+        self, layer
+    ) -> list[tuple[type[Serializable], list[Serializable]]]:
         res = []
         for entities_manager in self.all_entities_manager:
-            res.append((entities_manager.entity_type, entities_manager.get_list_layer(layer)))
+            res.append(
+                (entities_manager.entity_type, entities_manager.get_list_layer(layer))
+            )
         return res
-
 
     def update_all(self):
         """Update all entities here"""
@@ -134,21 +136,24 @@ class GameState:
                 pnj.server_update()
 
         # Collision handler (events)
-        self.collision_manager.handle_collision(entity_list=self.get_entities_list_layer(layer))
-
+        self.collision_manager.handle_collision(
+            entity_list=self.get_entities_list_layer(layer)
+        )
 
     # Executer coté client
-    def apply_state(self, state, my_player_id=None):
+    def apply_state(self, state, my_player_id=None, layer=None):
         """Applique les mises à jour venant du serveur"""
-        self.apply_state_for(state, "players", self.players, my_player_id=my_player_id)
-        self.apply_state_for(state, "enemies", self.enemies)
-        self.apply_state_for(state, "spells", self.spells)
-        self.apply_state_for(state, "pnjs", self.pnjs)
-        self.apply_state_for(state, "walls", self.walls)
+        self.apply_state_for(
+            state, "players", self.players, my_player_id=my_player_id, layer=layer
+        )
+        self.apply_state_for(state, "enemies", self.enemies, layer=layer)
+        self.apply_state_for(state, "spells", self.spells, layer=layer)
+        self.apply_state_for(state, "pnjs", self.pnjs, layer=layer)
+        self.apply_state_for(state, "walls", self.walls, layer=layer)
 
         self.collision_manager.update_collision_group("obstacle", [self.walls])
 
-    def apply_state_for(self, state, name, entities, my_player_id=None):
+    def apply_state_for(self, state, name, entities, my_player_id=None, layer=None):
         for id, data in state.get(name, {}).items():
             if str(id) not in entities.entities:
                 # si l'entité n'existe pas localement on l'ajoute

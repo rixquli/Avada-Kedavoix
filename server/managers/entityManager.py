@@ -8,7 +8,6 @@ import sys
 from typing import List, Tuple, Type
 import uuid
 
-
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from server.classes.serializable import Serializable
@@ -70,7 +69,6 @@ class EntityManager:
         """
         return [e for e in self.get_list() if e.id != id and e.world_layer == layer]
 
-
     def get_all(self):
         return self.entities
 
@@ -78,7 +76,9 @@ class EntityManager:
         return list(self.entities.values())
 
     def get_list_layer(self, layer):
-        return [entity for entity in self.entities.values() if entity.world_layer == layer]
+        return [
+            entity for entity in self.entities.values() if entity.world_layer == layer
+        ]
 
     def filter_by(self, **kwargs) -> List[Serializable]:
         result = []
@@ -127,8 +127,12 @@ class EntityManager:
         else:
             raise TypeError(f"entity_data doit être un Spell ou un dict")
 
-    def to_dict(self, diff):
-        return {eid: entity.to_dict(diff) for eid, entity in self.entities.items()}
+    def to_dict(self, diff, layer):
+        return {
+            eid: entity.to_dict(diff)
+            for eid, entity in self.entities.items()
+            if not layer or entity.world_layer == layer
+        }
 
     def diff_to_dict(self):
         return {eid: entity.diff_to_dict() for eid, entity in self.entities.items()}
