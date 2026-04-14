@@ -23,6 +23,7 @@ class Button:
         font_size=35,
         font_name="Corbel",
         anchor: Anchor = Anchor.TOPLEFT,
+        image_path=None,
     ):
         self.width = width
         self.height = height
@@ -36,6 +37,8 @@ class Button:
         self.font = pygame.font.SysFont(self.font_name, self.font_size)
         self.text = self.font.render(text, True, self.color)
         self.anchor = anchor
+        self.image_path = image_path
+        self.image = None
 
         # self.position = position par rapport au point d'ancrage
         # actual_position = la position du rendu de l'objet dans le monde
@@ -46,6 +49,9 @@ class Button:
         self.buttonRect = pygame.Rect(
             self.actual_position[0], self.actual_position[1], self.width, self.height
         )
+        if self.image_path:
+            self.image = pygame.image.load(self.image_path).convert_alpha()
+            self.image = pygame.transform.scale(self.image, (self.width, self.height))
 
     def update_position(self):
         self.actual_position = UIUtils.calculate_position_with_anchor(
@@ -68,18 +74,22 @@ class Button:
 
         pygame.draw.rect(window, (255, 255, 255), self.buttonRect, 2, border_radius=10)
 
-        text_x = (
-            self.actual_position[0]
-            + self.buttonRect.width / 2
-            - self.text.get_rect().width / 2
-        )
-        text_y = (
-            self.actual_position[1]
-            + self.buttonRect.height / 2
-            - self.text.get_rect().height / 2
-        )
+        if self.image:
+            img_rect = self.image.get_rect(center=self.buttonRect.center)
+            window.blit(self.image, img_rect)
+        else:
+            text_x = (
+                self.actual_position[0]
+                + self.buttonRect.width / 2
+                - self.text.get_rect().width / 2
+            )
+            text_y = (
+                self.actual_position[1]
+                + self.buttonRect.height / 2
+                - self.text.get_rect().height / 2
+            )
 
-        window.blit(self.text, [text_x, text_y])
+            window.blit(self.text, [text_x, text_y])
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:

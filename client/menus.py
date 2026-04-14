@@ -266,9 +266,19 @@ def hud(menu_name):
         screen_width=game_manager.ui.screen.get_width(),
         screen_height=game_manager.ui.screen.get_height(),
     )
+    settings_button = Button(
+        "",
+        50,
+        50,
+        (-10, 10),
+        onclickFunction=open_settings,
+        anchor=Anchor.TOPRIGHT,
+        image_path="client/ressources/UI/settings_icon.png",
+    )
     elements.append(background)
     elements.append(avatar)
     elements.append(hotbar)
+    elements.append(settings_button)
     return elements
 
 
@@ -312,6 +322,10 @@ def settings(menu_name):
             anchor=Anchor.CENTER,
         ),
     ]
+
+
+def open_settings():
+    print("Opening settings menu")
 
 
 # Contient la liste de tout les menus accessibles dupuis GameManager().ui
