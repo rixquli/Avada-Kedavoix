@@ -13,11 +13,15 @@ Ex:
 import os
 import sys
 
+from client.ui.dropdown import DropDownMenu
+import pygame
+
 from client.ui.dialogBox import DialogBox
+from client.ui.eventListener import UIEventListener
 from client.ui.image import Image
 
 from client.ui.image import Image
-
+from client.ui.rect import UIRect
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -26,6 +30,7 @@ from client.gameManager import GameManager
 from client.ui.button import Button
 from client.ui.text import Text
 from client.ui.textInput import TextInput
+from client.ui.hotbar import Hotbar
 
 # Récupere l'instance du GameManager
 game_manager = GameManager()
@@ -218,6 +223,7 @@ def press_e(menu_name):
 
 
 def hud(menu_name):
+    print("Updating HUD")  # Debug print to check if the function is called
     elements = []
     player = game_manager.client_manager.get_player()
 
@@ -260,8 +266,23 @@ def hud(menu_name):
         position=(15, -20),
         anchor=Anchor.BOTTOMLEFT,
     )
+    hotbar = Hotbar(
+        screen_width=game_manager.ui.screen.get_width(),
+        screen_height=game_manager.ui.screen.get_height(),
+    )
+    settings_button = Button(
+        "",
+        50,
+        50,
+        (-10, 10),
+        onclickFunction=open_settings,
+        anchor=Anchor.TOPRIGHT,
+        image_path="client/ressources/UI/settings_icon.png",
+    )
     elements.append(background)
     elements.append(avatar)
+    elements.append(hotbar)
+    elements.append(settings_button)
     return elements
 
 
@@ -284,6 +305,31 @@ def dialog(menu_name):
     elements.append(dialog)
 
     return elements
+
+
+def settings(menu_name):
+    return [
+        UIRect(
+            fullscreen=True,
+            color=(0, 0, 0, 125),
+            position=(0, 0),
+            anchor=Anchor.CENTER,
+        ),
+        DropDownMenu(
+            "Test",
+            position=(0, 200),
+            values=[("1", None), ("2", None)],
+            width=250,
+            heigth=75,
+            values_width=250,
+            values_heigth=75,
+            anchor=Anchor.CENTER,
+        ),
+    ]
+
+
+def open_settings():
+    print("Opening settings menu")
 
 
 # Contient la liste de tout les menus accessibles dupuis GameManager().ui
@@ -310,6 +356,11 @@ Menus = [
     {
         "name": "dialog",
         "content": dialog,
+        "is_showing": False,
+    },
+    {
+        "name": "settings",
+        "content": settings,
         "is_showing": False,
     },
 ]
