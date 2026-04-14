@@ -26,6 +26,7 @@ from client.gameManager import GameManager
 from client.ui.button import Button
 from client.ui.text import Text
 from client.ui.textInput import TextInput
+from client.ui.hotbar import Hotbar
 
 # Récupere l'instance du GameManager
 game_manager = GameManager()
@@ -214,6 +215,7 @@ def press_e(menu_name):
 
 
 def hud(menu_name):
+    print("Updating HUD")  # Debug print to check if the function is called
     elements = []
     player = game_manager.client_manager.get_player()
 
@@ -256,8 +258,13 @@ def hud(menu_name):
         position=(15, -20),
         anchor=Anchor.BOTTOMLEFT,
     )
+    hotbar = Hotbar(
+        screen_width=game_manager.ui.screen.get_width(),
+        screen_height=game_manager.ui.screen.get_height(),
+    )
     elements.append(background)
     elements.append(avatar)
+    elements.append(hotbar)
     return elements
 
 
