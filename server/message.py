@@ -20,6 +20,7 @@ class MessageType(Enum):
     PLAYER_UPDATE_SPELL = "spell_update"
     PLAYER_HEAL = "player_heal"
     DUNGEON_DATA = "dungeon_data"
+    CREATE_DOOR = "create_door"
     CHANGE_LAYER = "change_layer"
 
 
@@ -50,6 +51,9 @@ class SpellUpdateData(TypedDict):
 class ChangeLayerData(TypedDict):
     layer: int
 
+class CreateDoorData(TypedDict):
+    layer:int
+    tp_pos:tuple[int, int]
 
 class MessageBase(TypedDict):
     type: MessageType
@@ -87,6 +91,10 @@ class SpellUpdateMessage(MessageBase):
 class ChangeLayerMessage(MessageBase):
     type: Literal[MessageType.CHANGE_LAYER]
     data: ChangeLayerData
+
+class CreateDoorMessage(MessageBase):
+    type: Literal[MessageType.CREATE_DOOR]
+    data: CreateDoorData
 
 
 MessageTyped = Union[
@@ -134,6 +142,8 @@ class Message:
             case MessageType.PLAYER_HEAL:
                 return cast(MessageTyped, {"type": self.type, "data": self.data})
             case MessageType.DUNGEON_DATA:
+                return cast(MessageTyped, {"type": self.type, "data": self.data})
+            case MessageType.CREATE_DOOR:
                 return cast(MessageTyped, {"type": self.type, "data": self.data})
             case MessageType.CHANGE_LAYER:
                 return cast(MessageTyped, {"type": self.type, "data": self.data})

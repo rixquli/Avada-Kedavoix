@@ -76,24 +76,7 @@ class ClientManager:
                             self.game_manager.ui.show("hud")
                             self.game_manager.ui.refresh("hud")
                     case MessageType.DUNGEON_DATA:
-                        for i, e in enumerate(msg.data):
-                            if e is not None:
-                                self.game_manager.clientsElements.add(
-                                    DungeonEntrance(
-                                        e.teleport_pos[0],
-                                        e.teleport_pos[1],
-                                        world_layer=Layer.DUNGEON_BASE.value + i,
-                                        target_world_layer=Layer.DUNGEON_BASE.value + i + 1,
-                                    )
-                                )
-                                self.game_manager.clientsElements.add(
-                                    DungeonEntrance(
-                                        e.teleport_pos[0],
-                                        e.teleport_pos[1],
-                                        world_layer=Layer.DUNGEON_BASE.value + i + 1,
-                                        target_world_layer=Layer.DUNGEON_BASE.value + i,
-                                    )
-                                )
+                        for i, _ in enumerate(msg.data):
                             self.game_manager.maps.append(
                                 MapBackground(
                                     os.path.normpath(
@@ -107,6 +90,26 @@ class ClientManager:
                                     world_layer=Layer.DUNGEON_BASE.value + i,
                                 )
                             )
+                    case MessageType.CREATE_DOOR:
+                        layer = msg.data["layer"]
+                        tp_pos = msg.data["tp_pos"]
+                        self.game_manager.clientsElements.add(
+                            DungeonEntrance(
+                                tp_pos[0],
+                                tp_pos[1],
+                                world_layer=Layer.DUNGEON_BASE.value + layer,
+                                target_world_layer=Layer.DUNGEON_BASE.value + layer + 1,
+                            )
+                        )
+                        self.game_manager.clientsElements.add(
+                            DungeonEntrance(
+                                tp_pos[0],
+                                tp_pos[1],
+                                world_layer=Layer.DUNGEON_BASE.value + layer + 1,
+                                target_world_layer=Layer.DUNGEON_BASE.value + layer,
+                            )
+                        )
+
 
             except Exception as e:
                 print(f"Error while receiving msg: {e}")

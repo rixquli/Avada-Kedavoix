@@ -99,6 +99,11 @@ def handle_client(conn: socket.socket, player_id: str):
                                 )
                             network.enemySpawner.dungeon_generate(layer + 2, layer)
 
+                            full_msg = Message(MessageType.CREATE_DOOR, {"layer":layer, "tp_pos":network.Dungeon.dungeonWalls[layer].teleport_pos})
+                            conn.sendall(full_msg.serialize())
+
+
+
         except Exception as e:
             print(f"Error with player {player_id}: {e}")
             break
