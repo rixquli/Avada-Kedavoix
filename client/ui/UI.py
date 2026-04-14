@@ -14,6 +14,8 @@ Ex:
 !ATTENTION
 """
 
+import pygame
+
 
 class Menu:
     def __init__(self, name, is_showing):
@@ -154,6 +156,8 @@ class UI:
                 menu.update(self.screen)
 
     def handle_event(self, event):
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            self.toggle("settings")
         for menu_name in self.get_visible_menus():
             self.menus[menu_name].handle_event(event)
 
