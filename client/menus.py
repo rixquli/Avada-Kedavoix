@@ -18,9 +18,9 @@ from client.ui.image import Image
 
 from client.ui.image import Image
 
-
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from client.ui.Loading.LoadingBar import LoadingBar
 from client.enums.anchor import Anchor
 from client.gameManager import GameManager
 from client.ui.button import Button
@@ -286,6 +286,10 @@ def dialog(menu_name):
     return elements
 
 
+def loading(menu_name):
+    return [LoadingBar(1000, 100, (0, 0), anchor=Anchor.CENTER)]
+
+
 # Contient la liste de tout les menus accessibles dupuis GameManager().ui
 # Pour en rajouter suivre les exemples deja presents
 Menus = [
@@ -310,6 +314,11 @@ Menus = [
     {
         "name": "dialog",
         "content": dialog,
+        "is_showing": False,
+    },
+    {
+        "name": "loading",
+        "content": loading,
         "is_showing": False,
     },
 ]

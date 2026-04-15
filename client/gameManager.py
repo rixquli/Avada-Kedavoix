@@ -93,6 +93,7 @@ class GameManager:
         self.clock = pygame.time.Clock()
         self.clock.tick(60)
         self.running = True
+        self.hold_for_loading_layer = False
 
         self.world_layer = Layer.OVERWORLD.value
         self.layer_switch_cooldown_ms = 200
@@ -157,9 +158,12 @@ class GameManager:
 
         self.screen.fill((0, 0, 0))  # Dessine le fond noir
 
-        self.local_update()  # Met a jour les elements qui se mette a jour localement comme le joueur qui ses propres mouvements
-        self.draw_elements()  # Dessine les elements de la scene
-        self.ui.update()  # Dessine les elements des interfaces
+        if self.hold_for_loading_layer:
+            self.ui.loading()
+        else:
+            self.local_update()  # Met a jour les elements qui se mette a jour localement comme le joueur qui ses propres mouvements
+            self.draw_elements()  # Dessine les elements de la scene
+            self.ui.update()  # Dessine les elements des interfaces
 
         pygame.display.flip()  # Met a jour l'ecran
 

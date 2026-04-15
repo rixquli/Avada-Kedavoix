@@ -169,6 +169,34 @@ class GameState:
                 if my_player_id and str(id) == str(my_player_id):
                     # Pour le joueur local, on garde x, y, vx, vy calculés localement
                     # On met à jour seulement les autres propriétés
+                    # player = entities.get(my_player_id)
+                    # if player:
+                    # distance = (
+                    #     (data.get("x", 0) - player.x) ** 2
+                    #     + (data.get("y", 0) - player.y) ** 2
+                    # ) ** 0.5
+                    # if (
+                    #     distance > 14
+                    # ):  #! Si la difference avec les coordonnées actuel est trop grande alors on ecrase la position
+                    #     print("DISTANCE > 14", distance)
+                    #     filtered_data = {
+                    #         k: v
+                    #         for k, v in data.items()
+                    #         if k
+                    #         not in [
+                    #             # "x",
+                    #             # "y",
+                    #             "vx",
+                    #             "vy",
+                    #             "display_x",
+                    #             "display_y",
+                    #             "target_x",
+                    #             "target_y",
+                    #         ]
+                    #     }
+                    #     if filtered_data:
+                    #         entities.update(str(id), filtered_data)
+                    # else:
                     filtered_data = {
                         k: v
                         for k, v in data.items()

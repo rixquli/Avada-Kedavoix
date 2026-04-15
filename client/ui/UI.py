@@ -183,3 +183,8 @@ class UI:
             components = self._resolve_menu_components(menu, name)
             for component in components:
                 self.addTo(name, component)
+
+    def loading(self):
+        loading_menu = self.menus.get("loading", None)
+        if loading_menu:
+            loading_menu.update(self.screen)

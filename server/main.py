@@ -80,30 +80,10 @@ def handle_client(conn: socket.socket, player_id: str):
                     player = network.game_state.players.get(player_id)
                     if player:
                         player.world_layer = msg.data["layer"]
-                    layer = msg.data["layer"] - 2
-                    if network.Dungeon.dungeonWalls[layer] is None:
-                        result = network.Dungeon.generate_layer(layer)
-                        if result == 0:
-                            for data in network.Dungeon.dungeonWalls[layer].walls:
-                                wall = Wall(
-                                    data[0],
-                                    data[1],
-                                    data[2],
-                                    data[3],
-                                    layer + 2,
-                                    texture_path=None,
-                                )
-                                network.game_state.walls.addEntity(wall)
-                                network.game_state.collision_manager.client_collider_groups[
-                                    "obstacle"
-                                ].add(
-                                    wall
-                                )
-                            network.enemySpawner.dungeon_generate(layer + 2, layer)
                     layer_state = network.game_state.get_game_state(
                         diff=False, layer=msg.data["layer"]
                     )
-                    msg = Message(MessageType.GAME_STATE, layer_state)
+                    msg = Message(MessageType.CHANGE_LAYER, layer_state)
                     data = msg.serialize()
                     conn.sendall(data)
 
@@ -180,16 +160,50 @@ def broadcast_game_state():
 
         for conn in list(network.player_connections.keys()):
             try:
-                player_layer = network.game_state.players.get(
+                player = network.game_state.players.get(
                     network.player_connections[conn]
-                ).world_layer
-                msg = Message(MessageType.GAME_STATE, state_by_layer[player_layer])
-                data = msg.serialize()
-                conn.sendall(data)
+                )
+                player_layer = player.world_layer
+                pending_event = player.pending_network_event
+                if pending_event:
+                    if pending_event["type"] == "respawn":
+                        player.world_layer = pending_event["layer"]
+                        layer_state = network.game_state.get_game_state(
+                            diff=False, layer=pending_event["layer"]
+                        )
+                        msg = Message(MessageType.PLAYER_RESPAWN, layer_state)
+                        data = msg.serialize()
+                        conn.sendall(data)
+                    player.pending_network_event = None
+                else:
+                    msg = Message(MessageType.GAME_STATE, state_by_layer[player_layer])
+                    data = msg.serialize()
+                    conn.sendall(data)
             except:
                 pass
 
         time.sleep(1 / 30)  # 30 fois par seconde
+
+
+def generate_all_dungeon():
+    network.Dungeon.generate_all_layer()
+    print(network.Dungeon.dungeonWalls[0])
+    for i, e in enumerate(network.Dungeon.dungeonWalls):
+        print(i, e)
+        for data in e.walls:
+            wall = Wall(
+                data[0],
+                data[1],
+                data[2],
+                data[3],
+                Layer.DUNGEON_BASE.value + i,
+                texture_path=None,
+            )
+            network.game_state.walls.addEntity(wall)
+            network.game_state.collision_manager.client_collider_groups["obstacle"].add(
+                wall
+            )
+        network.enemySpawner.dungeon_generate(Layer.DUNGEON_BASE.value + i, i)
 
 
 # TODO: Enlever cette fonction elle ne doit rester que en développement ou etre adapté
@@ -284,6 +298,7 @@ def spawn_element_at_start():
         network.game_state.collision_manager.client_collider_groups["obstacle"].add(
             wall
         )
+    start_new_thread(generate_all_dungeon, ())
     """
     network.Dungeon.generate_all_layer()
     print(network.Dungeon.dungeonWalls[0])

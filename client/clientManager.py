@@ -15,7 +15,6 @@ from _thread import *
 
 from client.layerList import Layer
 
-
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from client.classes.clientOnly.dungeonEntrance import DungeonEntrance
@@ -75,6 +74,19 @@ class ClientManager:
                             self.firstGameStateReceived = False
                             self.game_manager.ui.show("hud")
                             self.game_manager.ui.refresh("hud")
+                    case MessageType.CHANGE_LAYER:
+                        self.game_state.apply_state(
+                            msg.data, my_player_id=self.my_player_id
+                        )
+                        self.game_manager.hold_for_loading_layer = False
+                    case MessageType.PLAYER_RESPAWN:
+                        self.game_state.apply_state(
+                            msg.data, my_player_id=self.my_player_id
+                        )
+                        self.game_manager.hold_for_loading_layer = False
+                        player = self.game_state.players.get(self.my_player_id)
+                        player.x = 0
+                        player.y = 0
                     case MessageType.DUNGEON_DATA:
                         for i, e in enumerate(msg.data):
                             if e is not None:
@@ -83,7 +95,9 @@ class ClientManager:
                                         e.teleport_pos[0],
                                         e.teleport_pos[1],
                                         world_layer=Layer.DUNGEON_BASE.value + i,
-                                        target_world_layer=Layer.DUNGEON_BASE.value + i + 1,
+                                        target_world_layer=Layer.DUNGEON_BASE.value
+                                        + i
+                                        + 1,
                                     )
                                 )
                                 self.game_manager.clientsElements.add(
@@ -141,10 +155,8 @@ class ClientManager:
         self.network.send_message(msg)
 
     def send_changing_layer(self, layer):
-        msg = Message(
-            MessageType.CHANGE_LAYER,
-            {"layer": layer}
-        )
+        self.game_manager.hold_for_loading_layer = True
+        msg = Message(MessageType.CHANGE_LAYER, {"layer": layer})
         self.network.send_message(msg)
 
     # Start Game Part
