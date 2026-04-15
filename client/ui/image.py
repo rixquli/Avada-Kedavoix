@@ -1,7 +1,9 @@
 import pygame
 import sys
 import os
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from client.Utils.ImageTool import ImageTool
 from client.enums.anchor import Anchor
 from client.ui.uiUtils import UIUtils
 
@@ -19,8 +21,7 @@ class Image:
         self.anchor = anchor
 
         # Charger d'abord l'image pour pouvoir utiliser sa taille native si besoin.
-        path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", path))
-        loaded_image = pygame.image.load(path)
+        loaded_image = ImageTool.load(path)
         native_width, native_height = loaded_image.get_size()
         self.width = width if width is not None else native_width
         self.height = height if height is not None else native_height

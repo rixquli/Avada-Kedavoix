@@ -5,6 +5,7 @@ et la gestion des evenements lors du clique
 
 import pygame
 
+from client.Utils.ImageTool import ImageTool
 from client.enums.anchor import Anchor
 from client.ui.uiUtils import UIUtils
 
@@ -50,8 +51,7 @@ class Button:
             self.actual_position[0], self.actual_position[1], self.width, self.height
         )
         if self.image_path:
-            self.image = pygame.image.load(self.image_path).convert_alpha()
-            self.image = pygame.transform.scale(self.image, (self.width, self.height))
+            self.image = ImageTool.load(self.image_path, (self.width, self.height))
 
     def update_position(self):
         self.actual_position = UIUtils.calculate_position_with_anchor(

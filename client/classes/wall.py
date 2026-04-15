@@ -19,7 +19,7 @@ class Wall(Serializable, pygame.sprite.Sprite):
         w,
         h,
         world_layer: int | Layer = Layer.OVERWORLD,
-        texture_path: str | None = "ressources/Dungeon/wall_tile.png",
+        texture_path: str | None = "Dungeon/wall_tile.png",
         tile_size: int | None = 320,
     ):
         super().__init__()

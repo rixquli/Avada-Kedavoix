@@ -104,7 +104,7 @@ def main_menu(menu_name):
         anchor=Anchor.CENTER,
     )
     background = Image(
-        path="client/ressources/UI/main_screen.png",
+        path="UI/main_screen.png",
         width=1920,
         height=1080,
         position=(0, 0),
@@ -157,7 +157,7 @@ def join_menu(menu_name):
 
     return [
         Image(
-            path="client/ressources/UI/main_screen.png",
+            path="UI/main_screen.png",
             width=1920,
             height=1080,
             position=(0, 0),
@@ -243,9 +243,6 @@ def hud(menu_name):
         )
     )
     path = os.path.join(
-        PROJECT_ROOT,
-        "client",
-        "ressources",
         "wizzard-test",
         "PNG",
         wizard_folder,
@@ -253,7 +250,7 @@ def hud(menu_name):
         "idle_1.png",
     )
     background = Image(
-        path="client/ressources/UI/background.png",
+        path="UI/background.png",
         width=170,
         height=170,
         position=(5, -5),
@@ -277,7 +274,7 @@ def hud(menu_name):
         (-10, 10),
         onclickFunction=open_settings,
         anchor=Anchor.TOPRIGHT,
-        image_path="client/ressources/UI/settings_icon.png",
+        image_path="UI/settings_icon.png",
     )
     elements.append(background)
     elements.append(avatar)

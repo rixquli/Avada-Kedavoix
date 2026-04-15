@@ -2,6 +2,9 @@ from pathlib import Path
 
 import pygame
 
+CLIENT_ROOT = Path(__file__).resolve().parents[1]
+ASSETS_ROOT = CLIENT_ROOT / "ressources"
+
 
 class ImageTool:
     @staticmethod
@@ -10,16 +13,20 @@ class ImageTool:
         Résout un chemin de texture de façon robuste, quel que soit l'OS
         et le dossier courant d'exécution.
         """
+        for prefix in ("client/ressources/", "ressources/"):
+            if texture_path.startswith(prefix):
+                texture_path = texture_path[len(prefix) :]
+                break
+
         path = Path(texture_path)
         if path.is_file():
             return str(path)
 
-        client_root = Path(__file__).resolve().parents[1]
-        candidate = (client_root / texture_path).resolve()
+        candidate = (ASSETS_ROOT / texture_path).resolve()
         if candidate.is_file():
             return str(candidate)
-
-        return texture_path
+        else:
+            raise FileNotFoundError(f"Asset introuvable: {candidate}")
 
     @staticmethod
     def load(path: str, size: tuple[int, int] = (0, 0)) -> pygame.Surface:
