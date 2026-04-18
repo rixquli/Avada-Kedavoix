@@ -7,6 +7,14 @@ class ImageTool:
     load_buffer = {}
 
     @staticmethod
+    def preload_images():
+        files = sorted(Path("client/ressources").rglob("*.png")) + sorted(
+            Path("client/ressources").rglob("*.jpg")
+        )
+        for img in files:
+            ImageTool.load(img.relative_to("client"))
+
+    @staticmethod
     def _resolve_texture_path(texture_path: str) -> str:
         """
         Résout un chemin de texture de façon robuste, quel que soit l'OS
@@ -33,6 +41,8 @@ class ImageTool:
         """
         img_buffer = ImageTool.load_buffer.get(path, None)
         if img_buffer:
+            if size and size[0] > 0 and size[1] > 0:
+                return pygame.transform.smoothscale(img_buffer, size)
             return img_buffer
 
         path = ImageTool._resolve_texture_path(path)

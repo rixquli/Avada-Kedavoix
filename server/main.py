@@ -187,9 +187,7 @@ def broadcast_game_state():
 
 def generate_all_dungeon():
     network.Dungeon.generate_all_layer()
-    print(network.Dungeon.dungeonWalls[0])
     for i, e in enumerate(network.Dungeon.dungeonWalls):
-        print(i, e)
         for data in e.walls:
             wall = Wall(
                 data[0],

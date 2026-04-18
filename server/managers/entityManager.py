@@ -41,7 +41,7 @@ class EntityManager:
         entities_from_server_list = entities_from_server.keys()
 
         to_delete = []
-        for id, _ in self.get_all().items():
+        for id, _ in list(self.get_all().items()):
             if id not in entities_from_server_list:
                 to_delete.append(id)
 
@@ -77,12 +77,14 @@ class EntityManager:
 
     def get_list_layer(self, layer):
         return [
-            entity for entity in self.entities.values() if entity.world_layer == layer
+            entity
+            for entity in list(self.entities.values())
+            if entity.world_layer == layer
         ]
 
     def filter_by(self, **kwargs) -> List[Serializable]:
         result = []
-        for entity in self.entities.values():
+        for entity in list(self.entities.values()):
             match = all(
                 getattr(entity, key, None) == value for key, value in kwargs.items()
             )
@@ -130,9 +132,11 @@ class EntityManager:
     def to_dict(self, diff, layer):
         return {
             eid: entity.to_dict(diff)
-            for eid, entity in self.entities.items()
+            for eid, entity in list(self.entities.items())
             if not layer or entity.world_layer == layer
         }
 
     def diff_to_dict(self):
-        return {eid: entity.diff_to_dict() for eid, entity in self.entities.items()}
+        return {
+            eid: entity.diff_to_dict() for eid, entity in list(self.entities.items())
+        }

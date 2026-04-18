@@ -2,6 +2,7 @@ import os
 
 import pygame
 
+from client.Utils.ImageTool import ImageTool
 from client.enums.anchor import Anchor
 from client.ui.image import Image
 from client.ui.text import Text
@@ -31,7 +32,7 @@ class DialogBox:
         )
         path = os.path.join(project_root, "client", "ressources", "UI", "DialogBox.png")
 
-        source_image = pygame.image.load(path)
+        source_image = ImageTool.load(path)
         source_width, source_height = source_image.get_size()
         self.width = source_width
         self.height = source_height

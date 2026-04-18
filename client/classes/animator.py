@@ -2,6 +2,7 @@ import time
 import os
 import pygame
 
+from client.Utils.ImageTool import ImageTool
 from server.classes.serializable import Serializable
 
 
@@ -38,13 +39,7 @@ class State(Serializable):
         try:
             for fname in files:
                 path = os.path.join(self.sprites_folder_path, fname)
-                img = pygame.image.load(path)
-                if self.size and self.size[0] > 0 and self.size[1] > 0:
-                    img = pygame.transform.smoothscale(img, self.size)
-                try:
-                    img = img.convert_alpha()
-                except Exception:
-                    img = img.convert()
+                img = ImageTool.load(path, self.size)
                 if img is not None:
                     sprites.append(img)
         except Exception:
