@@ -61,7 +61,7 @@ class Spell(Serializable):
         # Pour l'interpolation
         self.target_x = float(x)
         self.target_y = float(y)
-        self.interpolation_speed = 0.1
+        self.interpolation_speed = 0.5
         self.min_threshold = 0.01
 
         self.hitbox_size = (radius, radius)
@@ -205,10 +205,19 @@ class Spell(Serializable):
     def get_spell_type(spell_type: SpellList, dmg_mult: int = 1, **keyargs):
         match spell_type:
             case SpellList.FIREBALL:
-                return Spell(radius=10, color=(255, 0, 0), dmg = 10 * dmg_mult, **keyargs)
+                return Spell(radius=10, color=(255, 0, 0), dmg=10 * dmg_mult, **keyargs)
             case SpellList.ICE:
                 return Spell(radius=15, color=(0, 0, 255), **keyargs)
             case SpellList.PUNCH:
-                return Spell(radius=15, color=(200, 200, 200), speed=15, lifetime=0.25, dmg = 15 * dmg_mult, **keyargs)
+                return Spell(
+                    radius=15,
+                    color=(200, 200, 200),
+                    speed=15,
+                    lifetime=0.25,
+                    dmg=15 * dmg_mult,
+                    **keyargs,
+                )
             case _:
-                return Spell(radius=8, color=(50, 150, 255), dmg = 5 * dmg_mult, **keyargs)
+                return Spell(
+                    radius=8, color=(50, 150, 255), dmg=5 * dmg_mult, **keyargs
+                )
