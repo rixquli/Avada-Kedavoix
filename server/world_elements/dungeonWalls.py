@@ -356,21 +356,27 @@ class Dungeon:
     def generate_all_layer(self):
         for i in range(self.nb_level):
             level = self.generator.generate_level(required_point=self.required_point[i])
-            self.dungeonWalls.append(DungeonLevel(level.walls, level.teleport_pos))
+            self.dungeonWalls[i] = DungeonLevel(level.walls, level.teleport_pos)
             self.required_point[i + 1] = level.teleport_pos
 
-    def generate_layer(self, level_value:int):
+    def generate_layer(self, level_value: int):
         if level_value > 0 and self.dungeonWalls[level_value - 1] == None:
-            print(f"impossible to generate layer: {level_value} (precedent does not exist)")
+            print(
+                f"impossible to generate layer: {level_value} (precedent does not exist)"
+            )
             return 1
         if self.dungeonWalls[level_value] != None:
             print(f"layer: {level_value} already generated")
             return 2
         if level_value >= self.nb_level or level_value < 0:
-            print(f"impossible to generate layer: {level_value} (layer to big or to small)")
+            print(
+                f"impossible to generate layer: {level_value} (layer to big or to small)"
+            )
             return 3
 
-        level = self.generator.generate_level(required_point=self.required_point[level_value])
+        level = self.generator.generate_level(
+            required_point=self.required_point[level_value]
+        )
         self.dungeonWalls[level_value] = level
-        self.required_point[level_value+1] = level.teleport_pos
+        self.required_point[level_value + 1] = level.teleport_pos
         return 0

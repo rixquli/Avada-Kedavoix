@@ -21,6 +21,7 @@ class MessageType(Enum):
     PLAYER_HEAL = "player_heal"
     DUNGEON_DATA = "dungeon_data"
     CHANGE_LAYER = "change_layer"
+    PLAYER_RESPAWN = "player_respawn"
 
 
 class PlayerUpdateData(TypedDict):
@@ -47,8 +48,16 @@ class SpellCastData(TypedDict):
 class SpellUpdateData(TypedDict):
     cooldown: float
 
+
 class ChangeLayerData(TypedDict):
     layer: int
+
+
+class PlayerRespawnData(TypedDict):
+    x: float
+    y: float
+    layer: int
+    hp: float
 
 
 class MessageBase(TypedDict):
@@ -84,9 +93,15 @@ class SpellUpdateMessage(MessageBase):
     type: Literal[MessageType.PLAYER_UPDATE_SPELL]
     data: SpellUpdateData
 
+
 class ChangeLayerMessage(MessageBase):
     type: Literal[MessageType.CHANGE_LAYER]
     data: ChangeLayerData
+
+
+class PlayerRespawnMessage(MessageBase):
+    type: Literal[MessageType.PLAYER_RESPAWN]
+    data: PlayerRespawnData
 
 
 MessageTyped = Union[
@@ -97,6 +112,7 @@ MessageTyped = Union[
     SpellCastMessage,
     SpellUpdateMessage,
     ChangeLayerMessage,
+    PlayerRespawnMessage,
 ]
 
 
@@ -136,6 +152,8 @@ class Message:
             case MessageType.DUNGEON_DATA:
                 return cast(MessageTyped, {"type": self.type, "data": self.data})
             case MessageType.CHANGE_LAYER:
+                return cast(MessageTyped, {"type": self.type, "data": self.data})
+            case MessageType.PLAYER_RESPAWN:
                 return cast(MessageTyped, {"type": self.type, "data": self.data})
 
         raise ValueError("Unknown message type")

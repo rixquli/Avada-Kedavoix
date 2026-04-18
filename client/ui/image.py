@@ -21,6 +21,9 @@ class Image:
         self.anchor = anchor
 
         # Charger d'abord l'image pour pouvoir utiliser sa taille native si besoin.
+        # path = os.path.abspath(
+        #     os.path.join(os.path.dirname(__file__), "..", "..", path)
+        # )
         loaded_image = ImageTool.load(path)
         native_width, native_height = loaded_image.get_size()
         self.width = width if width is not None else native_width

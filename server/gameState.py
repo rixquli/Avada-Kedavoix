@@ -51,13 +51,13 @@ class GameState:
             self.walls,
         ]
 
-    def get_game_state(self, diff=True):
+    def get_game_state(self, diff=True, layer=None):
         """Retourne l'état complet du jeu pour le broadcast"""
-        players_state = self.players.to_dict(diff)
-        spells_state = self.spells.to_dict(diff)
-        enemies_state = self.enemies.to_dict(diff)
-        pnjs_state = self.pnjs.to_dict(diff)
-        walls_state = self.walls.to_dict(diff)
+        players_state = self.players.to_dict(diff, layer)
+        spells_state = self.spells.to_dict(diff, layer)
+        enemies_state = self.enemies.to_dict(diff, layer)
+        pnjs_state = self.pnjs.to_dict(diff, layer)
+        walls_state = self.walls.to_dict(diff, layer)
 
         return {
             "players": players_state,
@@ -141,24 +141,27 @@ class GameState:
         )
 
     # Executer coté client
-    def apply_state(self, state, my_player_id=None, server=False):
+    def apply_state(self, state, my_player_id=None, layer=None, server=False):
         """Applique les mises à jour venant du serveur"""
         self.apply_state_for(
             state,
             "players",
             self.players,
             my_player_id=my_player_id,
+            layer=layer,
             server=server,
         )
-        self.apply_state_for(state, "enemies", self.enemies, server=server)
-        self.apply_state_for(state, "spells", self.spells, server=server)
-        self.apply_state_for(state, "pnjs", self.pnjs, server=server)
-        self.apply_state_for(state, "walls", self.walls, server=server)
+        self.apply_state_for(state, "enemies", self.enemies, layer=layer, server=server)
+        self.apply_state_for(state, "spells", self.spells, layer=layer, server=server)
+        self.apply_state_for(state, "pnjs", self.pnjs, layer=layer, server=server)
+        self.apply_state_for(state, "walls", self.walls, layer=layer, server=server)
 
         if not server:
             self.collision_manager.update_collision_group("obstacle", [self.walls])
 
-    def apply_state_for(self, state, name, entities, my_player_id=None, server=False):
+    def apply_state_for(
+        self, state, name, entities, my_player_id=None, layer=None, server=False
+    ):
         for id, data in state.get(name, {}).items():
             if server:
                 if str(id) not in entities.entities:
@@ -180,6 +183,34 @@ class GameState:
                 if my_player_id and str(id) == str(my_player_id):
                     # Pour le joueur local, on garde x, y, vx, vy calculés localement
                     # On met à jour seulement les autres propriétés
+                    # player = entities.get(my_player_id)
+                    # if player:
+                    # distance = (
+                    #     (data.get("x", 0) - player.x) ** 2
+                    #     + (data.get("y", 0) - player.y) ** 2
+                    # ) ** 0.5
+                    # if (
+                    #     distance > 14
+                    # ):  #! Si la difference avec les coordonnées actuel est trop grande alors on ecrase la position
+                    #     print("DISTANCE > 14", distance)
+                    #     filtered_data = {
+                    #         k: v
+                    #         for k, v in data.items()
+                    #         if k
+                    #         not in [
+                    #             # "x",
+                    #             # "y",
+                    #             "vx",
+                    #             "vy",
+                    #             "display_x",
+                    #             "display_y",
+                    #             "target_x",
+                    #             "target_y",
+                    #         ]
+                    #     }
+                    #     if filtered_data:
+                    #         entities.update(str(id), filtered_data)
+                    # else:
                     filtered_data = {
                         k: v
                         for k, v in data.items()

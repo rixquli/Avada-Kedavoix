@@ -25,6 +25,7 @@ from client.ui.rect import UIRect
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from client.ui.Loading.LoadingBar import LoadingBar
 from client.enums.anchor import Anchor
 from client.gameManager import GameManager
 from client.ui.button import Button
@@ -304,6 +305,10 @@ def dialog(menu_name):
     return elements
 
 
+def loading(menu_name):
+    return [LoadingBar(1000, 100, (0, 0), anchor=Anchor.CENTER)]
+
+
 def settings(menu_name):
     return [
         UIRect(
@@ -353,6 +358,11 @@ Menus = [
     {
         "name": "dialog",
         "content": dialog,
+        "is_showing": False,
+    },
+    {
+        "name": "loading",
+        "content": loading,
         "is_showing": False,
     },
     {

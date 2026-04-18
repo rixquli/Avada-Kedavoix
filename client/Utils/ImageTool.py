@@ -7,12 +7,24 @@ ASSETS_ROOT = CLIENT_ROOT / "ressources"
 
 
 class ImageTool:
+    load_buffer = {}
+
+    @staticmethod
+    def preload_images():
+        files = sorted(Path("client/ressources").rglob("*.png")) + sorted(
+            Path("client/ressources").rglob("*.jpg")
+        )
+        for img in files:
+            ImageTool.load(str(img.relative_to("client")))
+
     @staticmethod
     def _resolve_texture_path(texture_path: str) -> str:
         """
         Résout un chemin de texture de façon robuste, quel que soit l'OS
         et le dossier courant d'exécution.
         """
+        texture_path = str(texture_path).replace("\\", "/")
+
         for prefix in ("client/ressources/", "ressources/"):
             if texture_path.startswith(prefix):
                 texture_path = texture_path[len(prefix) :]
@@ -36,6 +48,13 @@ class ImageTool:
             path: chemin vers l'image
             size: taille souhaitée, (0, 0) pour garder la taille originale
         """
+        path = str(path)
+        img_buffer = ImageTool.load_buffer.get(path, None)
+        if img_buffer:
+            if size and size[0] > 0 and size[1] > 0:
+                return pygame.transform.smoothscale(img_buffer, size)
+            return img_buffer
+
         path = ImageTool._resolve_texture_path(path)
         img = pygame.image.load(path)
         if size and size[0] > 0 and size[1] > 0:
@@ -44,6 +63,7 @@ class ImageTool:
             img = img.convert_alpha()
         except Exception:
             img = img.convert()
+        ImageTool.load_buffer[path] = img
         return img
 
     @staticmethod

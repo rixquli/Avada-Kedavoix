@@ -129,18 +129,32 @@ class Player(Serializable):
 
         self.healthBar = HealthBar(y_offset=20)
 
-        self.serveur_pos = None
+        # self.serveur_pos = None
+
+        from client.gameManager import GameManager
+
+        self.game_manager = GameManager()
+
+        self.pending_network_event = None
 
     def is_dead(self) -> bool:
         return self.hp <= 0
 
     def take_dmg(self, dmg: int) -> None:
+        """Cette fonction est gérée par le serveur"""
         self.hp -= dmg
         self.hp = max(self.hp, 0)
         if self.is_dead():
             print("dead")
-            self.serveur_pos = (0, 0, 1, time.time_ns())
+            # self.serveur_pos = (0, 0, 1, time.time_ns())
             self.heal_max()
+            self.pending_network_event = {
+                "type": "respawn",
+                "x": 0,
+                "y": 0,
+                "layer": 1,
+                "hp": self.hp,
+            }
 
     def heal(self, heal_amount=None):
         if heal_amount is None:
@@ -153,7 +167,8 @@ class Player(Serializable):
     def teleport(self, x, y, world_layer: int):
         self.x = x
         self.y = y
-        self.world_layer = world_layer
+        if world_layer != self.world_layer:
+            self.game_manager.switch_player_layer(world_layer)
 
     def update(self, keys=None):
         self.handle_input(keys)
@@ -163,11 +178,11 @@ class Player(Serializable):
         Si on est dans un objet comme un mur alors on applique pas le mouvement dans cette direction
         Sinon si aucune collision n'est détectée a la prochaine position alors on applique le mouvement
         """
-        if self.serveur_pos is not None:
-            self.x = self.serveur_pos[0]
-            self.y = self.serveur_pos[1]
-            self.world_layer = self.serveur_pos[2]
-            self.serveur_pos = None
+        # if self.serveur_pos is not None:
+        #     self.x = self.serveur_pos[0]
+        #     self.y = self.serveur_pos[1]
+        #     self.world_layer = self.serveur_pos[2]
+        #     self.serveur_pos = None
 
         # Appliquer le mouvement horizontal
         self.hitbox.update(int(self.x + self.vx), int(self.y), self.world_layer)

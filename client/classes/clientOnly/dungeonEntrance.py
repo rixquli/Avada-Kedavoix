@@ -64,7 +64,7 @@ class DungeonEntrance(CleintElementBehaviour):
             current_player = self.game_manager.client_manager.game_state.players.get(
                 self.game_manager.client_manager.my_player_id
             )
-            if current_player.world_layer != self.world_layer:
+            if not current_player or current_player.world_layer != self.world_layer:
                 return
             distance = abs(
                 math.sqrt(

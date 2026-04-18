@@ -13,8 +13,8 @@ import time
 import sys
 from _thread import *
 
+from client.Utils.ImageTool import ImageTool
 from client.layerList import Layer
-
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -50,6 +50,8 @@ class ClientManager:
         return self.game_state.players.get(self.my_player_id)
 
     def connect_to_solo_server(self):
+        self.game_manager.hold_for_loading_layer = True
+        ImageTool.preload_images()
         self.my_player_id = self.network.connect_to_server(host="localhost")
         start_new_thread(self.handle_reveice_message, ())
         return self.my_player_id
@@ -75,6 +77,20 @@ class ClientManager:
                             self.firstGameStateReceived = False
                             self.game_manager.ui.show("hud")
                             self.game_manager.ui.refresh("hud")
+                            self.game_manager.hold_for_loading_layer = False
+                    case MessageType.CHANGE_LAYER:
+                        self.game_state.apply_state(
+                            msg.data, my_player_id=self.my_player_id
+                        )
+                        self.game_manager.hold_for_loading_layer = False
+                    case MessageType.PLAYER_RESPAWN:
+                        self.game_state.apply_state(
+                            msg.data, my_player_id=self.my_player_id
+                        )
+                        self.game_manager.hold_for_loading_layer = False
+                        player = self.game_state.players.get(self.my_player_id)
+                        player.x = 0
+                        player.y = 0
                     case MessageType.DUNGEON_DATA:
                         for i, e in enumerate(msg.data):
                             if e is not None:
@@ -83,7 +99,9 @@ class ClientManager:
                                         e.teleport_pos[0],
                                         e.teleport_pos[1],
                                         world_layer=Layer.DUNGEON_BASE.value + i,
-                                        target_world_layer=Layer.DUNGEON_BASE.value + i + 1,
+                                        target_world_layer=Layer.DUNGEON_BASE.value
+                                        + i
+                                        + 1,
                                     )
                                 )
                                 self.game_manager.clientsElements.add(
@@ -141,10 +159,8 @@ class ClientManager:
         self.network.send_message(msg)
 
     def send_changing_layer(self, layer):
-        msg = Message(
-            MessageType.CHANGE_LAYER,
-            {"layer": layer}
-        )
+        self.game_manager.hold_for_loading_layer = True
+        msg = Message(MessageType.CHANGE_LAYER, {"layer": layer})
         self.network.send_message(msg)
 
     # Start Game Part
@@ -166,13 +182,15 @@ class ClientManager:
         # Démarrer le serveur dans un thread
         start_new_thread(run_server, ())
 
-    def startHosting(self, adress="0.0.0.0", port=12345):
+    def _startHosting(self, adress="0.0.0.0", port=12345):
         self.state = State.HOST
 
         self.start_local_server(adress, port)
+        self.game_manager.hold_for_loading_layer = True
+        ImageTool.preload_images()
 
         # Attendre que le serveur soit vraiment prêt
-        timeout = time.time() + 1
+        timeout = time.time() + 10
         while time.time() < timeout:
             try:
                 # Essaye de se connecter en boucle tant qu'il ne peut pas
@@ -180,6 +198,7 @@ class ClientManager:
                 if self.my_player_id:
                     print("Serveur prêt et connecté!")
                     break
+                time.sleep(0.1)
             except:
                 time.sleep(0.1)
         else:
@@ -193,10 +212,15 @@ class ClientManager:
         print(f"Partie hébergée sur {local_ip}:{port}")
         print(f"Les autres joueurs peuvent rejoindre avec cette IP")
 
-    def joinParty(self, host_ip, port=12345) -> bool:
+    def startHosting(self, adress="0.0.0.0", port=12345):
+        start_new_thread(self._startHosting, (adress, port))
+
+    def _joinParty(self, host_ip, port=12345) -> bool:
         try:
             self.state = State.INVITED
 
+            self.game_manager.hold_for_loading_layer = True
+            ImageTool.preload_images()
             self.my_player_id = self.network.connect_to_server(host_ip, int(port))
 
             if self.my_player_id:
@@ -210,11 +234,16 @@ class ClientManager:
         except:
             return False
 
-    def startSinglePlayer(self):
+    def joinParty(self, host_ip, port=12345) -> bool:
+        start_new_thread(self._joinParty, (host_ip, port))
+
+    def _startSinglePlayer(self):
         self.state = State.SOLO
         self.start_local_server(max_player=1, is_solo=True)
+        self.game_manager.hold_for_loading_layer = True
+        ImageTool.preload_images()
         # Attendre que le serveur soit vraiment prêt
-        timeout = time.time() + 0.1
+        timeout = time.time() + 10
         while time.time() < timeout:
             try:
                 # Essaye de se connecter en boucle tant qu'il ne peut pas
@@ -222,8 +251,12 @@ class ClientManager:
                 if self.my_player_id:
                     print("Serveur prêt et connecté!")
                     break
+                time.sleep(0.1)
             except:
                 time.sleep(0.1)
         else:
             print("Timeout: impossible de se connecter au serveur")
             return
+
+    def startSinglePlayer(self):
+        start_new_thread(self._startSinglePlayer, ())
