@@ -85,6 +85,7 @@ def handle_client(conn: socket.socket, player_id: str):
                     player = network.game_state.players.get(player_id)
                     if player:
                         player.world_layer = msg.data["layer"]
+                        player.invinsibility_timer = 2
                     layer_state = network.game_state.get_game_state(
                         diff=False, layer=msg.data["layer"]
                     )

@@ -87,6 +87,10 @@ class GameState:
     def update_all(self):
         """Update all entities here"""
 
+        # Players
+        for player in list(self.players.entities.values()):
+            player.server_update()
+
         # Spells
         for spell in list(self.spells.entities.values()):
             if spell.is_expired():
@@ -113,6 +117,11 @@ class GameState:
 
     def update_all_layer(self, layer):
         """Update all entities here"""
+
+        # Players
+        for player in list(self.players.entities.values()):
+            if layer == player.world_layer:
+                player.server_update()
 
         # Spells
         for spell in list(self.spells.entities.values()):

@@ -137,11 +137,15 @@ class Player(Serializable):
 
         self.pending_network_event = None
 
+        self.invinsibility_timer = 2
+
     def is_dead(self) -> bool:
         return self.hp <= 0
 
     def take_dmg(self, dmg: int) -> None:
         """Cette fonction est gérée par le serveur"""
+        if self.invinsibility_timer > 0:
+            return
         self.hp -= dmg
         self.hp = max(self.hp, 0)
         if self.is_dead():
@@ -169,6 +173,10 @@ class Player(Serializable):
         self.y = y
         if world_layer != self.world_layer:
             self.game_manager.switch_player_layer(world_layer)
+
+    def server_update(self):
+        if self.invinsibility_timer > 0:
+            self.invinsibility_timer -= 1 / 30
 
     def update(self, keys=None):
         self.handle_input(keys)
