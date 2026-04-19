@@ -2,22 +2,54 @@ import sys
 
 import pygame
 
+from client.Utils.ImageTool import ImageTool
 from client.classes.spell import Spell, SpellList
 from client.layerList import Layer
 
-
 throwableSpells = [SpellList.FIREBALL, SpellList.ICE]
+
+spells_img = {
+    SpellList.FIREBALL: "client/ressources/Sorts/FIREBALL/idle_1.png",
+    SpellList.ICE: "client/ressources/Sorts/ICE/idle_1.png",
+}
 
 
 class SpellsManager:
     def __init__(self, gameManager):
         self.gameManager = gameManager
-        self.unlockSpell = {spell: {"unlock": False} for spell in SpellList}
+        self.unlockSpell = {
+            spell: {"unlock": False, "img": None} for spell in SpellList
+        }
         self.unlockSpell[SpellList.FIREBALL]["unlock"] = True
+        self.active_spell = SpellList.FIREBALL
+        for key, val in spells_img.items():
+            self.unlockSpell[key]["img"] = ImageTool.load(val, (48, 48))
+
+        self.hotbar_items = self.get_items()
+
+    def get_items(self):
+        """Used to get items for the hotbar"""
+        l = []
+        for key, entry in self.unlockSpell.items():
+            if entry["img"] and entry["unlock"]:
+                dico = {"type": key, "img": entry["img"]}
+                l.append(dico)
+        return l
+
+    def set_active_spell(self, hot_bar_list_index):
+        if hot_bar_list_index < len(self.hotbar_items):
+            self.active_spell = self.hotbar_items[hot_bar_list_index]["type"]
+        else:
+            self.active_spell = None
 
     def cast_spell(self, vocal_action):
         my_player = self.gameManager.client_manager.get_player()
-        if not my_player:
+        can_throw = (
+            self.unlockSpell.get(vocal_action, {"unlock": False}).get("unlock", False)
+            and self.active_spell
+            and self.active_spell == vocal_action
+        )
+        if not my_player or not can_throw:
             return
 
         if vocal_action in throwableSpells:
@@ -66,7 +98,6 @@ class SpellsManager:
         )
 
         self.gameManager.client_manager.cast_spell(spell)
-
 
     def cast_basic_spell(self):
         # Quand on clique ca lance un sort dans la direction de la souris

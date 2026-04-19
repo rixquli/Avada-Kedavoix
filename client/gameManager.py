@@ -67,10 +67,10 @@ class GameManager:
         # Setup voice recognition
         start_voice_recognition()
 
-        self.spellManager = SpellsManager(self)
-
         # Setup pygame
         self.setup_pygame()
+
+        self.spellManager = SpellsManager(self)
 
         # Setup ui/menus
         self.ui = UI(self.screen)
