@@ -30,6 +30,7 @@ from client.classes.player import Player
 from client.classes.pnj import PNJ
 from client.classes.wall import Wall
 from client.layerList import Layer
+from client.sound.soundManager import SoundManager
 from client.spellsManager import SpellsManager
 from client.voice.realtimeVoice import get_voice_command, start_voice_recognition
 from server.world_elements.dungeonWalls import Dungeon
@@ -69,6 +70,11 @@ class GameManager:
 
         # Setup pygame
         self.setup_pygame()
+
+        # Setup soundManager apres pygame important
+        self.soundManager = SoundManager()
+        self.soundManager.setup()
+        self.soundManager.play_music("main")
 
         self.spellManager = SpellsManager(self)
 
