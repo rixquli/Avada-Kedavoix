@@ -215,7 +215,7 @@ def press_e(menu_name):
     return [
         Text(
             "PRESS E",
-            (0, -50),
+            (0, -150),
             font_size=50,
             color=(255, 255, 255),
             anchor=Anchor.MIDBOTTOM,

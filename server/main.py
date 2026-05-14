@@ -13,14 +13,12 @@ import socket
 import os
 import sys
 
-from client.classes.clientOnly.dungeonEntrance import DungeonEntrance
-from client.layerList import Layer
-from server.classes.saver import Saver
-from server.world_elements import dungeonWalls
 import uuid
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from server.classes.saver import Saver
+from client.layerList import Layer
 from client.classes.wall import Wall
 from client.classes.pnj import PNJ
 from client.classes.enemy import Enemy, EnemyList

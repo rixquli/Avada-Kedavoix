@@ -86,7 +86,7 @@ class GameManager:
         Execute setup uniquement lors du lancement du programme mais server seulement
         Pour ne pas init les partie graphique inutile au serveur
         """
-        self.client_manager = ClientManager()
+        self.client_manager = ClientManager(self)
 
     def setup_pygame(self):
         """Initialise pygame et crée la fenetre"""

@@ -215,9 +215,16 @@ class Text:
 
             for i, rendered_line in enumerate(self.rendered_lines):
                 if self.text_align == "center":
-                    line_x = self.actual_position[0] - rendered_line.get_width() / 2
+                    line_x = (
+                        self.actual_position[0]
+                        + (self.width - rendered_line.get_width()) / 2
+                    )
                 elif self.text_align == "right":
-                    line_x = self.actual_position[0] - rendered_line.get_width()
+                    line_x = (
+                        self.actual_position[0]
+                        + self.width
+                        - rendered_line.get_width()
+                    )
                 else:  # topleft (par défaut)
                     line_x = self.actual_position[0]
 
