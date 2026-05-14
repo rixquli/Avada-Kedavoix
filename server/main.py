@@ -127,6 +127,7 @@ def handle_conn():
                 y=num_players * 50,
                 color=colors[num_players % len(colors)],
                 radius=10,
+                is_server=True,
             ),
             fixed_id=player_id,
         )
@@ -248,13 +249,13 @@ def generate_all_dungeon():
 # TODO: Enlever cette fonction elle ne doit rester que en développement ou etre adapté
 def spawn_element_at_start():
     enemy1 = network.game_state.enemies.addEntity(
-        Enemy.get_enemy_type(EnemyList.GOBELIN_MASSUE, x=200, y=200, world_layer=1)
+        Enemy.get_enemy_type(EnemyList.GOBELIN_MASSUE, x=200, y=200, world_layer=1, is_server=True)
     )
     enemy2 = network.game_state.enemies.addEntity(
-        Enemy.get_enemy_type(EnemyList.BOSS, x=350, y=350, world_layer=1)
+        Enemy.get_enemy_type(EnemyList.BOSS, x=350, y=350, world_layer=1, is_server=True)
     )
     enemy2 = network.game_state.enemies.addEntity(
-        Enemy(350, 350, (0, 255, 255), world_layer=2)
+        Enemy(350, 350, (0, 255, 255), world_layer=2, is_server=True)
     )
 
     # TODO: deplacer les texts a l'exterieur du programme
@@ -289,6 +290,7 @@ def spawn_element_at_start():
                     "text": "Bien. Fais preuve de courage et de sagesse.",
                 },
             ],
+            is_server=True,
         )
     )
     pnj2 = network.game_state.pnjs.addEntity(
@@ -322,6 +324,7 @@ def spawn_element_at_start():
                     "text": "Bien. Fais preuve de courage et de sagesse.",
                 },
             ],
+            is_server=True,
         )
     )
 

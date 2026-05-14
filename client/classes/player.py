@@ -30,6 +30,7 @@ class Player(Serializable):
         id: int = None,
         hp: int = 100,
         world_layer: int | Layer = Layer.OVERWORLD,
+        is_server: bool = False,
     ):
         self.id = id
         self.color = tuple(color)
@@ -71,13 +72,40 @@ class Player(Serializable):
             world_layer.value if isinstance(world_layer, Layer) else int(world_layer)
         )
 
+        # Pour les animations - uniquement côté client
+        self.animator = None
+        self.healthBar = None
+        
+        if not is_server:
+            self._init_client_resources()
+
+        # self.serveur_pos = None
+
+        # Initialiser game_manager uniquement côté client
+        self.game_manager = None
+        if not is_server:
+            from client.gameManager import GameManager
+            self.game_manager = GameManager()
+
+        self.pending_network_event = None
+
+        self.invinsibility_timer = 2
+
+    def is_dead(self) -> bool:
+        return self.hp <= 0
+
+    def _init_client_resources(self):
+        """Initialise les ressources graphiques côté client"""
+        if self.animator is not None:
+            return  # Déjà initialisé
+        
         # Pour les animations
         self.animator = Animator(
             size=(self.radius * 5, self.radius * 5), animation_speed=10 / 60, base_dir= 1
         )
 
         self.wizard_type = ""
-        match color:
+        match self.color:
             case (255, 0, 0):
                 self.wizard_type = "wizard_fire"
             case (0, 0, 255):
@@ -127,20 +155,8 @@ class Player(Serializable):
             ),
         )
 
-        self.healthBar = HealthBar(y_offset=20)
-
-        # self.serveur_pos = None
-
-        from client.gameManager import GameManager
-
-        self.game_manager = GameManager()
-
-        self.pending_network_event = None
-
-        self.invinsibility_timer = 2
-
-    def is_dead(self) -> bool:
-        return self.hp <= 0
+        if self.healthBar is None:
+            self.healthBar = HealthBar(y_offset=20)
 
     def take_dmg(self, dmg: int) -> None:
         """Cette fonction est gérée par le serveur"""
@@ -171,7 +187,7 @@ class Player(Serializable):
     def teleport(self, x, y, world_layer: int):
         self.x = x
         self.y = y
-        if world_layer != self.world_layer:
+        if world_layer != self.world_layer and self.game_manager is not None:
             self.game_manager.switch_player_layer(world_layer)
 
     def server_update(self):
@@ -226,6 +242,8 @@ class Player(Serializable):
 
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
+        self._init_client_resources()
+        
         x_diff = self.target_x - self.display_x
         y_diff = self.target_y - self.display_y
 
@@ -251,6 +269,8 @@ class Player(Serializable):
     def handle_input(self, keys=None):
         if keys is None:
             return
+
+        self._init_client_resources()
 
         speed = 5
         self.vx = 0
@@ -278,6 +298,7 @@ class Player(Serializable):
             self.animator.set_state("idle")
 
     def draw(self, surface, offset: tuple[float, float]):
+        self._init_client_resources()
         self.interpolate_position()
         # pygame.draw.circle(
         #     surface,

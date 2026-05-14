@@ -39,6 +39,7 @@ class Spell(Serializable):
         thrower: str = "Enemy",
         speed: float = 20.0,
         world_layer: int | Layer = Layer.OVERWORLD,
+        is_server: bool = False,
     ):
         self.id = id
         self.x = float(x)
@@ -89,26 +90,44 @@ class Spell(Serializable):
         # pour les animations
         # si l'anim existe
         self.animator = None
-        if self.spell_type in [SpellList.FIREBALL, SpellList.ICE]:
-            # 0 si l'asset de base regarde a droite, 180 s'il regarde a gauche
-            self.sprite_base_angle = 180
-            # Chemin vers la racine du projet
-            PROJECT_ROOT = os.path.abspath(
-                os.path.join(os.path.dirname(__file__), "..", "..")
-            )
-            self.animator = Animator(
-                size=(self.radius * 5, self.radius * 5), animation_speed=10 / 60
-            )
-            self.animator.state_manager.add_state(
-                "idle",
-                os.path.join(
-                    PROJECT_ROOT,
-                    "client",
-                    "ressources",
-                    "Sorts",
-                    self.spell_type.name,
-                ),
-            )
+        self.spell_type = None
+        match color:
+            case (255, 0, 0):
+                self.spell_type = SpellList.FIREBALL
+            case (200, 200, 200):
+                self.spell_type = SpellList.PUNCH
+            case (0, 0, 255):
+                self.spell_type = SpellList.ICE
+            case _:
+                self.spell_type = SpellList.BASIC
+
+        # init l'animator côté client seulement
+        self.sprite_base_angle = 180  # 0 si regarde à droite, 180 si regarde à gauche
+        if not is_server and self.spell_type in [SpellList.FIREBALL, SpellList.ICE]:
+            self._init_client_resources()
+
+    def _init_client_resources(self):
+        """Initialise les ressources graphiques côté client"""
+        if self.animator is not None:
+            return  # Déjà initialisé
+        
+        # Chemin vers la racine du projet
+        PROJECT_ROOT = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..")
+        )
+        self.animator = Animator(
+            size=(self.radius * 5, self.radius * 5), animation_speed=10 / 60
+        )
+        self.animator.state_manager.add_state(
+            "idle",
+            os.path.join(
+                PROJECT_ROOT,
+                "client",
+                "ressources",
+                "Sorts",
+                self.spell_type.name,
+            ),
+        )
 
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
@@ -152,6 +171,7 @@ class Spell(Serializable):
             return
         # Interpolation vers la position cible
         # Permet d'eviter les mouvements sacadé
+        self._init_client_resources()
         self.interpolate_position()
 
         if not self.animator:

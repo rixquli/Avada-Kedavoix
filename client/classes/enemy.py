@@ -46,6 +46,7 @@ class Enemy(Serializable):
         debug: bool = False,
         dmg_mult: float = 1,
         is_boss: bool = False,
+        is_server: bool = False,
     ):
         self.id = id
         self.color = tuple(color)
@@ -106,13 +107,31 @@ class Enemy(Serializable):
             self.dist_from = self.vitesse
 
         # pour interagir avec le reste
-        from client.gameManager import GameManager
+        self.is_boss = is_boss
+        self.game_manager = None
+        if not is_server:
+            from client.gameManager import GameManager
+            self.game_manager = GameManager()
+        
+        # Pour les animations et healthbar - uniquement côté client
+        self.animator = None
+        self.healthBar = None
+        
+        if not is_server:
+           self._init_client_resources()
 
-        self.game_manager = GameManager()
-        if not is_boss:
-            self.healthBar = HealthBar(y_offset=20, width=self.max_hp)
-        else:
-            self.healthBar = HealthBar(y_offset=0, width=self.max_hp)
+        self.debug = debug
+
+    def _init_client_resources(self):
+        """Initialise les ressources graphiques côté client"""
+        if self.animator is not None:
+            return  # Déjà initialisé
+        
+        if self.healthBar is None:
+            if not self.is_boss:
+                self.healthBar = HealthBar(y_offset=20, width=self.max_hp)
+            else:
+                self.healthBar = HealthBar(y_offset=0, width=self.max_hp)
 
         # pour les animations
         self.animator = Animator(
@@ -120,7 +139,7 @@ class Enemy(Serializable):
         )
 
         ennemy_type = ""
-        match color:
+        match self.color:
             case (0, 255, 255) | (0, 255, 0):
                 ennemy_type = "Gobelin_massue"
             case _:
@@ -143,23 +162,40 @@ class Enemy(Serializable):
             ),
         )
 
-        self.debug = debug
-
     #! Server Side
     def do_attack(self, dir: Tuple[float, float]) -> None:
         """
         Methode du serveur car le serveur s'occupe de tout mettre a jour donc il gere l'envoie des projectiles
         """
-        self.game_manager.spellManager.cast_spell_type(
-            self.spell_type,
-            thrower=self.THROWER_TYPE,
-            x=self.x,
-            y=self.y,
-            dir=dir,
-            world_layer=self.world_layer,
-            player_id=None,
-            dmg_mult=self.dmg_mult,
-        )
+        if self.game_manager is not None:
+            # Côté client
+            self.game_manager.spellManager.cast_spell_type(
+                self.spell_type,
+                thrower=self.THROWER_TYPE,
+                x=self.x,
+                y=self.y,
+                dir=dir,
+                world_layer=self.world_layer,
+                player_id=None,
+                dmg_mult=self.dmg_mult,
+            )
+        else:
+            # Côté serveur
+            from server.NetworkManager import NetworkManager
+            from client.classes.spell import Spell
+            
+            spell = Spell.get_spell_type(
+                self.spell_type,
+                thrower=self.THROWER_TYPE,
+                x=self.x,
+                y=self.y,
+                dir=dir,
+                world_layer=self.world_layer,
+                player_id=None,
+                dmg_mult=self.dmg_mult,
+                is_server=True,
+            )
+            NetworkManager().game_state.spells.addEntity(spell)
 
     def take_dmg(self, dmg: int) -> None:
         self.hp -= dmg
@@ -197,6 +233,8 @@ class Enemy(Serializable):
 
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
+        self._init_client_resources()
+        
         x_diff = self.target_x - self.display_x
         y_diff = self.target_y - self.display_y
 
@@ -217,6 +255,7 @@ class Enemy(Serializable):
     def draw(self, surface, offset: tuple[float, float]):
         # Interpolation vers la position cible
         # Permet d'eviter les mouvements sacadé
+        self._init_client_resources()
         self.interpolate_position()
 
         #  pygame.draw.rect(

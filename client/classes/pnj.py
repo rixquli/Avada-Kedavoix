@@ -24,6 +24,7 @@ class PNJ(Serializable):
         text="",
         name="",
         world_layer: int | Layer = Layer.OVERWORLD,
+        is_server: bool = False,
     ):
         self.id = id
         self.color = tuple(color)
@@ -71,9 +72,11 @@ class PNJ(Serializable):
         self.text = text
         self.name = name
 
-        from client.gameManager import GameManager
-
-        self.game_manager = GameManager()
+        self.game_manager = None
+        if not is_server:
+            from client.gameManager import GameManager
+            self.game_manager = GameManager()
+        
         self.distance_trigger = 50
         self.shown = False
 
@@ -81,6 +84,9 @@ class PNJ(Serializable):
         return self.hp <= 0
 
     def local_update(self):
+        if self.game_manager is None:
+            return
+        
         current_player = self.game_manager.client_manager.game_state.players.get(
             self.game_manager.client_manager.my_player_id
         )
@@ -194,6 +200,9 @@ class PNJ(Serializable):
 
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
+            if self.game_manager is None:
+                return
+            
             current_player = self.game_manager.client_manager.game_state.players.get(
                 self.game_manager.client_manager.my_player_id
             )

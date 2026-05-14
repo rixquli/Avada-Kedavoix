@@ -40,6 +40,6 @@ class EnemySpawner:
                     random.randint(area[0][1], area[1][1]),
                 )
                 enemy = Enemy.get_enemy_type(
-                    enemy_type, x=rand[0], y=rand[1], world_layer=world_layer, **kwargs
+                    enemy_type, x=rand[0], y=rand[1], world_layer=world_layer, is_server=True, **kwargs
                 )
                 self.network.game_state.enemies.addEntity(enemy)
