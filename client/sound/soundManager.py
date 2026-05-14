@@ -58,7 +58,7 @@ class SoundManager:
         files = sorted(Path("client/ressources/sounds/sfx").rglob("*.mp3"))
         sfx_dico = {}
         for sound_file in files:
-            snd = SoundManager.load(str(sound_file.relative_to("client")))
+            snd = self.load(str(sound_file.relative_to("client")))
             snd.set_volume(self.master * self.sfx)
             sfx_dico[sound_file.stem] = snd
         return sfx_dico
@@ -71,6 +71,7 @@ class SoundManager:
         return music_dict
 
     def play_sfx(self, name):
+        print("play: ", name)
         if self.enabled and name in self.sounds["sfx"]:
             self.sounds["sfx"][name].play()
 

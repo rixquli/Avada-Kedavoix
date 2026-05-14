@@ -7,7 +7,10 @@ import pygame
 
 from client.Utils.ImageTool import ImageTool
 from client.enums.anchor import Anchor
+from client.sound.soundManager import SoundManager
 from client.ui.uiUtils import UIUtils
+
+sound_manager = SoundManager()
 
 
 class Button:
@@ -96,6 +99,7 @@ class Button:
             if self.buttonRect.collidepoint(event.pos):
                 if self.onclickFunction:
                     self.onclickFunction()
+                sound_manager.play_sfx("click")
 
     def is_clicked(self):
         if pygame.mouse.get_pressed()[0]:
