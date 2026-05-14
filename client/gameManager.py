@@ -147,6 +147,12 @@ class GameManager:
         #     self.groups["obstacle"].add(wall)
 
         self.debug = False
+    
+    def back_to_main_menu(self):
+        self.client_manager.close_connection()
+        self.hold_for_loading_layer = False
+        self.ui.hide_all()
+        self.ui.show("MainMenu")
 
     def render(self):
         """Fait un rendu du jeu a executer a chaque tick"""

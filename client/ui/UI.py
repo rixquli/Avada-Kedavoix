@@ -78,6 +78,13 @@ class UI:
         if menu_name not in self.menus.keys():
             raise ValueError(menu_name, ": this menu do not exist")
         self.menus[menu_name].is_showing = False
+    
+    def hide_all(self):
+        """
+        Désaffiche les menus
+        """
+        for menu in self.menus.values():
+            menu.is_showing = False
 
     def toggle(self, menu_name):
         """
