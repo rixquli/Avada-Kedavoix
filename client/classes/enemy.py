@@ -172,21 +172,28 @@ class Enemy(Serializable):
         # actualises la position et les datas de l'ia
         self.ia.update()
 
-        # Appliquer le mouvement horizontal
-        self.hitbox.update(int(self.x + self.vx), int(self.y), self.world_layer)
-
-        # Vérifier les collisions horizontales
         collided = self.hitbox.get_server_collided()
-        if not collided:
+        if collided: # si l'entitée est deja dans un mur on ignore les collision jusqu'a qu'elle sorte 
+            # Appliquer les mouvement sans vérifier collision 
+            self.hitbox.update(int(self.x + self.vx), int(self.y + self.vy), self.world_layer)
             self.x += self.vx
-
-        # Appliquer le mouvement vertical
-        self.hitbox.update(int(self.x), int(self.y + self.vy), self.world_layer)
-
-        # Vérifier les collisions verticales
-        collided = self.hitbox.get_server_collided()
-        if not collided:
             self.y += self.vy
+        else :
+            # Appliquer le mouvement horizontal
+            self.hitbox.update(int(self.x + self.vx), int(self.y), self.world_layer)
+
+            # Vérifier les collisions horizontales
+            collided = self.hitbox.get_server_collided()
+            if not collided:
+                self.x += self.vx
+
+            # Appliquer le mouvement vertical
+            self.hitbox.update(int(self.x), int(self.y + self.vy), self.world_layer)
+
+            # Vérifier les collisions verticales
+            collided = self.hitbox.get_server_collided()
+            if not collided:
+                self.y += self.vy
 
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
