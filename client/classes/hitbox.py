@@ -17,7 +17,7 @@ class HitBox(pygame.sprite.Sprite):
         w: int,
         h: int,
         world_layer: int | Layer = Layer.OVERWORLD,
-        debug: bool = True,
+        debug: bool = False,
     ):
         super().__init__()
         self.w = int(w)
