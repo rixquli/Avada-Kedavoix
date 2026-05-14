@@ -115,16 +115,24 @@ def handle_conn():
         colors = [(0, 255, 0), (255, 0, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255)]
         player_id = f"P{uuid.getnode()}"
 
-        if not network.game_state.players.exist(player_id):
-            network.game_state.players.addEntity(
-                Player(
-                    x=num_players * 100,
-                    y=num_players * 50,
-                    color=colors[num_players % len(colors)],
-                    radius=10,
-                ),
-                fixed_id=player_id,
-            )
+        if network.game_state.players.exist(player_id):
+            i = 2
+            test_player_id = player_id + f"_{i}"
+            while network.game_state.players.exist(test_player_id):
+                i +=1
+                test_player_id = player_id + f"_{i}"
+            player_id = test_player_id
+
+        network.game_state.players.addEntity(
+            Player(
+                x=num_players * 100,
+                y=num_players * 50,
+                color=colors[num_players % len(colors)],
+                radius=10,
+            ),
+            fixed_id=player_id,
+        )
+
 
         print(f"Player {player_id} connected")
 

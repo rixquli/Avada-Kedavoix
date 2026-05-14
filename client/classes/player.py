@@ -227,6 +227,11 @@ class Player(Serializable):
         elif x_diff < 0:
             self.animator.flip_y("left")
 
+        if x_diff != 0 or y_diff != 0:
+            self.animator.set_state("run")
+        else:
+            self.animator.set_state("idle")
+
         if abs(x_diff) > self.min_threshold:
             self.display_x += x_diff * self.interpolation_speed
         else:

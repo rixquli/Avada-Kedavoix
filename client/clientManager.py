@@ -229,15 +229,13 @@ class ClientManager:
             else:
                 print(f"Impossible de rejoindre {host_ip}:{port}")
                 self.state = State.MAIN_MENU
-                self.game_manager.back_to_main_menu()
                 return False
             return True
         except:
-            self.game_manager.back_to_main_menu()
             return False
 
     def joinParty(self, host_ip, port=12345) -> bool:
-        start_new_thread(self._joinParty, (host_ip, port))
+        return self._joinParty(host_ip, port)
 
     def _startSinglePlayer(self):
         self.state = State.SOLO
