@@ -65,7 +65,7 @@ class Spell(Serializable):
         self.interpolation_speed = 0.5
         self.min_threshold = 0.01
 
-        self.hitbox_size = (radius, radius)
+        self.hitbox_size = (radius * 2, radius * 2)
         self.hitbox = HitBox(
             int(x), int(y), self.hitbox_size[0], self.hitbox_size[1], world_layer
         )
@@ -110,7 +110,7 @@ class Spell(Serializable):
         """Initialise les ressources graphiques côté client"""
         if self.animator is not None:
             return  # Déjà initialisé
-        
+
         # Chemin vers la racine du projet
         PROJECT_ROOT = os.path.abspath(
             os.path.join(os.path.dirname(__file__), "..", "..")

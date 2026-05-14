@@ -17,6 +17,7 @@ from client.ui.dropdown import DropDownMenu
 import pygame
 
 from client.ui.dialogBox import DialogBox
+from client.ui.ennemyLeftBar import EnnemyLeftBar
 from client.ui.eventListener import UIEventListener
 from client.ui.image import Image
 
@@ -136,13 +137,13 @@ def join_menu(menu_name):
 
     # Text d'erreur vide au depart
     error_text = Text(
-        join_menu_state["error_message"],  
+        join_menu_state["error_message"],
         (0, 200),
         color=(255, 0, 0),
         anchor=Anchor.CENTER,
         font_size=50,
         background=True,
-        padding=(15,15)
+        padding=(15, 15),
     )
 
     def joinGameButtonClicked():
@@ -159,7 +160,7 @@ def join_menu(menu_name):
 
             game_manager.ui.show("hud")
         else:
-            # Met à jour le texte d'erreur 
+            # Met à jour le texte d'erreur
             join_menu_state["error_message"] = f"Error, can not join {ip}:{port}"
             # Rafraichir l'ui avec l'element d'erreur
             game_manager.ui.refresh(menu_name)
@@ -285,10 +286,14 @@ def hud(menu_name):
         anchor=Anchor.TOPRIGHT,
         image_path="UI/settings_icon.png",
     )
+    ennemyLeftBar = EnnemyLeftBar()
+
     elements.append(background)
     elements.append(avatar)
     elements.append(hotbar)
     elements.append(settings_button)
+    elements.append(ennemyLeftBar)
+
     return elements
 
 

@@ -20,13 +20,29 @@ class DungeonEntrance(CleintElementBehaviour):
         PROJECT_ROOT = os.path.abspath(
             os.path.join(os.path.dirname(__file__), "..", "..", "..")
         )
-        path = os.path.join(
-            PROJECT_ROOT, "client", "ressources", "Dungeon", "Entrance.png"
-        )
+
+        is_exit = False
+
+        tw = target_world_layer.value if isinstance(target_world_layer, Layer) else int(target_world_layer)
+        wl = world_layer.value if isinstance(world_layer, Layer) else int(world_layer)
+
+        if tw < wl:
+            is_exit = True
+
+        if is_exit:
+            path = os.path.join(
+                PROJECT_ROOT, "client", "ressources", "Dungeon", "Exit.png"
+            )
+        else:
+            path = os.path.join(
+                PROJECT_ROOT, "client", "ressources", "Dungeon", "Entrance.png"
+            )
+
         self.image = ImageTool.load(path, (150, 150))
         self.game_manager = GameManager()
         self.distance_trigger = 50
-        self.target_world_layer = target_world_layer
+        # store target as an int for consistent usage elsewhere
+        self.target_world_layer = tw
         self.shown = False
 
     def draw(self, surface: pygame.Surface, offset):

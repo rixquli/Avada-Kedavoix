@@ -72,7 +72,7 @@ class Enemy(Serializable):
         self.interpolation_speed = 0.1
         self.min_threshold = 0.1
 
-        self.hitbox_size = (size, size)
+        self.hitbox_size = (size * 2, size * 2)
         self.hitbox = HitBox(
             int(x), int(y), self.hitbox_size[0], self.hitbox_size[1], world_layer
         )
@@ -111,14 +111,15 @@ class Enemy(Serializable):
         self.game_manager = None
         if not is_server:
             from client.gameManager import GameManager
+
             self.game_manager = GameManager()
-        
+
         # Pour les animations et healthbar - uniquement côté client
         self.animator = None
         self.healthBar = None
-        
+
         if not is_server:
-           self._init_client_resources()
+            self._init_client_resources()
 
         self.debug = debug
 
@@ -126,7 +127,7 @@ class Enemy(Serializable):
         """Initialise les ressources graphiques côté client"""
         if self.animator is not None:
             return  # Déjà initialisé
-        
+
         if self.healthBar is None:
             if not self.is_boss:
                 self.healthBar = HealthBar(y_offset=20, width=self.max_hp)
@@ -183,7 +184,7 @@ class Enemy(Serializable):
             # Côté serveur
             from server.NetworkManager import NetworkManager
             from client.classes.spell import Spell
-            
+
             spell = Spell.get_spell_type(
                 self.spell_type,
                 thrower=self.THROWER_TYPE,
@@ -209,12 +210,14 @@ class Enemy(Serializable):
         self.ia.update()
 
         collided = self.hitbox.get_server_collided()
-        if collided: # si l'entitée est deja dans un mur on ignore les collision jusqu'a qu'elle sorte 
-            # Appliquer les mouvement sans vérifier collision 
-            self.hitbox.update(int(self.x + self.vx), int(self.y + self.vy), self.world_layer)
+        if (
+            collided
+        ):  # si l'entitée est deja dans un mur on ignore les collision jusqu'a qu'elle sorte
+            # Appliquer les mouvement sans vérifier collision
+            # self.hitbox.update(int(self.x + self.vx), int(self.y + self.vy), self.world_layer)
             self.x += self.vx
             self.y += self.vy
-        else :
+        else:
             # Appliquer le mouvement horizontal
             self.hitbox.update(int(self.x + self.vx), int(self.y), self.world_layer)
 
@@ -234,7 +237,7 @@ class Enemy(Serializable):
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
         self._init_client_resources()
-        
+
         x_diff = self.target_x - self.display_x
         y_diff = self.target_y - self.display_y
 
@@ -354,11 +357,11 @@ class Enemy(Serializable):
                 return Enemy(
                     color=(0, 0, 0),
                     spell_type=SpellList.FIREBALL,
-                    reach = -1,
-                    dist_from = 100,
-                    hp = 100,
-                    dmg_mult = 5,
-                    size = 100,
+                    reach=-1,
+                    dist_from=100,
+                    hp=100,
+                    dmg_mult=5,
+                    size=100,
                     **keyargs,
                 )
             case _:
