@@ -3,6 +3,8 @@ Element graphique permet la creation d'input text (champ de text)
 et la gestion des touches enregistrer lorsqu'il est selectionné
 """
 
+import time
+
 import pygame
 
 from client.enums.anchor import Anchor
@@ -65,9 +67,13 @@ class TextInput:
 
     def updateText(self):
         if self.text != self.previousText:
-            self.textRenderer = self.font.render(self.text, True, self.color)
-            self.previousText = self.text
-            self.onTextChanged(self.text)
+                self.textRenderer = self.font.render(self.text, True, self.color)
+                self.previousText = self.text
+                self.onTextChanged(self.text)
+    
+    def forceText(self, text):
+        if text:
+                self.textRenderer = self.font.render(text, True, self.color)
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -97,7 +103,24 @@ class TextInput:
 
         pygame.draw.rect(window, (255, 255, 255), self.input_box, 2, border_radius=10)
 
-        text_to_render = self.placeholder if self.text == "" else self.textRenderer
+        # text_to_render = self.placeholder if self.text == "" else self.textRenderer
+
+        if self.active:
+            if self.text == "":
+                if int(time.time() * 1000) % 1000 < 500:
+                    self.forceText("|")
+                    text_to_render =  self.textRenderer
+                else:
+                    return
+            else:
+                if int(time.time() * 1000) % 1000 < 500:
+                    self.forceText(self.text + "|")
+                else:
+                    self.forceText(self.text )
+                text_to_render =  self.textRenderer
+        else:
+            self.forceText(self.text)
+            text_to_render = self.placeholder if self.text == "" else self.textRenderer
 
         text_x = (
             self.actual_position[0]

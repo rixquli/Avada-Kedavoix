@@ -39,6 +39,9 @@ game_manager = GameManager()
 # Etat UI du HUD conservé entre les refresh.
 hud_state = {"show_dialog": True}
 
+# Etat UI du Join Menu conservé entre les refresh.
+join_menu_state = {"error_message": ""}
+
 
 # fonction auxiliaire utilisé plus bas
 def close_and_exec(menu_name, function, *params):
@@ -133,10 +136,13 @@ def join_menu(menu_name):
 
     # Text d'erreur vide au depart
     error_text = Text(
-        "",  # texte vide -> pas d'affichage initial
-        (0, -50),
+        join_menu_state["error_message"],  
+        (0, 200),
         color=(255, 0, 0),
-        anchor=Anchor.MIDBOTTOM,
+        anchor=Anchor.CENTER,
+        font_size=50,
+        background=True,
+        padding=(15,15)
     )
 
     def joinGameButtonClicked():
@@ -144,15 +150,17 @@ def join_menu(menu_name):
         port = adress[1]
         have_joined = game_manager.client_manager.joinParty(ip, port)
 
+        print("have_join: ", have_joined)
+
         if have_joined:
             # Remet un text vierge au cas ou
-            error_text.change_text("")
+            join_menu_state["error_message"] = ""
             game_manager.ui.hide(menu_name)
 
             game_manager.ui.show("hud")
         else:
-            # Met à jour le texte d'erreur
-            error_text.change_text(f"Error, can not join {ip}:{port}")
+            # Met à jour le texte d'erreur 
+            join_menu_state["error_message"] = f"Error, can not join {ip}:{port}"
             # Rafraichir l'ui avec l'element d'erreur
             game_manager.ui.refresh(menu_name)
 

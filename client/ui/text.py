@@ -24,6 +24,7 @@ class Text:
         anchor: Anchor = Anchor.TOPLEFT,
         text_align: str = "center",
         bg_border=True,
+        padding= (0,0),
     ):
         self.position = position
         self.color = color
@@ -40,6 +41,7 @@ class Text:
         self.fixed_background_size = bool(
             background and width is not None and height is not None
         )
+        self.padding =padding
 
         # si la width et la heigth sont definit on s'en sert
         # sinon on prend la taille du texte
@@ -70,8 +72,8 @@ class Text:
             self.backgroundRect = pygame.Rect(
                 self.actual_position[0],
                 self.actual_position[1],
-                self.width,
-                self.height,
+                self.width + self.padding[0]*2,
+                self.height + self.padding[1]*2,
             )
         else:
             self.backgroundRect = None
@@ -147,6 +149,9 @@ class Text:
         self.update_position()
 
     def draw(self, window):
+        if not self.text or self.text == "":
+            return
+        
         self.update_position()
 
         if self.background:

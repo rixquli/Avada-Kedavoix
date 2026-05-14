@@ -219,7 +219,7 @@ class ClientManager:
         try:
             self.state = State.INVITED
 
-            self.game_manager.hold_for_loading_layer = True
+            # self.game_manager.hold_for_loading_layer = True
             ImageTool.preload_images()
             self.my_player_id = self.network.connect_to_server(host_ip, int(port))
 
