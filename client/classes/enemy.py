@@ -193,6 +193,11 @@ class Enemy(Serializable):
         x_diff = self.target_x - self.display_x
         y_diff = self.target_y - self.display_y
 
+        if x_diff > 0:
+            self.animator.flip_y("right")
+        elif x_diff < 0:
+            self.animator.flip_y("left")
+
         if abs(x_diff) > self.min_threshold:
             self.display_x += x_diff * self.interpolation_speed
         else:

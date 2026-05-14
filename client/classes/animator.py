@@ -104,10 +104,12 @@ class Animator(Serializable):
         animation_speed=15 / 60,
         size: tuple[int, int] = (0, 0),
         sprite_offset: tuple[float, float] = (0, 0),
+        base_dir = -1 # la direction que regarde le personnage de base -1 pour la gauche et 1 pour la droite
     ):
         self.size = (int(size[0]), int(size[1]))
         self.animation_speed = animation_speed
         self.sprite_offset = sprite_offset
+        self.base_dir = base_dir
 
         self.state_manager = StateManager(
             size=self.size, animation_speed=self.animation_speed
@@ -125,9 +127,9 @@ class Animator(Serializable):
             side: 'left' or 'right'
         """
         if side == "left":
-            self.orientation = -1
+            self.orientation = -self.base_dir
         else:
-            self.orientation = 1
+            self.orientation = self.base_dir
 
     def blit_sprite(self, surface, position):
         sprite = self.state_manager.get_current_sprite()
