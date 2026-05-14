@@ -10,9 +10,20 @@ DungeonEnemyList: List[List[Tuple[int, EnemyList, Dict[str, Any]]]] = [
     [(10, EnemyList.GOBELIN_MASSUE, {})],
     # Etage 3
     [(10, EnemyList.DRAGON, {})],
-    # Etage restant
-    [(10, EnemyList.DRAGON, {}), (1, EnemyList.BOSS, {})]
-
+    # Etage 4
+    [(10, EnemyList.DRAGON, {})],
+    # Etage 5
+    [(10, EnemyList.DRAGON, {})],
+    # Etage 6
+    [(10, EnemyList.DRAGON, {})],
+    # Etage 7
+    [(10, EnemyList.DRAGON, {})],
+    # Etage 8
+    [(10, EnemyList.DRAGON, {})],
+    # Etage 9
+    [(10, EnemyList.DRAGON, {})],
+    # Etage Boss
+    [(10, EnemyList.DRAGON, {}), (1, EnemyList.BOSS, {})],
 ]
 
 
@@ -35,11 +46,29 @@ class EnemySpawner:
         for levelEnemies in DungeonEnemyList[level]:
             count, enemy_type, kwargs = levelEnemies
             for _ in range(count):
-                rand = (
-                    random.randint(area[0][0], area[1][0]),
-                    random.randint(area[0][1], area[1][1]),
-                )
-                enemy = Enemy.get_enemy_type(
-                    enemy_type, x=rand[0], y=rand[1], world_layer=world_layer, is_server=True, **kwargs
-                )
-                self.network.game_state.enemies.addEntity(enemy)
+                position_valid = False
+                max_attempts = 10
+                attempts = 0
+
+                while not position_valid and attempts < max_attempts:
+                    rand = (
+                        random.randint(area[0][0], area[1][0]),
+                        random.randint(area[0][1], area[1][1]),
+                    )
+
+                    # Créer temporairement l'ennemi pour tester
+                    test_enemy = Enemy.get_enemy_type(
+                        enemy_type,
+                        x=rand[0],
+                        y=rand[1],
+                        world_layer=world_layer,
+                        is_server=True,
+                        **kwargs
+                    )
+
+                    # Vérifier si la position collide avec un mur
+                    if not test_enemy.hitbox.get_server_collided():
+                        position_valid = True
+                        self.network.game_state.enemies.addEntity(test_enemy)
+
+                    attempts += 1

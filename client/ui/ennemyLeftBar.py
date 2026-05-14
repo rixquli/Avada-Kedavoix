@@ -22,7 +22,7 @@ class EnnemyLeftBar:
         self.game_manager = GameManager()
 
         self.text_to_render = Text(
-            f"Ennemy left: {self.current_val}",
+            f"Enemy left: {self.current_val}",
             self.position,
             color=(255, 255, 255),
             anchor=self.anchor,
@@ -33,7 +33,7 @@ class EnnemyLeftBar:
         current_player = self.game_manager.client_manager.get_player()
         if current_player:
             self.current_val = len(self.game_manager.game_state.enemies.get_list())
-            self.text_to_render.change_text(f"Ennemy left: {self.current_val}")
+            self.text_to_render.change_text(f"Enemy left: {self.current_val}")
 
     def draw(
         self,

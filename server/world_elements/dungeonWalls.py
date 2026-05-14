@@ -25,6 +25,7 @@ class Room:
 class DungeonLevel:
     walls: list
     teleport_pos: tuple
+    is_boss_room: bool = False  # Flag pour indiquer si c'est une salle sans sortie
 
 
 class DungeonGenerator:
@@ -324,7 +325,42 @@ class DungeonGenerator:
 
         return walls
 
-    def generate_level(self, required_point=None):
+    def generate_boss_room(self):
+        """Genere la salle du boss sans teleporteur de sortie"""
+        # Create one giant room
+        room = Room(
+            -self.width * 2 // 2, -self.height * 2 // 2, self.width * 2, self.height * 2
+        )
+
+        # Build just the outer walls with no openings
+        walls = []
+
+        # Top wall
+        walls.append((room.x, room.y, room.w, self.wall_thickness))
+
+        # Bottom wall
+        walls.append(
+            (room.x, room.y + room.h - self.wall_thickness, room.w, self.wall_thickness)
+        )
+
+        # Left wall
+        walls.append((room.x, room.y, self.wall_thickness, room.h))
+
+        # Right wall
+        walls.append(
+            (room.x + room.w - self.wall_thickness, room.y, self.wall_thickness, room.h)
+        )
+
+        # Teleport position at center (utilisé pour l'apparition du boss, pas pour les portails)
+        teleport_pos = (room.x + room.w // 2, room.y + room.h // 2)
+
+        return DungeonLevel(
+            walls=walls,
+            teleport_pos=teleport_pos,
+            is_boss_room=True,  # Pas de portail de sortie dans cette salle
+        )
+
+    def generate_level(self, required_point=None, is_last=False):
 
         rooms = self.generate_rooms(required_point=required_point)
 
@@ -355,9 +391,21 @@ class Dungeon:
 
     def generate_all_layer(self):
         for i in range(self.nb_level):
-            level = self.generator.generate_level(required_point=self.required_point[i])
-            self.dungeonWalls[i] = DungeonLevel(level.walls, level.teleport_pos)
-            self.required_point[i + 1] = level.teleport_pos
+            is_last = i == self.nb_level - 1
+
+            # Genere la boss room
+            if is_last:
+                level = self.generator.generate_boss_room()
+            else:
+                level = self.generator.generate_level(
+                    required_point=self.required_point[i], is_last=is_last
+                )
+
+            self.dungeonWalls[i] = DungeonLevel(
+                level.walls, level.teleport_pos, getattr(level, "is_boss_room", False)
+            )
+            if not is_last:
+                self.required_point[i + 1] = level.teleport_pos
 
     def generate_layer(self, level_value: int):
         if level_value > 0 and self.dungeonWalls[level_value - 1] == None:

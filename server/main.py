@@ -117,7 +117,7 @@ def handle_conn():
             i = 2
             test_player_id = player_id + f"_{i}"
             while network.game_state.players.exist(test_player_id):
-                i +=1
+                i += 1
                 test_player_id = player_id + f"_{i}"
             player_id = test_player_id
 
@@ -128,10 +128,10 @@ def handle_conn():
                 color=colors[num_players % len(colors)],
                 radius=10,
                 is_server=True,
+                world_layer=1,
             ),
             fixed_id=player_id,
         )
-
 
         print(f"Player {player_id} connected")
 
@@ -227,32 +227,17 @@ def generate_all_dungeon():
         network.enemySpawner.dungeon_generate(Layer.DUNGEON_BASE.value + i, i)
 
 
-def generate_all_dungeon():
-    network.Dungeon.generate_all_layer()
-    for i, e in enumerate(network.Dungeon.dungeonWalls):
-        for data in e.walls:
-            wall = Wall(
-                data[0],
-                data[1],
-                data[2],
-                data[3],
-                Layer.DUNGEON_BASE.value + i,
-                texture_path=None,
-            )
-            network.game_state.walls.addEntity(wall)
-            network.game_state.collision_manager.client_collider_groups["obstacle"].add(
-                wall
-            )
-        network.enemySpawner.dungeon_generate(Layer.DUNGEON_BASE.value + i, i)
-
-
 # TODO: Enlever cette fonction elle ne doit rester que en développement ou etre adapté
 def spawn_element_at_start():
     enemy1 = network.game_state.enemies.addEntity(
-        Enemy.get_enemy_type(EnemyList.GOBELIN_MASSUE, x=200, y=200, world_layer=1, is_server=True)
+        Enemy.get_enemy_type(
+            EnemyList.GOBELIN_MASSUE, x=200, y=200, world_layer=1, is_server=True
+        )
     )
     enemy2 = network.game_state.enemies.addEntity(
-        Enemy.get_enemy_type(EnemyList.BOSS, x=350, y=350, world_layer=1, is_server=True)
+        Enemy.get_enemy_type(
+            EnemyList.BOSS, x=350, y=350, world_layer=1, is_server=True
+        )
     )
     enemy2 = network.game_state.enemies.addEntity(
         Enemy(350, 350, (0, 255, 255), world_layer=2, is_server=True)
