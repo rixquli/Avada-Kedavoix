@@ -14,6 +14,7 @@ class Text:
         text,
         position: tuple[float, float],
         font_size=35,
+        font_bold=False,
         font_name="Corbel",
         background=False,
         width=None,
@@ -24,7 +25,7 @@ class Text:
         anchor: Anchor = Anchor.TOPLEFT,
         text_align: str = "center",
         bg_border=True,
-        padding= (0,0),
+        padding=(0, 0),
     ):
         self.position = position
         self.color = color
@@ -32,8 +33,9 @@ class Text:
         self.bg_alpha = bg_alpha
         self.bg_border = bg_border
         self.font_size = font_size
+        self.font_bold = font_bold
         self.font_name = font_name
-        self.font = pygame.font.SysFont(self.font_name, self.font_size)
+        self.font = pygame.font.SysFont(self.font_name, self.font_size, self.font_bold)
         self.text = text
         self.background = background
         self.anchor = anchor
@@ -41,7 +43,7 @@ class Text:
         self.fixed_background_size = bool(
             background and width is not None and height is not None
         )
-        self.padding =padding
+        self.padding = padding
 
         # si la width et la heigth sont definit on s'en sert
         # sinon on prend la taille du texte
@@ -72,8 +74,8 @@ class Text:
             self.backgroundRect = pygame.Rect(
                 self.actual_position[0],
                 self.actual_position[1],
-                self.width + self.padding[0]*2,
-                self.height + self.padding[1]*2,
+                self.width + self.padding[0] * 2,
+                self.height + self.padding[1] * 2,
             )
         else:
             self.backgroundRect = None
@@ -83,30 +85,33 @@ class Text:
         Découpe le texte en lignes selon la largeur disponible.
         Retourne une liste de lignes.
         """
+        forced_new_lines = self.text.split("\n")
+
         if not self.fixed_background_size:
-            return [self.text]
+            return forced_new_lines
 
-        words = self.text.split(" ")
         lines = []
-        current_line = ""
+        for new_line in forced_new_lines:
+            current_line = ""
+            words = new_line.split(" ")
 
-        for word in words:
-            # Tester si on peut ajouter le mot à la ligne actuelle
-            test_line = current_line + (" " if current_line else "") + word
-            test_render = self.font.render(test_line, True, self.color)
+            for word in words:
+                # Tester si on peut ajouter le mot à la ligne actuelle
+                test_line = current_line + (" " if current_line else "") + word
+                test_render = self.font.render(test_line, True, self.color)
 
-            if test_render.get_width() < self.width - 10:  # Marges
-                current_line = test_line
-            else:
-                # Le mot ne rentre pas, on passe à la ligne suivante
-                if current_line:
-                    lines.append(current_line)
-                current_line = word
+                if test_render.get_width() < self.width - 10:  # Marges
+                    current_line = test_line
+                else:
+                    # Le mot ne rentre pas, on passe à la ligne suivante
+                    if current_line:
+                        lines.append(current_line)
+                    current_line = word
 
-        if current_line:
-            lines.append(current_line)
+            if current_line:
+                lines.append(current_line)
 
-        return lines if lines else [self.text]
+        return lines if lines else forced_new_lines
 
     def _render_lines(self) -> list[pygame.Surface]:
         """
@@ -151,7 +156,7 @@ class Text:
     def draw(self, window):
         if not self.text or self.text == "":
             return
-        
+
         self.update_position()
 
         if self.background:
@@ -226,9 +231,7 @@ class Text:
                     )
                 elif self.text_align == "right":
                     line_x = (
-                        self.actual_position[0]
-                        + self.width
-                        - rendered_line.get_width()
+                        self.actual_position[0] + self.width - rendered_line.get_width()
                     )
                 else:  # topleft (par défaut)
                     line_x = self.actual_position[0]

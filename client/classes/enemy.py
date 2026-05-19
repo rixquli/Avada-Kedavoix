@@ -267,13 +267,14 @@ class Enemy(Serializable):
         self.animator.blit_sprite(surface, pos)
 
         self.hitbox.draw(surface, offset)
-        self.healthBar.draw(
-            surface,
-            self.display_x + offset[0],
-            self.display_y + offset[1],
-            self.hp,
-            self.max_hp,
-        )
+        if not self.is_boss:
+            self.healthBar.draw(
+                surface,
+                self.display_x + offset[0],
+                self.display_y + offset[1],
+                self.hp,
+                self.max_hp,
+            )
 
         if self.debug:
             if self.path is not None:
@@ -353,6 +354,7 @@ class Enemy(Serializable):
                     hp=100,
                     dmg_mult=5,
                     size=100,
+                    is_boss=True,
                     **keyargs,
                 )
             case _:
