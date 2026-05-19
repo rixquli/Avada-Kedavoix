@@ -13,6 +13,7 @@ Ex:
 import os
 import sys
 
+from client.ui.credit import Credit
 from client.ui.dropdown import DropDownMenu
 import pygame
 
@@ -43,6 +44,9 @@ hud_state = {"show_dialog": True}
 # Etat UI du Join Menu conservé entre les refresh.
 join_menu_state = {"error_message": ""}
 
+# Etat UI du Credit Menu conservé entre les refresh.
+credit_menu_state = {"credit": None}
+
 
 # fonction auxiliaire utilisé plus bas
 def close_and_exec(menu_name, function, *params):
@@ -71,6 +75,11 @@ def main_menu(menu_name):
 
     def joinButtonClicked():
         game_manager.ui.show("JoinMenu")
+
+    def creditButtonClicked():
+        credit_menu_state["credit"] = None
+        game_manager.ui.refresh("CreditMenu")
+        game_manager.ui.show("CreditMenu")
 
     title = Text(
         "AVADA KEDAVOIX",
@@ -108,6 +117,14 @@ def main_menu(menu_name):
         onclickFunction=lambda: close_and_exec(menu_name, joinButtonClicked),
         anchor=Anchor.CENTER,
     )
+    credit_btn = Button(
+        "CREDIT",
+        250,
+        50,
+        (0, 200),
+        onclickFunction=lambda: close_and_exec(menu_name, creditButtonClicked),
+        anchor=Anchor.CENTER,
+    )
     background = Image(
         path="UI/main_screen.png",
         width=1920,
@@ -122,7 +139,23 @@ def main_menu(menu_name):
         start_single_player,
         start_hosting_player,
         start_join_player,
+        credit_btn,
+        # Credit(),
     ]
+
+
+def credit_menu(menu_name):
+    def close_menu():
+        credit_menu_state["credit"] = None
+        game_manager.ui.show("MainMenu")
+
+    if not credit_menu_state["credit"]:
+        credit_menu_state["credit"] = Credit(
+            lambda: close_and_exec(menu_name, close_menu)
+        )
+
+    if credit_menu_state["credit"]:
+        return [credit_menu_state["credit"]]
 
 
 def join_menu(menu_name):
@@ -381,6 +414,11 @@ Menus = [
     {
         "name": "settings",
         "content": settings,
+        "is_showing": False,
+    },
+    {
+        "name": "CreditMenu",
+        "content": credit_menu,
         "is_showing": False,
     },
 ]
