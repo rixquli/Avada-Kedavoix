@@ -147,7 +147,7 @@ class GameManager:
         #     self.groups["obstacle"].add(wall)
 
         self.debug = False
-    
+
     def back_to_main_menu(self):
         self.client_manager.close_connection()
         self.hold_for_loading_layer = False
@@ -184,8 +184,7 @@ class GameManager:
             print(1 / (time.time() - t))
 
     def quit(self):
-        self.client_manager.network.close_server()
-        self.client_manager.network.close_client_socket()
+        self.client_manager.close_connection()
         pygame.quit()
         sys.exit()
 

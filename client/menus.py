@@ -41,6 +41,8 @@ game_manager = GameManager()
 # Etat UI du HUD conservé entre les refresh.
 hud_state = {"show_dialog": True}
 
+solo_host_state = {"game_type": "solo"}
+
 # Etat UI du Join Menu conservé entre les refresh.
 join_menu_state = {"error_message": ""}
 
@@ -68,10 +70,12 @@ def main_menu(menu_name):
     """
 
     def singlePlayerButtonClicked():
-        game_manager.client_manager.startSinglePlayer()
+        solo_host_state["game_type"] = "solo"
+        game_manager.ui.show("ContinueNewGameMenu")
 
     def hostButtonClicked():
-        game_manager.client_manager.startHosting()
+        solo_host_state["game_type"] = "host"
+        game_manager.ui.show("ContinueNewGameMenu")
 
     def joinButtonClicked():
         game_manager.ui.show("JoinMenu")
@@ -156,6 +160,59 @@ def credit_menu(menu_name):
 
     if credit_menu_state["credit"]:
         return [credit_menu_state["credit"]]
+
+
+def continue_new_game_menu(menu_name):
+    def continue_btn():
+        if solo_host_state["game_type"] == "solo":
+            game_manager.client_manager.startSinglePlayer(newGame=False)
+        else:
+            game_manager.client_manager.startHosting(newGame=False)
+
+    def new_btn():
+        if solo_host_state["game_type"] == "solo":
+            game_manager.client_manager.startSinglePlayer(newGame=True)
+        else:
+            game_manager.client_manager.startHosting(newGame=True)
+
+    return [
+        Image(
+            path="UI/main_screen.png",
+            width=1920,
+            height=1080,
+            position=(0, 0),
+            anchor=Anchor.TOPLEFT,
+        ),
+        # title
+        Text(
+            "AVADA KEDAVOIX",
+            (0, 100),
+            font_size=100,
+            color=(0, 0, 0),
+            bg_alpha=0,
+            width=1000,
+            height=150,
+            anchor=Anchor.MIDTOP,
+            background=True,
+            bg_border=False,
+        ),
+        Button(
+            "CONTINUE GAME",
+            300,
+            50,
+            position=(0, -50),
+            onclickFunction=lambda: close_and_exec(menu_name, continue_btn),
+            anchor=Anchor.CENTER,
+        ),
+        Button(
+            "CREATE NEW GAME",
+            300,
+            50,
+            position=(0, 50),
+            onclickFunction=lambda: close_and_exec(menu_name, new_btn),
+            anchor=Anchor.CENTER,
+        ),
+    ]
 
 
 def join_menu(menu_name):
@@ -419,6 +476,11 @@ Menus = [
     {
         "name": "CreditMenu",
         "content": credit_menu,
+        "is_showing": False,
+    },
+    {
+        "name": "ContinueNewGameMenu",
+        "content": continue_new_game_menu,
         "is_showing": False,
     },
 ]

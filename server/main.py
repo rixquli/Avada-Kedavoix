@@ -113,7 +113,11 @@ def handle_conn():
         colors = [(0, 255, 0), (255, 0, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255)]
         player_id = f"P{uuid.getnode()}"
 
-        if network.game_state.players.exist(player_id):
+        # si le joueur sur la meme machine est deja connecter alors on creer une deuxieme instance
+        if (
+            player_id in network.player_connections.values()
+            and network.game_state.players.exist(player_id)
+        ):
             i = 2
             test_player_id = player_id + f"_{i}"
             while network.game_state.players.exist(test_player_id):
@@ -121,17 +125,18 @@ def handle_conn():
                 test_player_id = player_id + f"_{i}"
             player_id = test_player_id
 
-        network.game_state.players.addEntity(
-            Player(
-                x=num_players * 100,
-                y=num_players * 50,
-                color=colors[num_players % len(colors)],
-                radius=10,
-                is_server=True,
-                world_layer=1,
-            ),
-            fixed_id=player_id,
-        )
+        if not network.game_state.players.exist(player_id):
+            network.game_state.players.addEntity(
+                Player(
+                    x=num_players * 100,
+                    y=num_players * 50,
+                    color=colors[num_players % len(colors)],
+                    radius=10,
+                    is_server=True,
+                    world_layer=1,
+                ),
+                fixed_id=player_id,
+            )
 
         print(f"Player {player_id} connected")
 
@@ -367,6 +372,10 @@ def start_game_server(
 
     # Envoie l'etat du monde aux joueurs
     broadcast_game_state()
+
+
+def manual_save():
+    saver.save()
 
 
 def main():
