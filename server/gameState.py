@@ -28,7 +28,7 @@ from client.classes.enemy import Enemy
 from client.classes.player import Player
 from client.classes.spell import Spell
 from server.managers.entityManager import EntityManager
-from classes.serializable import Serializable
+from server.classes.serializable import Serializable
 
 
 class GameState:
