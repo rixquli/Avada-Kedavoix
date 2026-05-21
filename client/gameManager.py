@@ -101,6 +101,16 @@ class GameManager:
             self.fullscreen_size = (display_info.current_w, display_info.current_h)
         self.fullscreen = True
         self.screen = pygame.display.set_mode(self.fullscreen_size, pygame.NOFRAME)
+        # Essayez de charger une icône pour la fenêtre (logo.png dans client/ressources)
+        try:
+            icon_path = os.path.normpath(
+                os.path.join(os.path.dirname(__file__), "ressources", "logo.png")
+            )
+            self.icon_surface = pygame.image.load(icon_path)
+            pygame.display.set_icon(self.icon_surface)
+        except Exception as e:
+            print("Warning: impossible de charger l'icône:", e)
+
         # self.screen = pygame.display.set_mode(
         #     (self.width, self.height), pygame.RESIZABLE
         # )

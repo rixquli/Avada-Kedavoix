@@ -48,6 +48,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=os.path.join(os.path.abspath('.'), 'client', 'ressources', 'logo.ico'),
 )
 
 coll = COLLECT(
