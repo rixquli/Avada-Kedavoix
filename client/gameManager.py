@@ -91,10 +91,19 @@ class GameManager:
     def setup_pygame(self):
         """Initialise pygame et crée la fenetre"""
         pygame.init()
-        self.width, self.height = 1920, 1080
-        self.screen = pygame.display.set_mode(
-            (self.width, self.height), pygame.RESIZABLE
-        )
+        self.width, self.height = 1200, 800
+        self.windowed_size = (self.width, self.height)
+        desktop_sizes = pygame.display.get_desktop_sizes()
+        if desktop_sizes:
+            self.fullscreen_size = desktop_sizes[0]
+        else:
+            display_info = pygame.display.Info()
+            self.fullscreen_size = (display_info.current_w, display_info.current_h)
+        self.fullscreen = True
+        self.screen = pygame.display.set_mode(self.fullscreen_size, pygame.NOFRAME)
+        # self.screen = pygame.display.set_mode(
+        #     (self.width, self.height), pygame.RESIZABLE
+        # )
         pygame.display.set_caption("Avada Kedavoix")
         self.clock = pygame.time.Clock()
         self.clock.tick(60)
@@ -193,7 +202,25 @@ class GameManager:
         Gere le evennements (ex: touches claviers, souris, ...)
         """
         if event.type == pygame.VIDEORESIZE:
+            if not self.fullscreen:
+                self.width, self.height = event.w, event.h
+                self.windowed_size = (self.width, self.height)
             self.ui.on_resize()
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_F11:
+                self.fullscreen = not self.fullscreen
+                if self.fullscreen:
+                    self.windowed_size = (self.width, self.height)
+                    self.screen = pygame.display.set_mode(
+                        self.fullscreen_size, pygame.NOFRAME
+                    )
+                else:
+                    # la ligne juste en dessous permet de centré la fenetre quand on enleve le plein ecran
+                    os.environ["SDL_VIDEO_CENTERED"] = "1"
+                    self.screen = pygame.display.set_mode(
+                        self.windowed_size, pygame.RESIZABLE
+                    )
+                self.ui.on_resize()
 
         self.ui.handle_event(event)  # Gere les evenement des elements des interfaces
 
