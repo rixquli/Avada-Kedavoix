@@ -18,6 +18,7 @@ Pour résumer GameState = Une copie du monde partagée entre clients et serveur
 
 import os
 import sys
+import time
 
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -34,6 +35,9 @@ from server.classes.serializable import Serializable
 class GameState:
     """permet d'avoir une copie partagee entre client et serveur"""
 
+    day_min = 5
+    night_min = 5
+
     def __init__(self):
         self.collision_manager = CollisionManager(self)
 
@@ -42,6 +46,9 @@ class GameState:
         self.enemies = EntityManager(Enemy)
         self.pnjs = EntityManager(PNJ)
         self.walls = EntityManager(Wall)
+
+        # self.base_ingame_time = None
+        self.ingame_time = 0
 
         self.all_entities_manager = [
             self.players,
@@ -65,6 +72,7 @@ class GameState:
             "enemies": enemies_state,
             "pnjs": pnjs_state,
             "walls": walls_state,
+            "ingame_time": self.ingame_time,
         }
 
     # Executer cote serveur
@@ -112,6 +120,9 @@ class GameState:
             else:
                 pnj.server_update()
 
+        # update time
+        self.ingame_time += 1 / 30
+
         # Collision handler (events)
         self.collision_manager.handle_collision(entity_list=self.get_entities_list())
 
@@ -144,6 +155,9 @@ class GameState:
             elif layer == pnj.world_layer:
                 pnj.server_update()
 
+        # update time
+        self.ingame_time += 1 / 30
+
         # Collision handler (events)
         self.collision_manager.handle_collision(
             entity_list=self.get_entities_list_layer(layer)
@@ -164,6 +178,9 @@ class GameState:
         self.apply_state_for(state, "spells", self.spells, layer=layer, server=server)
         self.apply_state_for(state, "pnjs", self.pnjs, layer=layer, server=server)
         self.apply_state_for(state, "walls", self.walls, layer=layer, server=server)
+        ingame_time = state.get("ingame_time", None)
+        if ingame_time:
+            self.ingame_time = ingame_time
 
         if not server:
             self.collision_manager.update_collision_group("obstacle", [self.walls])

@@ -37,6 +37,8 @@ class NetworkManager:
         self.enemySpawner = EnemySpawner(self)
         self.Dungeon = Dungeon()
 
+        self.night_spawned_surface = False
+
     # Methodes du serveur
     def start_server(self, address=None, port=None, max_player=5, is_solo=False):
         if not self.is_server:
