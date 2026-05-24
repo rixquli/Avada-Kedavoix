@@ -476,3 +476,24 @@ iframe {
 	margin-left: 20px;
 	margin-top: 1rem;
 }
+
+
+.box_src {
+	margin: 0 auto;
+	border: 5px solid #a542b8;
+	padding: 1rem;
+	border-radius: 30px;
+	background-color: #fff;
+	color: #a542b8;
+	width: 1600px;
+	margin-top: 4rem;
+}
+
+.box_src h1 {
+	text-align: center;
+}
+
+.box_src ul {
+	margin-left: 2rem;
+	font-size: 20px;
+}
