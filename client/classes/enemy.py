@@ -327,6 +327,7 @@ class Enemy(Serializable):
                     reach=500,
                     dist_from=50,
                     attack_delay=1,
+                    vitesse=3,
                     **keyargs,
                 )
             case EnemyList.DRAGON:
@@ -335,6 +336,7 @@ class Enemy(Serializable):
                     spell_type=SpellList.FIREBALL,
                     reach=500,
                     dist_from=100,
+                    vitesse=2,
                     **keyargs,
                 )
             case EnemyList.SKELETON:
