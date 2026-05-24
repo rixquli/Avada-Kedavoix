@@ -131,8 +131,8 @@ def main_menu(menu_name):
     )
     background = Image(
         path="UI/main_screen.png",
-        width=1920,
-        height=1080,
+        width=game_manager.fullscreen_size[0],
+        height=game_manager.fullscreen_size[1],
         position=(0, 0),
         anchor=Anchor.TOPLEFT,
     )
@@ -178,8 +178,8 @@ def continue_new_game_menu(menu_name):
     return [
         Image(
             path="UI/main_screen.png",
-            width=1920,
-            height=1080,
+            width=game_manager.fullscreen_size[0],
+            height=game_manager.fullscreen_size[1],
             position=(0, 0),
             anchor=Anchor.TOPLEFT,
         ),
@@ -258,8 +258,8 @@ def join_menu(menu_name):
     return [
         Image(
             path="UI/main_screen.png",
-            width=1920,
-            height=1080,
+            width=game_manager.fullscreen_size[0],
+            height=game_manager.fullscreen_size[1],
             position=(0, 0),
             anchor=Anchor.TOPLEFT,
         ),
