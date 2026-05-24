@@ -369,7 +369,10 @@ class GameManager:
                 (self.screen.get_width() // 2, self.screen.get_height() // 2),
             )
 
-        if self.client_manager.game_state.ingame_time != None:
+        if (
+            self.world_layer == Layer.OVERWORLD.value
+            and self.client_manager.game_state.ingame_time != None
+        ):
             # print(
             #     f"{(self.client_manager.game_state.ingame_time//60) //60}h {(self.client_manager.game_state.ingame_time//60)%60}min {(self.client_manager.game_state.ingame_time%60)}s"
             # )
