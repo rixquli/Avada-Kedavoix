@@ -123,6 +123,7 @@ class ListIa:
         cible_pos = BasicIaUtility.get_pos_closest_player(
             enemy.x, enemy.y, enemy.reach, world_layer=enemy.world_layer
         )
+        dist = BasicIaUtility.get_dist(enemy.x, enemy.y, cible_pos[0], cible_pos[1])
         if enemy.next_pos_vect[0] <= 0 or enemy.next_pos_vect[1] <= 0:
             if cible_pos is None:
                 enemy.vx = 0
@@ -130,10 +131,7 @@ class ListIa:
                 enemy.path = []
                 return
 
-            if (
-                BasicIaUtility.get_dist(enemy.x, enemy.y, cible_pos[0], cible_pos[1])
-                <= enemy.dist_from
-            ):
+            if dist <= enemy.dist_from:
                 dx, dy = (0, 0)
 
             else:
@@ -173,7 +171,7 @@ class ListIa:
             vect_y = enemy.next_pos_vect[1] - abs(enemy.vy)
             enemy.next_pos_vect = (vect_x, vect_y)
 
-        if time.time() - enemy.prec_attack_time > enemy.attack_delay:
+        if  cible_pos and dist < enemy.reach and time.time() - enemy.prec_attack_time > enemy.attack_delay:
             attack_dir = BasicIaUtility.dir_target(
                 enemy.x, enemy.y, world_layer=enemy.world_layer
             )
