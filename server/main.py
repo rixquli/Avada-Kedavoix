@@ -26,6 +26,7 @@ from client.classes.pnj import PNJ
 from client.classes.enemy import Enemy, EnemyList
 from client.classes.player import Player
 from client.classes.spell import Spell
+from client.classes.house import House
 from server.NetworkManager import NetworkManager
 from server.message import Message, MessageType
 
@@ -277,8 +278,8 @@ def spawn_element_at_start():
     # TODO: deplacer les texts a l'exterieur du programme
     pnj1 = network.game_state.pnjs.addEntity(
         PNJ(
-            -150,
-            -150,
+            -50,
+            50,
             (255, 0, 255),
             text=[
                 {
@@ -311,8 +312,8 @@ def spawn_element_at_start():
     )
     pnj2 = network.game_state.pnjs.addEntity(
         PNJ(
-            -100,
-            -100,
+            -250,
+            10,
             (255, 0, 255),
             text=[
                 {
@@ -343,7 +344,26 @@ def spawn_element_at_start():
             is_server=True,
         )
     )
+    
+    house1 = House(-80, -100, 20, 1, True)
+    network.game_state.houses.addEntity(
+        house1
+    )
+    network.game_state.collision_manager.client_collider_groups["obstacle"].add(house1.hitbox)
+    
+    house2 = House(-300, -120, 20, 1, True)
+    network.game_state.houses.addEntity(
+        house2
+    )
+    network.game_state.collision_manager.client_collider_groups["obstacle"].add(house2.hitbox)
 
+    house3 = House(400, 150, 20, 1, True)
+    network.game_state.houses.addEntity(
+        house3
+    )
+    network.game_state.collision_manager.client_collider_groups["obstacle"].add(house3.hitbox)
+
+    
     walls = [
         Wall(-500, -500, 1000, 50, texture_path=None),
         Wall(-500, 500, 1050, 50, texture_path=None),

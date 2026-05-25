@@ -8,6 +8,7 @@ from client.classes.enemy import Enemy
 from client.classes.spell import Spell
 from client.classes.player import Player
 from client.classes.wall import Wall
+from client.classes.house import House
 
 
 if TYPE_CHECKING:
@@ -30,4 +31,5 @@ CollisionsList = [
     {"entity1": Spell, "entity2": Enemy, "handler": spell_other},
     {"entity1": Spell, "entity2": Player, "handler": spell_other},
     {"entity1": Spell, "entity2": Wall, "handler": spell_other},
+    {"entity1": Spell, "entity2": House, "handler": spell_other},
 ]

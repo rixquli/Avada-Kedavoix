@@ -28,6 +28,7 @@ from client.classes.pnj import PNJ
 from client.classes.enemy import Enemy
 from client.classes.player import Player
 from client.classes.spell import Spell
+from client.classes.house import House
 from server.managers.entityManager import EntityManager
 from server.classes.serializable import Serializable
 
@@ -46,6 +47,7 @@ class GameState:
         self.enemies = EntityManager(Enemy)
         self.pnjs = EntityManager(PNJ)
         self.walls = EntityManager(Wall)
+        self.houses = EntityManager(House)
 
         # self.base_ingame_time = None
         self.ingame_time = 0
@@ -56,6 +58,7 @@ class GameState:
             self.enemies,
             self.pnjs,
             self.walls,
+            self.houses,
         ]
 
     def get_game_state(self, diff=True, layer=None):
@@ -65,6 +68,7 @@ class GameState:
         enemies_state = self.enemies.to_dict(diff, layer)
         pnjs_state = self.pnjs.to_dict(diff, layer)
         walls_state = self.walls.to_dict(diff, layer)
+        houses_state = self.houses.to_dict(diff, layer)
 
         return {
             "players": players_state,
@@ -72,6 +76,7 @@ class GameState:
             "enemies": enemies_state,
             "pnjs": pnjs_state,
             "walls": walls_state,
+            "houses": houses_state,
             "ingame_time": self.ingame_time,
         }
 
@@ -178,12 +183,13 @@ class GameState:
         self.apply_state_for(state, "spells", self.spells, layer=layer, server=server)
         self.apply_state_for(state, "pnjs", self.pnjs, layer=layer, server=server)
         self.apply_state_for(state, "walls", self.walls, layer=layer, server=server)
+        self.apply_state_for(state, "houses", self.houses, layer=layer, server=server)
         ingame_time = state.get("ingame_time", None)
         if ingame_time:
             self.ingame_time = ingame_time
 
         if not server:
-            self.collision_manager.update_collision_group("obstacle", [self.walls])
+            self.collision_manager.update_collision_group("obstacle", [self.walls, self.houses])
 
     def apply_state_for(
         self, state, name, entities, my_player_id=None, layer=None, server=False

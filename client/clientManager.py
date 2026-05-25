@@ -27,6 +27,8 @@ from server.main import manual_save, start_game_server as server_main
 from enum import Enum
 
 
+from client.classes.house import House
+
 class State(Enum):
     MAIN_MENU = 1
     SOLO = 2
