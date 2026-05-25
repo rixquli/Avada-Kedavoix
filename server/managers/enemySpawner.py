@@ -5,25 +5,25 @@ from client.classes.enemy import EnemyList
 
 DungeonEnemyList: List[List[Tuple[int, EnemyList, Dict[str, Any]]]] = [
     # Etage 1
-    [(5, EnemyList.GOBELIN_MASSUE, {}), (5, EnemyList.DRAGON, {})],
+    [(10, EnemyList.GOBELIN_MASSUE, {}), (10, EnemyList.DRAGON, {})],
     # Etage 2
-    [(10, EnemyList.GOBELIN_MASSUE, {})],
+    [(20, EnemyList.GOBELIN_MASSUE, {})],
     # Etage 3
-    [(10, EnemyList.DRAGON, {})],
+    [(20, EnemyList.DRAGON, {})],
     # Etage 4
-    [(10, EnemyList.DRAGON, {})],
+    [(20, EnemyList.DRAGON, {})],
     # Etage 5
-    [(10, EnemyList.DRAGON, {})],
+    [(20, EnemyList.DRAGON, {})],
     # Etage 6
-    [(10, EnemyList.DRAGON, {})],
+    [(20, EnemyList.DRAGON, {})],
     # Etage 7
-    [(10, EnemyList.DRAGON, {})],
+    [(20, EnemyList.DRAGON, {})],
     # Etage 8
-    [(10, EnemyList.DRAGON, {})],
+    [(20, EnemyList.DRAGON, {})],
     # Etage 9
-    [(10, EnemyList.DRAGON, {})],
+    [(20, EnemyList.DRAGON, {})],
     # Etage Boss
-    [(10, EnemyList.DRAGON, {}), (1, EnemyList.BOSS, {})],
+    [(20, EnemyList.DRAGON, {}), (1, EnemyList.BOSS, {})],
 ]
 
 
@@ -72,3 +72,36 @@ class EnemySpawner:
                         self.network.game_state.enemies.addEntity(test_enemy)
 
                     attempts += 1
+
+    def spawn_night_surface(
+        self, world_layer=1, count=3, area=((-400, -400), (400, 400))
+    ):
+        from client.classes.enemy import Enemy
+        from client.classes.enemy import EnemyList
+
+        for _ in range(count):
+            position_valid = False
+            max_attempts = 10
+            attempts = 0
+
+            while not position_valid and attempts < max_attempts:
+                rand = (
+                    random.randint(area[0][0], area[1][0]),
+                    random.randint(area[0][1], area[1][1]),
+                )
+
+                # Créer temporairement l'ennemi pour tester
+                test_enemy = Enemy.get_enemy_type(
+                    EnemyList.GOBELIN_MASSUE,
+                    x=rand[0],
+                    y=rand[1],
+                    world_layer=world_layer,
+                    is_server=True,
+                )
+
+                # Vérifier si la position collide avec un mur
+                if not test_enemy.hitbox.get_server_collided():
+                    position_valid = True
+                    self.network.game_state.enemies.addEntity(test_enemy)
+
+                attempts += 1

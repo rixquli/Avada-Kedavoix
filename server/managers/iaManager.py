@@ -65,9 +65,9 @@ class BasicIaUtility:
 
         players_pos = BasicIaUtility.get_players_pos(world_layer=world_layer)
         if len(players_pos) != 0:
-            player_pos = (x,y)
+            player_pos = (x, y)
             for pos in players_pos:
-                dist = ((pos[0] - x) ** 2 + (pos[1] - y) ** 2)**0.5
+                dist = ((pos[0] - x) ** 2 + (pos[1] - y) ** 2) ** 0.5
                 if dist < dist_min or dist_min == -1:
                     dist_min = dist
                     player_pos = pos
@@ -123,16 +123,15 @@ class ListIa:
         cible_pos = BasicIaUtility.get_pos_closest_player(
             enemy.x, enemy.y, enemy.reach, world_layer=enemy.world_layer
         )
-        if enemy.next_pos_vect[0]<=0 or enemy.next_pos_vect[1]<=0:
+        dist = BasicIaUtility.get_dist(enemy.x, enemy.y, cible_pos[0], cible_pos[1])
+        if enemy.next_pos_vect[0] <= 0 or enemy.next_pos_vect[1] <= 0:
             if cible_pos is None:
                 enemy.vx = 0
                 enemy.vy = 0
                 enemy.path = []
                 return
 
-            if (
-                BasicIaUtility.get_dist(enemy.x, enemy.y, cible_pos[0], cible_pos[1]) <= enemy.dist_from
-            ):
+            if dist <= enemy.dist_from:
                 dx, dy = (0, 0)
 
             else:
@@ -158,18 +157,21 @@ class ListIa:
                 sy = -1
             enemy.next_pos_vect = (dx, dy)
             enemy.next_pos_sign = (sx, sy)
-        d = (enemy.next_pos_vect[0]**2 + enemy.next_pos_vect[1]**2)**0.5
+        d = (enemy.next_pos_vect[0] ** 2 + enemy.next_pos_vect[1] ** 2) ** 0.5
         if d == 0:
-            enemy.vx,enemy.vy = (0,0)
+            enemy.vx, enemy.vy = (0, 0)
         else:
-            enemy.vx = enemy.next_pos_vect[0]/d *enemy.vitesse *5 * enemy.next_pos_sign[0]
-            enemy.vy = enemy.next_pos_vect[1]/d *enemy.vitesse *5 * enemy.next_pos_sign[1]
+            enemy.vx = (
+                enemy.next_pos_vect[0] / d * enemy.vitesse * 5 * enemy.next_pos_sign[0]
+            )
+            enemy.vy = (
+                enemy.next_pos_vect[1] / d * enemy.vitesse * 5 * enemy.next_pos_sign[1]
+            )
             vect_x = enemy.next_pos_vect[0] - abs(enemy.vx)
             vect_y = enemy.next_pos_vect[1] - abs(enemy.vy)
             enemy.next_pos_vect = (vect_x, vect_y)
 
-
-        if time.time() - enemy.prec_attack_time > enemy.attack_delay:
+        if  cible_pos and dist < enemy.reach and time.time() - enemy.prec_attack_time > enemy.attack_delay:
             attack_dir = BasicIaUtility.dir_target(
                 enemy.x, enemy.y, world_layer=enemy.world_layer
             )
@@ -181,7 +183,7 @@ class ListIa:
     def pnj_ia(pnj: PNJ) -> None:
         """ia des pnj: deplacement aleatoires (wandering)"""
         if BasicIaUtility.is_dest_reached(pnj.x, pnj.y, pnj.target_x, pnj.target_y, 1):
-            pnj.x_target = randint(int(pnj.y - 100), int(pnj.x + 100))
+            pnj.x_target = randint(int(pnj.x - 100), int(pnj.x + 100))
             pnj.y_target = randint(int(pnj.y - 100), int(pnj.y + 100))
             pnj.dist = (
                 (pnj.x_target - pnj.x) ** 2 + (pnj.y_target - pnj.y) ** 2

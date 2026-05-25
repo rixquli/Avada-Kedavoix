@@ -6,7 +6,6 @@ import os
 import sys
 from _thread import *
 
-
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from client.gameManager import GameManager

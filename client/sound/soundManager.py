@@ -55,19 +55,20 @@ class SoundManager:
             return None
 
     def preload_all_sfx_sounds(self):
-        files = sorted(Path("client/ressources/sounds/sfx").rglob("*.mp3"))
+        files = sorted((ASSETS_ROOT / "sounds" / "sfx").rglob("*.mp3"))
         sfx_dico = {}
         for sound_file in files:
-            snd = self.load(str(sound_file.relative_to("client")))
-            snd.set_volume(self.master * self.sfx)
-            sfx_dico[sound_file.stem] = snd
+            snd = self.load(str(sound_file))
+            if snd is not None:
+                snd.set_volume(self.master * self.sfx)
+                sfx_dico[sound_file.stem] = snd
         return sfx_dico
 
     def preload_all_music_sounds(self):
-        files = sorted(Path("client/ressources/sounds/music").rglob("*.mp3"))
+        files = sorted((ASSETS_ROOT / "sounds" / "music").rglob("*.mp3"))
         music_dict = {}
         for sound_file in files:
-            music_dict[sound_file.stem] = str(sound_file.relative_to("client"))
+            music_dict[sound_file.stem] = str(sound_file)
         return music_dict
 
     def play_sfx(self, name):

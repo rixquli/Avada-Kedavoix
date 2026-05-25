@@ -23,7 +23,7 @@ from client.classes.mapBackground import MapBackground
 from server.gameState import GameState
 from server.NetworkManager import NetworkManager
 from server.message import Message, MessageType
-from server.main import start_game_server as server_main
+from server.main import manual_save, start_game_server as server_main
 from enum import Enum
 
 
@@ -170,14 +170,20 @@ class ClientManager:
 
     # Start Game Part
 
-    def start_local_server(self, adress=None, port=None, max_player=5, is_solo=False):
+    def start_local_server(
+        self, adress=None, port=None, max_player=5, is_solo=False, newGame=True
+    ):
         self.server_ready = False
 
         def run_server():
             try:
                 print("Démarrage du serveur privé...")
                 server_main(
-                    adress=adress, port=port, max_player=max_player, is_solo=is_solo
+                    adress=adress,
+                    port=port,
+                    max_player=max_player,
+                    is_solo=is_solo,
+                    newGame=newGame,
                 )
                 self.server_ready = True
             except Exception as e:
@@ -187,10 +193,10 @@ class ClientManager:
         # Démarrer le serveur dans un thread
         start_new_thread(run_server, ())
 
-    def _startHosting(self, adress="0.0.0.0", port=12345):
+    def _startHosting(self, adress="0.0.0.0", port=12345, newGame=True):
         self.state = State.HOST
 
-        self.start_local_server(adress, port)
+        self.start_local_server(adress, port, newGame=newGame)
         self.game_manager.hold_for_loading_layer = True
         ImageTool.preload_images()
 
@@ -217,8 +223,8 @@ class ClientManager:
         print(f"Partie hébergée sur {local_ip}:{port}")
         print(f"Les autres joueurs peuvent rejoindre avec cette IP")
 
-    def startHosting(self, adress="0.0.0.0", port=12345):
-        start_new_thread(self._startHosting, (adress, port))
+    def startHosting(self, adress="0.0.0.0", port=12345, newGame=True):
+        start_new_thread(self._startHosting, (adress, port, newGame))
 
     def _joinParty(self, host_ip, port=12345) -> bool:
         try:
@@ -242,9 +248,9 @@ class ClientManager:
     def joinParty(self, host_ip, port=12345) -> bool:
         return self._joinParty(host_ip, port)
 
-    def _startSinglePlayer(self):
+    def _startSinglePlayer(self, newGame=True):
         self.state = State.SOLO
-        self.start_local_server(max_player=1, is_solo=True)
+        self.start_local_server(max_player=1, is_solo=True, newGame=newGame)
         self.game_manager.hold_for_loading_layer = True
         ImageTool.preload_images()
         # Attendre que le serveur soit vraiment prêt
@@ -263,9 +269,10 @@ class ClientManager:
             print("Timeout: impossible de se connecter au serveur")
             return
 
-    def startSinglePlayer(self):
-        start_new_thread(self._startSinglePlayer, ())
+    def startSinglePlayer(self, newGame=True):
+        start_new_thread(self._startSinglePlayer, (newGame,))
 
     def close_connection(self):
+        manual_save()
         self.network.close_server()
         self.network.close_client_socket()

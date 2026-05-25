@@ -15,6 +15,8 @@ import sys
 
 import uuid
 
+from server.gameState import GameState
+
 # To import module from other folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from server.classes.saver import Saver
@@ -113,7 +115,11 @@ def handle_conn():
         colors = [(0, 255, 0), (255, 0, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255)]
         player_id = f"P{uuid.getnode()}"
 
-        if network.game_state.players.exist(player_id):
+        # si le joueur sur la meme machine est deja connecter alors on creer une deuxieme instance
+        if (
+            player_id in network.player_connections.values()
+            and network.game_state.players.exist(player_id)
+        ):
             i = 2
             test_player_id = player_id + f"_{i}"
             while network.game_state.players.exist(test_player_id):
@@ -121,17 +127,18 @@ def handle_conn():
                 test_player_id = player_id + f"_{i}"
             player_id = test_player_id
 
-        network.game_state.players.addEntity(
-            Player(
-                x=num_players * 100,
-                y=num_players * 50,
-                color=colors[num_players % len(colors)],
-                radius=10,
-                is_server=True,
-                world_layer=1,
-            ),
-            fixed_id=player_id,
-        )
+        if not network.game_state.players.exist(player_id):
+            network.game_state.players.addEntity(
+                Player(
+                    x=num_players * 100,
+                    y=num_players * 50,
+                    color=colors[num_players % len(colors)],
+                    radius=10,
+                    is_server=True,
+                    world_layer=1,
+                ),
+                fixed_id=player_id,
+            )
 
         print(f"Player {player_id} connected")
 
@@ -162,6 +169,30 @@ def broadcast_game_state():
     while True:
         # Les joueurs s'update coté client
         # network.game_state.update_all()
+
+        time_in_min = int(network.game_state.ingame_time // 60)
+        is_night = (
+            time_in_min % (GameState.day_min + GameState.night_min) >= GameState.day_min
+        )
+
+        if not is_night:
+            network.night_spawned_surface = False
+        else:
+            # si nuit et pas encore spawnée -> vérifier s'il y a au moins un joueur sur la layer 1
+            if not network.night_spawned_surface:
+                players_on_layer1 = [
+                    p
+                    for p in network.game_state.players.get_list()
+                    if p.world_layer == Layer.OVERWORLD.value or p.world_layer == 1
+                ]
+                if players_on_layer1:
+                    import random
+
+                    spawn_count = random.randint(2, 3)
+                    network.enemySpawner.spawn_night_surface(
+                        world_layer=1, count=spawn_count
+                    )
+                    network.night_spawned_surface = True
 
         layersToRender = []
         for player in network.game_state.players.get_list():
@@ -367,6 +398,10 @@ def start_game_server(
 
     # Envoie l'etat du monde aux joueurs
     broadcast_game_state()
+
+
+def manual_save():
+    saver.save()
 
 
 def main():

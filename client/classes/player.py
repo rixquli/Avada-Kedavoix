@@ -27,6 +27,7 @@ class Player(Serializable):
         radius: int = 10,
         vx: float = 0,
         vy: float = 0,
+        vitesse: int = 4,
         id: int = None,
         hp: int = 100,
         world_layer: int | Layer = Layer.OVERWORLD,
@@ -43,6 +44,7 @@ class Player(Serializable):
         # Pour gérer les mouvements stoque la vitesse
         self.vx = float(vx)
         self.vy = float(vy)
+        self.vitesse = vitesse
 
         # Position affiché
         self.display_x = float(x)
@@ -272,20 +274,19 @@ class Player(Serializable):
 
         self._init_client_resources()
 
-        speed = 5
         self.vx = 0
         self.vy = 0
 
         import pygame
 
         if keys[pygame.K_UP] or keys[pygame.K_z]:
-            self.vy = -speed
+            self.vy = -self.vitesse
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            self.vy = speed
+            self.vy = self.vitesse
         if keys[pygame.K_LEFT] or keys[pygame.K_q]:
-            self.vx = -speed
+            self.vx = -self.vitesse
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            self.vx = speed
+            self.vx = self.vitesse
 
         if self.vx > 0:
             self.animator.flip_y("right")

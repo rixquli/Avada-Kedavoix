@@ -33,6 +33,7 @@ from client.layerList import Layer
 from client.sound.soundManager import SoundManager
 from client.spellsManager import SpellsManager
 from client.voice.realtimeVoice import get_voice_command, start_voice_recognition
+from server.gameState import GameState
 from server.world_elements.dungeonWalls import Dungeon
 
 # To import module from other folder
@@ -41,6 +42,14 @@ import pygame
 from client.classes.spell import Spell
 from client.clientManager import ClientManager
 from client.ui.UI import UI
+
+
+def ease_in_out(t: float) -> float:
+    if t <= 0.0:
+        return 0.0
+    if t >= 1.0:
+        return 1.0
+    return t * t * (3.0 - 2.0 * t)
 
 
 class GameManager:
@@ -91,10 +100,29 @@ class GameManager:
     def setup_pygame(self):
         """Initialise pygame et crée la fenetre"""
         pygame.init()
-        self.width, self.height = 1920, 1080
-        self.screen = pygame.display.set_mode(
-            (self.width, self.height), pygame.RESIZABLE
-        )
+        self.width, self.height = 1200, 800
+        self.windowed_size = (self.width, self.height)
+        desktop_sizes = pygame.display.get_desktop_sizes()
+        if desktop_sizes:
+            self.fullscreen_size = desktop_sizes[0]
+        else:
+            display_info = pygame.display.Info()
+            self.fullscreen_size = (display_info.current_w, display_info.current_h)
+        self.fullscreen = True
+        self.screen = pygame.display.set_mode(self.fullscreen_size, pygame.NOFRAME)
+        # Essayez de charger une icône pour la fenêtre (logo.png dans client/ressources)
+        try:
+            icon_path = os.path.normpath(
+                os.path.join(os.path.dirname(__file__), "ressources", "logo.png")
+            )
+            self.icon_surface = pygame.image.load(icon_path)
+            pygame.display.set_icon(self.icon_surface)
+        except Exception as e:
+            print("Warning: impossible de charger l'icône:", e)
+
+        # self.screen = pygame.display.set_mode(
+        #     (self.width, self.height), pygame.RESIZABLE
+        # )
         pygame.display.set_caption("Avada Kedavoix")
         self.clock = pygame.time.Clock()
         self.clock.tick(60)
@@ -147,7 +175,9 @@ class GameManager:
         #     self.groups["obstacle"].add(wall)
 
         self.debug = False
-    
+        # self.base_ingame_time = time.time()
+        # self.ingame_time = 0
+
     def back_to_main_menu(self):
         self.client_manager.close_connection()
         self.hold_for_loading_layer = False
@@ -182,13 +212,13 @@ class GameManager:
         self.deltatime = self.clock.tick(60)
         if self.debug:
             print(1 / (time.time() - t))
+        # self.ingame_time = time.time() - self.base_ingame_time
 
     def set_to_quit(self):
         self.running = False
 
     def quit(self):
-        self.client_manager.network.close_server()
-        self.client_manager.network.close_client_socket()
+        self.client_manager.close_connection()
         pygame.quit()
         sys.exit()
 
@@ -197,7 +227,25 @@ class GameManager:
         Gere le evennements (ex: touches claviers, souris, ...)
         """
         if event.type == pygame.VIDEORESIZE:
+            if not self.fullscreen:
+                self.width, self.height = event.w, event.h
+                self.windowed_size = (self.width, self.height)
             self.ui.on_resize()
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_F11:
+                self.fullscreen = not self.fullscreen
+                if self.fullscreen:
+                    self.windowed_size = (self.width, self.height)
+                    self.screen = pygame.display.set_mode(
+                        self.fullscreen_size, pygame.NOFRAME
+                    )
+                else:
+                    # la ligne juste en dessous permet de centré la fenetre quand on enleve le plein ecran
+                    os.environ["SDL_VIDEO_CENTERED"] = "1"
+                    self.screen = pygame.display.set_mode(
+                        self.windowed_size, pygame.RESIZABLE
+                    )
+                self.ui.on_resize()
 
         self.ui.handle_event(event)  # Gere les evenement des elements des interfaces
 
@@ -323,6 +371,37 @@ class GameManager:
                 self.screen,
                 (self.screen.get_width() // 2, self.screen.get_height() // 2),
             )
+
+        if (
+            self.world_layer == Layer.OVERWORLD.value
+            and self.client_manager.game_state.ingame_time != None
+        ):
+            # print(
+            #     f"{(self.client_manager.game_state.ingame_time//60) //60}h {(self.client_manager.game_state.ingame_time//60)%60}min {(self.client_manager.game_state.ingame_time%60)}s"
+            # )
+
+            time_in_min = self.client_manager.game_state.ingame_time // 60
+            time_in_s_night = self.client_manager.game_state.ingame_time % (
+                60 * GameState.night_min
+            )
+            is_night = (
+                time_in_min % (GameState.day_min + GameState.night_min)
+                >= GameState.day_min
+            )  # day_min min jour et night_min min nuit => cycle jour nuit
+            if is_night:
+                duration = 10.0  # en secondes durée transition jour/nuit et nuit/jour
+                t = min(
+                    min(1.0, (time_in_s_night) / duration),
+                    min(1.0, (GameState.night_min * 60 - time_in_s_night) / duration),
+                )
+
+                intensity = min(0.4, ease_in_out(t))
+                dark = pygame.Surface(self.screen.get_size()).convert()
+                mul_value = int(255 * (1.0 - intensity))
+                dark.fill(
+                    (mul_value, mul_value, min(255, int(mul_value * 1.1)))
+                )  # léger bleu
+                self.screen.blit(dark, (0, 0), special_flags=pygame.BLEND_MULT)
 
     def update_local_player(self):
         # Met a jour tout les joueurs

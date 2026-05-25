@@ -45,6 +45,10 @@ class Saver:
 
         self.network_manager.game_state.apply_state(state, server=True)
 
+        self.network_manager.game_state.collision_manager.update_collision_group(
+            "obstacle", [self.network_manager.game_state.walls]
+        )
+
         raw_dungeon = payload.get("dungeonWalls", [])
         rebuilt = []
         for lvl in raw_dungeon:
