@@ -231,6 +231,7 @@ class GameManager:
                 self.width, self.height = event.w, event.h
                 self.windowed_size = (self.width, self.height)
             self.ui.on_resize()
+
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_F11:
                 self.fullscreen = not self.fullscreen
