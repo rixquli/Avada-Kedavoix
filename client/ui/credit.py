@@ -32,7 +32,7 @@ class Credit:
             ),
             Text("", self.position, color=(255, 255, 255), anchor=Anchor.MIDBOTTOM),
             Text(
-                "Un jeu par VoxStudio",
+                "Un jeu par WizzStudio",
                 self.position,
                 color=(220, 220, 220),
                 font_size=36,
