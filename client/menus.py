@@ -49,6 +49,8 @@ join_menu_state = {"error_message": ""}
 # Etat UI du Credit Menu conservé entre les refresh.
 credit_menu_state = {"credit": None}
 
+def back():
+    game_manager.ui.show("MainMenu")
 
 # fonction auxiliaire utilisé plus bas
 def close_and_exec(menu_name, function, *params):
@@ -101,7 +103,7 @@ def main_menu(menu_name):
         "SOLO",
         250,
         50,
-        (0, -100),
+        (0, -150),
         onclickFunction=lambda: close_and_exec(menu_name, singlePlayerButtonClicked),
         anchor=Anchor.CENTER,
     )
@@ -109,7 +111,7 @@ def main_menu(menu_name):
         "HOST",
         250,
         50,
-        (0, 0),
+        (0, -50),
         onclickFunction=lambda: close_and_exec(menu_name, hostButtonClicked),
         anchor=Anchor.CENTER,
     )
@@ -117,7 +119,7 @@ def main_menu(menu_name):
         "JOIN",
         250,
         50,
-        (0, 100),
+        (0, 50),
         onclickFunction=lambda: close_and_exec(menu_name, joinButtonClicked),
         anchor=Anchor.CENTER,
     )
@@ -125,8 +127,16 @@ def main_menu(menu_name):
         "CREDIT",
         250,
         50,
-        (0, 200),
+        (0, 150),
         onclickFunction=lambda: close_and_exec(menu_name, creditButtonClicked),
+        anchor=Anchor.CENTER,
+    )
+    quit_btn = Button(
+        "QUIT",
+        250,
+        50,
+        (0, 250),
+        onclickFunction=game_manager.set_to_quit,
         anchor=Anchor.CENTER,
     )
     background = Image(
@@ -144,6 +154,7 @@ def main_menu(menu_name):
         start_hosting_player,
         start_join_player,
         credit_btn,
+        quit_btn,
         # Credit(),
     ]
 
@@ -210,6 +221,14 @@ def continue_new_game_menu(menu_name):
             50,
             position=(0, 50),
             onclickFunction=lambda: close_and_exec(menu_name, new_btn),
+            anchor=Anchor.CENTER,
+        ),
+        Button(
+            "Back",
+            300,
+            50,
+            (0, 150),
+            onclickFunction=lambda: close_and_exec(menu_name, back),
             anchor=Anchor.CENTER,
         ),
     ]
@@ -303,6 +322,14 @@ def join_menu(menu_name):
             50,
             (0, 50),
             onclickFunction=lambda: joinGameButtonClicked(),
+            anchor=Anchor.CENTER,
+        ),
+        Button(
+            "Back",
+            100,
+            50,
+            (0, 100),
+            onclickFunction=lambda: close_and_exec(menu_name, back),
             anchor=Anchor.CENTER,
         ),
         # text d'erreur réutilisable
@@ -421,9 +448,9 @@ def settings(menu_name):
             anchor=Anchor.CENTER,
         ),
         DropDownMenu(
-            "Test",
-            position=(0, 200),
-            values=[("1", None), ("2", None)],
+            "quit",
+            position=(0, 0),
+            values=[("menu", game_manager.back_to_main_menu), ("quit", game_manager.set_to_quit)],
             width=250,
             heigth=75,
             values_width=250,
@@ -432,9 +459,12 @@ def settings(menu_name):
         ),
     ]
 
-
 def open_settings():
-    print("Opening settings menu")
+    if game_manager.ui.menus["hud"].is_showing:
+        game_manager.ui.show("settings")
+        print("Opening settings menu")
+    else:
+        print("is not in game")
 
 
 # Contient la liste de tout les menus accessibles dupuis GameManager().ui
