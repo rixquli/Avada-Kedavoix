@@ -12,6 +12,7 @@ Ex:
 
 import os
 import sys
+import pygame
 
 from client.ui.credit import Credit
 from client.ui.dropdown import DropDownMenu
@@ -76,6 +77,9 @@ def main_menu(menu_name):
     def joinButtonClicked():
         game_manager.ui.show("JoinMenu")
 
+    def settingsButtonClicked():
+        game_manager.ui.show("SettingsMenu")
+
     def creditButtonClicked():
         credit_menu_state["credit"] = None
         game_manager.ui.refresh("CreditMenu")
@@ -117,6 +121,15 @@ def main_menu(menu_name):
         onclickFunction=lambda: close_and_exec(menu_name, joinButtonClicked),
         anchor=Anchor.CENTER,
     )
+    start_settings = Button(
+        "SETTINGS",
+        250,
+        50,
+        (0, 200),
+        onclickFunction=lambda: settingsButtonClicked(),
+        anchor=Anchor.CENTER,
+    )
+
     credit_btn = Button(
         "CREDIT",
         250,
@@ -139,6 +152,7 @@ def main_menu(menu_name):
         start_single_player,
         start_hosting_player,
         start_join_player,
+        start_settings,
         credit_btn,
         # Credit(),
     ]
@@ -264,7 +278,6 @@ def press_e(menu_name):
         ),
     ]
 
-
 def hud(menu_name):
     print("Updating HUD")  # Debug print to check if the function is called
     elements = []
@@ -379,6 +392,77 @@ def settings(menu_name):
 def open_settings():
     print("Opening settings menu")
 
+def settings_menu(menu_name):
+
+    def back_to_main_menu():
+        game_manager.ui.hide(menu_name)
+        game_manager.ui.show("MainMenu")
+
+    def quit_game():
+        pygame.quit()
+        sys.exit()
+
+    return [
+
+        Text(
+            "SETTINGS",
+            (0, 50),
+            font_size=50,
+            color=(255, 255, 255),
+            anchor=Anchor.MIDTOP,
+        ),
+
+        Text(
+            "MOVE UP : Z",
+            (0, -100),
+            font_size=30,
+            color=(255, 255, 255),
+            anchor=Anchor.CENTER,
+        ),
+
+        Text(
+            "MOVE DOWN : S",
+            (0, -50),
+            font_size=30,
+            color=(255, 255, 255),
+            anchor=Anchor.CENTER,
+        ),
+
+        Text(
+            "MOVE LEFT : Q",
+            (0, 0),
+            font_size=30,
+            color=(255, 255, 255),
+            anchor=Anchor.CENTER,
+        ),
+
+        Text(
+            "MOVE RIGHT : D",
+            (0, 50),
+            font_size=30,
+            color=(255, 255, 255),
+            anchor=Anchor.CENTER,
+        ),
+
+        Button(
+            "MAIN MENU",
+            250,
+            50,
+            (0, 150),
+            onclickFunction=back_to_main_menu,
+            anchor=Anchor.CENTER,
+        ),
+
+        Button(
+            "EXIT",
+            250,
+            50,
+            (0, 225),
+            onclickFunction=quit_game,
+            anchor=Anchor.CENTER,
+        ),
+    ]
+
 
 # Contient la liste de tout les menus accessibles dupuis GameManager().ui
 # Pour en rajouter suivre les exemples deja presents
@@ -420,5 +504,9 @@ Menus = [
         "name": "CreditMenu",
         "content": credit_menu,
         "is_showing": False,
+    },
+    {
+    "name": "SettingsMenu",
+    "content": settings_menu("SettingsMenu"),
     },
 ]
