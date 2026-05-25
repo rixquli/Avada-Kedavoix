@@ -183,6 +183,9 @@ class GameManager:
         if self.debug:
             print(1 / (time.time() - t))
 
+    def set_to_quit(self):
+        self.running = False
+
     def quit(self):
         self.client_manager.network.close_server()
         self.client_manager.network.close_client_socket()

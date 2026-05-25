@@ -97,7 +97,7 @@ def main_menu(menu_name):
         "SOLO",
         250,
         50,
-        (0, -100),
+        (0, -200),
         onclickFunction=lambda: close_and_exec(menu_name, singlePlayerButtonClicked),
         anchor=Anchor.CENTER,
     )
@@ -105,7 +105,7 @@ def main_menu(menu_name):
         "HOST",
         250,
         50,
-        (0, 0),
+        (0, -100),
         onclickFunction=lambda: close_and_exec(menu_name, hostButtonClicked),
         anchor=Anchor.CENTER,
     )
@@ -113,7 +113,7 @@ def main_menu(menu_name):
         "JOIN",
         250,
         50,
-        (0, 100),
+        (0, 0),
         onclickFunction=lambda: close_and_exec(menu_name, joinButtonClicked),
         anchor=Anchor.CENTER,
     )
@@ -121,8 +121,16 @@ def main_menu(menu_name):
         "CREDIT",
         250,
         50,
-        (0, 200),
+        (0, 100),
         onclickFunction=lambda: close_and_exec(menu_name, creditButtonClicked),
+        anchor=Anchor.CENTER,
+    )
+    quit_btn = Button(
+        "QUIT",
+        250,
+        50,
+        (0, 200),
+        onclickFunction=game_manager.set_to_quit,
         anchor=Anchor.CENTER,
     )
     background = Image(
@@ -140,6 +148,7 @@ def main_menu(menu_name):
         start_hosting_player,
         start_join_player,
         credit_btn,
+        quit_btn,
         # Credit(),
     ]
 
@@ -364,9 +373,9 @@ def settings(menu_name):
             anchor=Anchor.CENTER,
         ),
         DropDownMenu(
-            "Test",
-            position=(0, 200),
-            values=[("1", None), ("2", None)],
+            "quit",
+            position=(0, 0),
+            values=[("menu", game_manager.back_to_main_menu), ("quit", game_manager.set_to_quit)],
             width=250,
             heigth=75,
             values_width=250,
@@ -374,7 +383,6 @@ def settings(menu_name):
             anchor=Anchor.CENTER,
         ),
     ]
-
 
 def open_settings():
     print("Opening settings menu")
