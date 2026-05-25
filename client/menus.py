@@ -132,7 +132,7 @@ def main_menu(menu_name):
         250,
         50,
         (0, 200),
-        onclickFunction=lambda: settingsButtonClicked(),
+        onclickFunction=lambda: close_and_exec(menu_name, settingsButtonClicked),
         anchor=Anchor.CENTER,
     )
 
@@ -145,10 +145,10 @@ def main_menu(menu_name):
         anchor=Anchor.CENTER,
     )
     quit_btn = Button(
-        "QUIT",
+        "EXIT",
         250,
         50,
-        (0, 250),
+        (0, 400),
         onclickFunction=game_manager.set_to_quit,
         anchor=Anchor.CENTER,
     )
@@ -238,7 +238,7 @@ def continue_new_game_menu(menu_name):
             anchor=Anchor.CENTER,
         ),
         Button(
-            "Back",
+            "BACK",
             300,
             50,
             (0, 150),
@@ -339,7 +339,7 @@ def join_menu(menu_name):
             anchor=Anchor.CENTER,
         ),
         Button(
-            "Back",
+            "BACK",
             100,
             50,
             (0, 100),
@@ -461,9 +461,9 @@ def settings(menu_name):
             anchor=Anchor.CENTER,
         ),
         DropDownMenu(
-            "quit",
+            "EXIT",
             position=(0, 0),
-            values=[("menu", game_manager.back_to_main_menu), ("quit", game_manager.set_to_quit)],
+            values=[("MENU", game_manager.back_to_main_menu), ("EXIT", game_manager.set_to_quit)],
             width=250,
             heigth=75,
             values_width=250,
@@ -480,63 +480,74 @@ def open_settings():
         print("is not in game")
 
 def settings_menu(menu_name):
-
-    def back_to_main_menu():
-        game_manager.ui.hide(menu_name)
-        game_manager.ui.show("MainMenu")
-
-    def quit_game():
-        pygame.quit()
-        sys.exit()
-
     return [
+        Image(
+            path="UI/main_screen.png",
+            width=game_manager.fullscreen_size[0],
+            height=game_manager.fullscreen_size[1],
+            position=(0, 0),
+            anchor=Anchor.TOPLEFT,
+        ),
+        # title
+        Text(
+            "AVADA KEDAVOIX",
+            (0, 100),
+            font_size=100,
+            color=(0, 0, 0),
+            bg_alpha=0,
+            width=1000,
+            height=150,
+            anchor=Anchor.MIDTOP,
+            background=True,
+            bg_border=False,
+        ),
 
         Text(
             "SETTINGS",
             (0, 50),
             font_size=50,
-            color=(255, 255, 255),
+            color=(0, 0, 0),
             anchor=Anchor.MIDTOP,
         ),
 
         Text(
-            "MOVE UP : Z",
+            "MOVE UP : Z OR UP",
             (0, -100),
             font_size=30,
-            color=(255, 255, 255),
+            color=(0, 0, 0),
             anchor=Anchor.CENTER,
         ),
 
         Text(
-            "MOVE DOWN : S",
+            "MOVE DOWN : S OR DOWN",
             (0, -50),
             font_size=30,
-            color=(255, 255, 255),
+            color=(0, 0, 0),
             anchor=Anchor.CENTER,
         ),
 
         Text(
-            "MOVE LEFT : Q",
+            "MOVE LEFT : Q OR LEFT",
             (0, 0),
             font_size=30,
-            color=(255, 255, 255),
+            color=(0, 0, 0),
             anchor=Anchor.CENTER,
         ),
 
         Text(
-            "MOVE RIGHT : D",
+            "MOVE RIGHT : D OR RIGHT",
             (0, 50),
             font_size=30,
-            color=(255, 255, 255),
+            color=(0, 0, 0),
             anchor=Anchor.CENTER,
         ),
 
         Button(
-            "MAIN MENU",
+            "BACK",
             250,
             50,
             (0, 150),
-            onclickFunction=back_to_main_menu,
+            onclickFunction=game_manager.back_to_main_menu,
             anchor=Anchor.CENTER,
         ),
 
@@ -545,7 +556,7 @@ def settings_menu(menu_name):
             250,
             50,
             (0, 225),
-            onclickFunction=quit_game,
+            onclickFunction=game_manager.set_to_quit,
             anchor=Anchor.CENTER,
         ),
     ]
