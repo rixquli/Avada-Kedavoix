@@ -84,12 +84,15 @@ def main_menu(menu_name):
         game_manager.ui.show("JoinMenu")
 
     def settingsButtonClicked():
+        game_manager.ui.refresh("SettingsMenu")
         game_manager.ui.show("SettingsMenu")
 
     def creditButtonClicked():
         credit_menu_state["credit"] = None
         game_manager.ui.refresh("CreditMenu")
         game_manager.ui.show("CreditMenu")
+
+    display_info = pygame.display.Info()
 
     title = Text(
         "AVADA KEDAVOIX",
@@ -107,7 +110,7 @@ def main_menu(menu_name):
         "SOLO",
         250,
         50,
-        (0, -100),
+        (0, -125),
         onclickFunction=lambda: close_and_exec(menu_name, singlePlayerButtonClicked),
         anchor=Anchor.CENTER,
     )
@@ -115,7 +118,7 @@ def main_menu(menu_name):
         "HOST",
         250,
         50,
-        (0, 0),
+        (0, -25),
         onclickFunction=lambda: close_and_exec(menu_name, hostButtonClicked),
         anchor=Anchor.CENTER,
     )
@@ -123,7 +126,7 @@ def main_menu(menu_name):
         "JOIN",
         250,
         50,
-        (0, 100),
+        (0, 75),
         onclickFunction=lambda: close_and_exec(menu_name, joinButtonClicked),
         anchor=Anchor.CENTER,
     )
@@ -131,7 +134,7 @@ def main_menu(menu_name):
         "SETTINGS",
         250,
         50,
-        (0, 200),
+        (0, 175),
         onclickFunction=lambda: close_and_exec(menu_name, settingsButtonClicked),
         anchor=Anchor.CENTER,
     )
@@ -140,7 +143,7 @@ def main_menu(menu_name):
         "CREDIT",
         250,
         50,
-        (0, 300),
+        (0, 275),
         onclickFunction=lambda: close_and_exec(menu_name, creditButtonClicked),
         anchor=Anchor.CENTER,
     )
@@ -148,16 +151,17 @@ def main_menu(menu_name):
         "EXIT",
         250,
         50,
-        (0, 400),
+        (0, 375),
         onclickFunction=game_manager.set_to_quit,
         anchor=Anchor.CENTER,
     )
     background = Image(
         path="UI/main_screen.png",
-        width=game_manager.fullscreen_size[0],
-        height=game_manager.fullscreen_size[1],
+        width=display_info.current_w,
+        height=display_info.current_h,
         position=(0, 0),
         anchor=Anchor.TOPLEFT,
+        is_background=True,
     )
 
     return [
@@ -200,13 +204,16 @@ def continue_new_game_menu(menu_name):
         else:
             game_manager.client_manager.startHosting(newGame=True)
 
+    display_info = pygame.display.Info()
+
     return [
         Image(
             path="UI/main_screen.png",
-            width=game_manager.fullscreen_size[0],
-            height=game_manager.fullscreen_size[1],
+            width=display_info.current_w,
+            height=display_info.current_h,
             position=(0, 0),
             anchor=Anchor.TOPLEFT,
+            is_background=True,
         ),
         # title
         Text(
@@ -288,13 +295,16 @@ def join_menu(menu_name):
             # Rafraichir l'ui avec l'element d'erreur
             game_manager.ui.refresh(menu_name)
 
+    display_info = pygame.display.Info()
+
     return [
         Image(
             path="UI/main_screen.png",
-            width=game_manager.fullscreen_size[0],
-            height=game_manager.fullscreen_size[1],
+            width=display_info.current_w,
+            height=display_info.current_h,
             position=(0, 0),
             anchor=Anchor.TOPLEFT,
+            is_background=True,
         ),
         # title
         Text(
@@ -480,13 +490,17 @@ def open_settings():
         print("is not in game")
 
 def settings_menu(menu_name):
+
+    display_info = pygame.display.Info()
+
     return [
         Image(
             path="UI/main_screen.png",
-            width=game_manager.fullscreen_size[0],
-            height=game_manager.fullscreen_size[1],
+            width=display_info.current_w,
+            height=display_info.current_h,
             position=(0, 0),
             anchor=Anchor.TOPLEFT,
+            is_background=True,
         ),
         # title
         Text(

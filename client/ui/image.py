@@ -16,6 +16,7 @@ class Image:
         height,
         position,
         anchor: Anchor = Anchor.TOPLEFT,
+        is_background: bool = False,
     ):
         self.position = position
         self.anchor = anchor
@@ -34,6 +35,7 @@ class Image:
         )
 
         self.image = pygame.transform.scale(loaded_image, (self.width, self.height))
+        self.is_back_ground = is_background
 
     def update_position(self):
         self.actual_position = UIUtils.calculate_position_with_anchor(
@@ -43,3 +45,10 @@ class Image:
     def draw(self, window):
         self.update_position()
         window.blit(self.image, self.actual_position)
+
+    def on_resize(self):
+        if self.is_back_ground:
+            display_info = pygame.display.Info()
+            self.width, self.height = (display_info.current_w, display_info.current_h)
+            self.image = pygame.transform.scale(self.image, (self.width, self.height))
+

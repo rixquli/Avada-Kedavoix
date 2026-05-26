@@ -119,7 +119,7 @@ class UI:
 
     def on_resize(self):
         """Quand la taille de la fenetre change on recalcule les positions ancrées."""
-        for menu_name in self.get_visible_menus():
+        for menu_name, _ in self.menus.items():
             self.menus[menu_name].on_resize()
 
     def refresh(self, menu_name):
