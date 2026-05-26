@@ -24,6 +24,8 @@ class EnemyList(Enum):
     SKELETON = 2
     DRAGON = 3
     BOSS = 4
+    DARK_MAGE = 5
+    GOBELIN_POIGNARD = 6
 
 
 class Enemy(Serializable):
@@ -141,10 +143,16 @@ class Enemy(Serializable):
 
         ennemy_type = ""
         match self.color:
-            case (0, 255, 255) | (0, 255, 0):
+            case (0, 255, 0):
                 ennemy_type = "Gobelin_massue"
-            case _:
+            case (0, 0, 255):
+                ennemy_type = "Mage_noir"
+            case (100, 100, 100):
+                ennemy_type = "Squelette"
+            case (255, 0, 0):
                 ennemy_type = "Dragon"
+            case _:
+                ennemy_type = "Gobelin_poignard"
 
         # Chemin vers la racine du projet
         PROJECT_ROOT = os.path.abspath(
@@ -345,6 +353,14 @@ class Enemy(Serializable):
                     spell_type=SpellList.ICE,
                     reach=500,
                     dist_from=100,
+                    **keyargs,
+                )
+            case EnemyList.DARK_MAGE:
+                return Enemy(
+                    color=(0, 0, 255),
+                    spell_type=SpellList.ICE,
+                    reach=500,
+                    dist_from=75,
                     **keyargs,
                 )
             case EnemyList.BOSS:

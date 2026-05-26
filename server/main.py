@@ -344,7 +344,44 @@ def spawn_element_at_start():
             is_server=True,
         )
     )
-    
+   
+    pnj3 = network.game_state.pnjs.addEntity(
+        PNJ(
+            150,
+            10,
+            (48, 0, 0),
+            text=[
+                {
+                    "name": "Le joueur",
+                    "text": "Bonjour, sauriez vous comment apprendre un nouveau sort ?",
+                },
+                {
+                    "name": "Marchand",
+                    "text": "Je ne sais pas… Mais je crois me souvenir qu’un sorcier autrefois m'avait donné un parchemin que je n’ai jamais pu déchiffrer, peut-être qu’il t'intéressera.",
+                },
+                {
+                    "name": "Marchand",
+                    "text": "Si tu arrives à trouver un moyen de le traduire, je te le donnerai",
+                },
+                {
+                    "name": "Marchand",
+                    "text": "Enfonce toi dans le labyrinthe de la tour, déchiffre le message et ramène moi les indices qui t'ont aidé. Alors peut-être tu développera de nouvelles compétences.",
+                },
+                {
+                    "name": "Le joueur",
+                    "text": "Ça semble dangereux… mais je suis prêt.",
+                },
+                {
+                    "name": "Marchand",
+                    "text": "Bien. Fais preuve de courage et de sagesse.",
+                },
+            ],
+            is_server=True,
+        )
+    )
+
+
+
     house1 = House(-80, -100, 20, 1, True)
     network.game_state.houses.addEntity(
         house1

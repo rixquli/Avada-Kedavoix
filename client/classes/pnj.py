@@ -21,7 +21,7 @@ class PNJ(Serializable):
         x: float,
         y: float,
         color: tuple[int, int, int],
-        size: int = 10,
+        size: int = 8,
         vx: float = 0,
         vy: float = 0,
         id: int = None,
@@ -63,10 +63,12 @@ class PNJ(Serializable):
         self.dir_x = 0
         self.dir_y = 0
 
-        self.hitbox_size = (10, 10)
+        self.hitbox_size = (size * 5, size * 5)
         self.hitbox = HitBox(
             int(x), int(y), self.hitbox_size[0], self.hitbox_size[1], world_layer
         )
+        
+        self.animator = None
 
         # Pour gerer le systeme vie/degat
         self.hp = hp
@@ -196,12 +198,12 @@ class PNJ(Serializable):
             self.display_y = self.target_y
 
     def draw(self, surface, offset: tuple[float, float]):
-        #self._init_client_resources()
+        self._init_client_resources()
         # Interpolation vers la position cible
         # Permet d'eviter les mouvements sacadé
         self.interpolate_position()
 
-        # Dessine un losange (carré tourné de 45°) centré sur display_x/display_y + size/2
+        '''# Dessine un losange (carré tourné de 45°) centré sur display_x/display_y + size/2
         cx = self.display_x + self.size / 2 + offset[0]
         cy = self.display_y + self.size / 2 + offset[1]
         half = self.size / 2
@@ -211,10 +213,10 @@ class PNJ(Serializable):
             (int(cx), int(cy + half)),  # bas
             (int(cx - half), int(cy)),  # gauche
         ]
-        pygame.draw.polygon(surface, self.color, points)
+        pygame.draw.polygon(surface, self.color, points)'''
 
-        #pos = (self.display_x + offset[0], self.display_y + offset[1])
-        #self.animator.blit_sprite(surface, pos)
+        pos = (self.display_x + offset[0], self.display_y + offset[1])
+        self.animator.blit_sprite(surface, pos)
         self.hitbox.draw(surface, offset)
 
     def set_target_position(self, x, y):
