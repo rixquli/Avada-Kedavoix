@@ -22,6 +22,7 @@ class SpellList(Enum):
     TELEPORTATION = 4
     PUNCH = 5
     BASIC = 6
+    DARK_FIREBALL = 7
 
 
 class Spell(Serializable):
@@ -84,6 +85,8 @@ class Spell(Serializable):
                 self.spell_type = SpellList.PUNCH
             case (0, 0, 255):
                 self.spell_type = SpellList.ICE
+            case (0, 0, 0):
+                self.spell_type = SpellList.DARK_FIREBALL
             case _:
                 self.spell_type = SpellList.BASIC
 
@@ -98,12 +101,14 @@ class Spell(Serializable):
                 self.spell_type = SpellList.PUNCH
             case (0, 0, 255):
                 self.spell_type = SpellList.ICE
+            case (0, 0, 0):
+                self.spell_type = SpellList.DARK_FIREBALL
             case _:
                 self.spell_type = SpellList.BASIC
 
         # init l'animator côté client seulement
         self.sprite_base_angle = 180  # 0 si regarde à droite, 180 si regarde à gauche
-        if not is_server and self.spell_type in [SpellList.FIREBALL, SpellList.ICE]:
+        if not is_server and self.spell_type in [SpellList.FIREBALL, SpellList.ICE, SpellList.DARK_FIREBALL]:
             self._init_client_resources()
 
     def _init_client_resources(self):
@@ -116,7 +121,7 @@ class Spell(Serializable):
             os.path.join(os.path.dirname(__file__), "..", "..")
         )
         self.animator = Animator(
-            size=(self.radius * 5, self.radius * 5), animation_speed=10 / 60
+            size=(self.radius *2 , self.radius *2), animation_speed=10 / 60
         )
         self.animator.state_manager.add_state(
             "idle",
@@ -226,6 +231,8 @@ class Spell(Serializable):
         match spell_type:
             case SpellList.FIREBALL:
                 return Spell(radius=10, color=(255, 0, 0), dmg=10 * dmg_mult, **keyargs)
+            case SpellList.DARK_FIREBALL:
+                return Spell(radius=10, color=(0, 0, 0), **keyargs)
             case SpellList.ICE:
                 return Spell(radius=15, color=(0, 0, 255), **keyargs)
             case SpellList.PUNCH:

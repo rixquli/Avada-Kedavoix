@@ -334,8 +334,18 @@ class Enemy(Serializable):
                     spell_type=SpellList.PUNCH,
                     reach=500,
                     dist_from=50,
+                    attack_delay=2,
+                    vitesse=2,
+                    **keyargs,
+                )
+            case EnemyList.GOBELIN_POIGNARD:
+                return Enemy(
+                    color=(20, 100, 0),
+                    spell_type=SpellList.PUNCH,
+                    reach=500,
+                    dist_from=40,
                     attack_delay=1,
-                    vitesse=3,
+                    vitesse=1,
                     **keyargs,
                 )
             case EnemyList.DRAGON:
@@ -353,12 +363,13 @@ class Enemy(Serializable):
                     spell_type=SpellList.ICE,
                     reach=500,
                     dist_from=100,
+                    vitesse=3,
                     **keyargs,
                 )
             case EnemyList.DARK_MAGE:
                 return Enemy(
                     color=(0, 0, 255),
-                    spell_type=SpellList.ICE,
+                    spell_type=SpellList.DARK_FIREBALL,
                     reach=500,
                     dist_from=75,
                     **keyargs,
