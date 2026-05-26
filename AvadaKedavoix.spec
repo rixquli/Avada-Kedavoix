@@ -17,7 +17,6 @@ a = Analysis(
     datas=[
         ('client/ressources', 'client/ressources'),
         ('client/tiles', 'client/tiles'),
-        ('client/voice/vosk-model-small-fr-0.22', 'client/voice/vosk-model-small-fr-0.22'),
     ],
     hiddenimports=vosk_hiddenimports + client_hiddenimports + server_hiddenimports,
     hookspath=[],
@@ -32,9 +31,6 @@ pyz = PYZ(a.pure)
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.datas,
-    [],
     name='AvadaKedavoix',
     debug=False,
     bootloader_ignore_signals=False,
@@ -49,6 +45,7 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     icon=os.path.join(os.path.abspath('.'), 'client', 'ressources', 'logo.ico'),
+    exclude_binaries=True,
 )
 
 coll = COLLECT(
