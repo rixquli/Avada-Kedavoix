@@ -3,9 +3,13 @@ Classe pour la gestion des pnj
 """
 
 import math
-
+import os
+import sys
 import pygame
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from client.layerList import Layer
+from client.classes.animator import Animator
 from server.classes.serializable import Serializable
 from client.classes.hitbox import HitBox
 
@@ -69,6 +73,8 @@ class PNJ(Serializable):
             world_layer.value if isinstance(world_layer, Layer) else int(world_layer)
         )
 
+        self.animator = None
+
         self.text = text
         self.name = name
 
@@ -76,9 +82,13 @@ class PNJ(Serializable):
         if not is_server:
             from client.gameManager import GameManager
             self.game_manager = GameManager()
+            self._init_client_resources()
+
         
         self.distance_trigger = 50
         self.shown = False
+
+        self.debug = False
 
     def is_dead(self) -> bool:
         return self.hp <= 0
@@ -149,23 +159,80 @@ class PNJ(Serializable):
         else:
             self.display_y = self.target_y
 
+    def _init_client_resources(self):
+        """Initialise les ressources graphiques côté client"""
+        if self.animator is not None:
+            return  # Déjà initialisé
+
+        # pour les animations
+        self.animator = Animator(
+            size=(self.size * 5, self.size * 5), animation_speed=10 / 60
+        )
+
+        pnj_type = ""
+        match self.color:
+            case (0, 255, 0):
+                pnj_type = "Boulangere"
+            case (255, 0, 0):
+                pnj_type = "Marchand"
+            case _:
+                pnj_type = "Paysan"
+
+
+        # Chemin vers la racine du projet
+        PROJECT_ROOT = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..")
+        )
+
+        self.animator.state_manager.add_state(
+            "idle",
+            os.path.join(
+                PROJECT_ROOT,
+                "client",
+                "ressources",
+                "Village",
+                "Villagers",
+                pnj_type,
+                "idle",
+            ),
+        )
+
     def draw(self, surface, offset: tuple[float, float]):
         # Interpolation vers la position cible
         # Permet d'eviter les mouvements sacadé
+        self._init_client_resources()
         self.interpolate_position()
 
         # Dessine un losange (carré tourné de 45°) centré sur display_x/display_y + size/2
-        cx = self.display_x + self.size / 2 + offset[0]
-        cy = self.display_y + self.size / 2 + offset[1]
-        half = self.size / 2
-        points = [
-            (int(cx), int(cy - half)),  # haut
-            (int(cx + half), int(cy)),  # droite
-            (int(cx), int(cy + half)),  # bas
-            (int(cx - half), int(cy)),  # gauche
-        ]
-        pygame.draw.polygon(surface, self.color, points)
+        # cx = self.display_x + self.size / 2 + offset[0]
+        # cy = self.display_y + self.size / 2 + offset[1]
+        # half = self.size / 2
+        # points = [
+        #    (int(cx), int(cy - half)),  # haut
+        #    (int(cx + half), int(cy)),  # droite
+        #    (int(cx), int(cy + half)),  # bas
+        #    (int(cx - half), int(cy)),  # gauche
+        # ]
+        # pygame.draw.polygon(surface, self.color, points)
+        # self.hitbox.draw(surface, offset)
+
+        pos = (self.display_x + offset[0], self.display_y + offset[1])
+        self.animator.blit_sprite(surface, pos)
+
         self.hitbox.draw(surface, offset)
+
+
+        if self.debug:
+            if self.path is not None:
+                for pos in self.path:
+                    pygame.draw.circle(
+                        surface,
+                        self.color,
+                        (pos[0] + offset[0], pos[1] + offset[1]),
+                        2,
+                    )
+
+
 
     def set_target_position(self, x, y):
         """

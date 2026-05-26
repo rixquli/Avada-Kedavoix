@@ -160,20 +160,6 @@ class GameManager:
 
         self.cameraBlackFade = CameraBlackFade()
 
-        # Group pour gerer les collisions
-        # self.groups = {"obstacle": pygame.sprite.Group()}
-
-        # TODO: a enlever juste pour tester
-        # self.walls = [
-        #     Wall(-500, -500, 1000, 50),
-        #     Wall(-500, 500, 1050, 50),
-        #     Wall(-500, -500, 50, 1000),
-        #     Wall(500, -500, 50, 1000),
-        #     Wall(100,100,100,50)
-        # ]
-        # for wall in self.walls:
-        #     self.groups["obstacle"].add(wall)
-
         self.debug = False
         # self.base_ingame_time = time.time()
         # self.ingame_time = 0
@@ -254,10 +240,6 @@ class GameManager:
 
         for pnj in self.client_manager.game_state.pnjs.get_list():
             pnj.handle_event(event)
-
-        # TODO: déplacer la logique dans une classe spécifique pour les actions
-        # if event.type == pygame.MOUSEBUTTONDOWN:
-        #     self.spellManager.cast_basic_spell()
 
     def handle_voice_event(self):
         vocal_action = get_voice_command()
@@ -429,7 +411,6 @@ class GameManager:
     def collision_manager(self):
         return self.client_manager.game_state.collision_manager
 
-    # TODO: Move to specialized manager
     def switch_player_layer(self, target_layer):
         now_ms = pygame.time.get_ticks()
         if now_ms - self.last_layer_switch_ms < self.layer_switch_cooldown_ms:
