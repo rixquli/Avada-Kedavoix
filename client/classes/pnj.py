@@ -28,6 +28,7 @@ class PNJ(Serializable):
         hp: int = 1,
         text="",
         name="",
+        home_pos: tuple = (0, 0),
         world_layer: int | Layer = Layer.OVERWORLD,
         is_server: bool = False,
     ):
@@ -62,6 +63,9 @@ class PNJ(Serializable):
         self.dist = 0
         self.dir_x = 0
         self.dir_y = 0
+        self.home_pos = home_pos
+        self.vitesse = 2
+        self.timer=0
 
         self.hitbox_size = (size * 5, size * 5)
         self.hitbox = HitBox(
@@ -127,7 +131,7 @@ class PNJ(Serializable):
         self.hitbox.update(int(self.x + self.vx), int(self.y), self.world_layer)
 
         # Vérifier les collisions horizontales
-        collided = self.hitbox.get_server_collided()
+        collided = self.hitbox.get_local_collided()
         if not collided:
             self.x += self.vx
 
@@ -135,7 +139,7 @@ class PNJ(Serializable):
         self.hitbox.update(int(self.x), int(self.y + self.vy), self.world_layer)
 
         # Vérifier les collisions verticales
-        collided = self.hitbox.get_server_collided()
+        collided = self.hitbox.get_local_collided()
         if not collided:
             self.y += self.vy
 

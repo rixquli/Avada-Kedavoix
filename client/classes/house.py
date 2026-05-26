@@ -115,7 +115,8 @@ class House(Serializable):
 
         if self.debug:
             self.hitbox.draw(surface, offset)
-'''
+        '''
+
     @staticmethod
     def draw_all(
         surface,

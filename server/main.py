@@ -261,21 +261,40 @@ def generate_all_dungeon():
 
 # TODO: Enlever cette fonction elle ne doit rester que en développement ou etre adapté
 def spawn_element_at_start():
-    # enemy1 = network.game_state.enemies.addEntity(
-    #     Enemy.get_enemy_type(
-    #         EnemyList.GOBELIN_MASSUE, x=200, y=200, world_layer=1, is_server=True
-    #     )
-    # )
-    # enemy2 = network.game_state.enemies.addEntity(
-    #     Enemy.get_enemy_type(
-    #         EnemyList.BOSS, x=350, y=350, world_layer=1, is_server=True
-    #     )
-    # )
-    # enemy2 = network.game_state.enemies.addEntity(
-    #     Enemy(350, 350, (0, 255, 255), world_layer=2, is_server=True)
-    # )
 
-    # TODO: deplacer les texts a l'exterieur du programme
+    house1 = House(-80, -100, 20, 1, True)
+    network.game_state.houses.addEntity(
+        house1
+    )
+    network.game_state.collision_manager.client_collider_groups["obstacle"].add(house1.hitbox)
+    
+    house2 = House(-300, -120, 20, 1, True)
+    network.game_state.houses.addEntity(
+        house2
+    )
+    network.game_state.collision_manager.client_collider_groups["obstacle"].add(house2.hitbox)
+
+    house3 = House(400, 150, 20, 1, True)
+    network.game_state.houses.addEntity(
+        house3
+    )
+    network.game_state.collision_manager.client_collider_groups["obstacle"].add(house3.hitbox)
+
+    
+    walls = [
+        Wall(-500, -500, 1000, 50, texture_path=None),
+        Wall(-500, 500, 1050, 50, texture_path=None),
+        Wall(-500, -500, 50, 1000, texture_path=None),
+        Wall(500, -500, 50, 1000, texture_path=None),
+        Wall(100, 100, 100, 50, texture_path=None),
+    ]
+    for wall in walls:
+        network.game_state.walls.addEntity(wall)
+        network.game_state.collision_manager.client_collider_groups["obstacle"].add(
+            wall
+        )
+    start_new_thread(generate_all_dungeon, ())
+
     pnj1 = network.game_state.pnjs.addEntity(
         PNJ(
             -50,
@@ -307,6 +326,7 @@ def spawn_element_at_start():
                     "text": "Bien. Fais preuve de courage et de sagesse.",
                 },
             ],
+            home_pos= (house1.x, house1.y),
             is_server=True,
         )
     )
@@ -341,10 +361,11 @@ def spawn_element_at_start():
                     "text": "Bien. Fais preuve de courage et de sagesse.",
                 },
             ],
+            home_pos=(house2.x, house2.y),
             is_server=True,
         )
     )
-   
+
     pnj3 = network.game_state.pnjs.addEntity(
         PNJ(
             150,
@@ -376,64 +397,10 @@ def spawn_element_at_start():
                     "text": "Bien. Fais preuve de courage et de sagesse.",
                 },
             ],
+            home_pos= (house3.x, house3.y),
             is_server=True,
         )
     )
-
-
-
-    house1 = House(-80, -100, 20, 1, True)
-    network.game_state.houses.addEntity(
-        house1
-    )
-    network.game_state.collision_manager.client_collider_groups["obstacle"].add(house1.hitbox)
-    
-    house2 = House(-300, -120, 20, 1, True)
-    network.game_state.houses.addEntity(
-        house2
-    )
-    network.game_state.collision_manager.client_collider_groups["obstacle"].add(house2.hitbox)
-
-    house3 = House(400, 150, 20, 1, True)
-    network.game_state.houses.addEntity(
-        house3
-    )
-    network.game_state.collision_manager.client_collider_groups["obstacle"].add(house3.hitbox)
-
-    
-    walls = [
-        Wall(-500, -500, 1000, 50, texture_path=None),
-        Wall(-500, 500, 1050, 50, texture_path=None),
-        Wall(-500, -500, 50, 1000, texture_path=None),
-        Wall(500, -500, 50, 1000, texture_path=None),
-        Wall(100, 100, 100, 50, texture_path=None),
-    ]
-    for wall in walls:
-        network.game_state.walls.addEntity(wall)
-        network.game_state.collision_manager.client_collider_groups["obstacle"].add(
-            wall
-        )
-    start_new_thread(generate_all_dungeon, ())
-    """
-    network.Dungeon.generate_all_layer()
-    print(network.Dungeon.dungeonWalls[0])
-    for i, e in enumerate(network.Dungeon.dungeonWalls):
-        print(i, e)
-        for data in e.walls:
-            wall = Wall(
-                data[0],
-                data[1],
-                data[2],
-                data[3],
-                Layer.DUNGEON_BASE.value + i,
-                texture_path=None,
-            )
-            network.game_state.walls.addEntity(wall)
-            network.game_state.collision_manager.client_collider_groups["obstacle"].add(
-                wall
-            )
-        network.enemySpawner.dungeon_generate(Layer.DUNGEON_BASE.value + i, i)
-    """
 
 
 def start_game_server(
