@@ -171,7 +171,7 @@ class ListIa:
             vect_y = enemy.next_pos_vect[1] - abs(enemy.vy)
             enemy.next_pos_vect = (vect_x, vect_y)
 
-        if  cible_pos and dist < enemy.reach and time.time() - enemy.prec_attack_time > enemy.attack_delay:
+        if  cible_pos and (dist < enemy.reach or enemy.reach<0) and time.time() - enemy.prec_attack_time > enemy.attack_delay:
             attack_dir = BasicIaUtility.dir_target(
                 enemy.x, enemy.y, world_layer=enemy.world_layer
             )

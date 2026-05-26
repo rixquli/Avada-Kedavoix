@@ -21,9 +21,10 @@ from client.classes.hitbox import HitBox
 
 class EnemyList(Enum):
     GOBELIN_MASSUE = 1
-    SKELETON = 2
-    DRAGON = 3
-    BOSS = 4
+    GOBELIN_POIGNARD = 2
+    SKELETON = 3
+    DRAGON = 4
+    BOSS = 5
 
 
 class Enemy(Serializable):
@@ -123,6 +124,14 @@ class Enemy(Serializable):
 
         self.debug = debug
 
+        if self.is_boss:
+            self.list_attack = [SpellList.FIREBALL, SpellList.ICE, SpellList.TELEPORTATION]
+            self.nb_attack = 0
+            self.regen_delay = 40
+            self.preck_regen = time.time()
+            self.list_tp = [(0,0), (-500, -500), (500, 500), (500, -500), (-500, 500)]
+            self.nb_tel = 0
+
     def _init_client_resources(self):
         """Initialise les ressources graphiques côté client"""
         if self.animator is not None:
@@ -141,10 +150,16 @@ class Enemy(Serializable):
 
         ennemy_type = ""
         match self.color:
-            case (0, 255, 255) | (0, 255, 0):
+            case (0, 255, 0):
                 ennemy_type = "Gobelin_massue"
-            case _:
+            case (100, 100, 100):
+                ennemy_type = "Squelette"
+            case (255, 0, 0):
                 ennemy_type = "Dragon"
+            case (255, 255, 255):
+                ennemy_type = "Mage_noir"
+            case _:
+                ennemy_type = "Gobelin_poignard"
 
         # Chemin vers la racine du projet
         PROJECT_ROOT = os.path.abspath(
@@ -168,10 +183,21 @@ class Enemy(Serializable):
         """
         Methode du serveur car le serveur s'occupe de tout mettre a jour donc il gere l'envoie des projectiles
         """
-        if self.game_manager is not None:
+        spell_type: SpellList = self.spell_type
+        if self.is_boss:
+            if self.hp < self.max_hp and self.regen_delay > time.time() - self.preck_regen:
+                self.hp += self.max_hp/10
+            spell_type = self.list_attack[self.nb_attack]
+            self.nb_attack= (self.nb_attack+1)%len(self.list_attack)
+
+        if spell_type == SpellList.TELEPORTATION:
+            self.x, self.y = self.list_tp[self.nb_tel]
+            self.nb_tel = (self.nb_tel + 1)%len(self.list_tp)
+
+        elif self.game_manager is not None:
             # Côté client
             self.game_manager.spellManager.cast_spell_type(
-                self.spell_type,
+                spell_type,
                 thrower=self.THROWER_TYPE,
                 x=self.x,
                 y=self.y,
@@ -186,7 +212,7 @@ class Enemy(Serializable):
             from client.classes.spell import Spell
 
             spell = Spell.get_spell_type(
-                self.spell_type,
+                spell_type,
                 thrower=self.THROWER_TYPE,
                 x=self.x,
                 y=self.y,
@@ -326,8 +352,19 @@ class Enemy(Serializable):
                     spell_type=SpellList.PUNCH,
                     reach=500,
                     dist_from=50,
-                    attack_delay=1,
+                    attack_delay=2,
                     vitesse=3,
+                    **keyargs,
+                )
+            case EnemyList.GOBELIN_POIGNARD:
+                return Enemy(
+                    color=(0, 254, 0),
+                    spell_type=SpellList.PUNCH,
+                    reach=500,
+                    dist_from=50,
+                    attack_delay=1,
+                    vitesse=4,
+                    dmg_mult=0.5,
                     **keyargs,
                 )
             case EnemyList.DRAGON:
@@ -349,7 +386,7 @@ class Enemy(Serializable):
                 )
             case EnemyList.BOSS:
                 return Enemy(
-                    color=(0, 0, 0),
+                    color=(255, 255, 255),
                     spell_type=SpellList.FIREBALL,
                     reach=-1,
                     dist_from=100,
