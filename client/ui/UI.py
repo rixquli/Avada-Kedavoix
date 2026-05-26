@@ -92,6 +92,8 @@ class UI:
         """
         if menu_name not in self.menus.keys():
             raise ValueError(menu_name, ": this menu do not exist")
+        if menu_name == "settings" and not self.menus["hud"].is_showing:
+            return
         self.menus[menu_name].is_showing = not self.menus[menu_name].is_showing
 
     def addTo(self, menu_name, ui_components):

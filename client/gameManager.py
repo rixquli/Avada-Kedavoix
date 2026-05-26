@@ -214,6 +214,9 @@ class GameManager:
             print(1 / (time.time() - t))
         # self.ingame_time = time.time() - self.base_ingame_time
 
+    def set_to_quit(self):
+        self.running = False
+
     def quit(self):
         self.client_manager.close_connection()
         pygame.quit()
@@ -228,6 +231,7 @@ class GameManager:
                 self.width, self.height = event.w, event.h
                 self.windowed_size = (self.width, self.height)
             self.ui.on_resize()
+
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_F11:
                 self.fullscreen = not self.fullscreen
