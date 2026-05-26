@@ -131,6 +131,10 @@ class Enemy(Serializable):
             self.list_tp = [(0,0), (-500, -500), (500, 500), (500, -500), (-500, 500)]
             self.nb_tel = 0
 
+        self.slow_effect: float = 1
+        self.time_effect: float = 0
+
+
     def _init_client_resources(self):
         """Initialise les ressources graphiques côté client"""
         if self.animator is not None:
@@ -233,22 +237,25 @@ class Enemy(Serializable):
         # le set_target_position est automatique
         # actualises la position et les datas de l'ia
         self.ia.update()
+        modif_speed = 1
+        if self.time_effect > 0:
+            modif_speed = self.slow_effect
 
         # Appliquer le mouvement horizontal
-        self.hitbox.update(int(self.x + self.vx), int(self.y), self.world_layer)
+        self.hitbox.update(int(self.x + self.vx*modif_speed), int(self.y), self.world_layer)
 
         # Vérifier les collisions horizontales
         collided = self.hitbox.get_server_collided()
         if not collided:
-            self.x += self.vx
+            self.x += self.vx*modif_speed
 
         # Appliquer le mouvement vertical
-        self.hitbox.update(int(self.x), int(self.y + self.vy), self.world_layer)
+        self.hitbox.update(int(self.x), int(self.y + self.vy*modif_speed), self.world_layer)
 
         # Vérifier les collisions verticales
         collided = self.hitbox.get_server_collided()
         if not collided:
-            self.y += self.vy
+            self.y += self.vy*modif_speed
 
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
