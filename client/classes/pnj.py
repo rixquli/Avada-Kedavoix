@@ -9,6 +9,11 @@ from client.layerList import Layer
 from server.classes.serializable import Serializable
 from client.classes.hitbox import HitBox
 
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from client.classes.animator import Animator
 
 class PNJ(Serializable):
     def __init__(
@@ -135,6 +140,47 @@ class PNJ(Serializable):
         # Mettre à jour la hitbox à la position finale
         self.hitbox.update(int(self.x), int(self.y), self.world_layer)
 
+
+
+
+    def _init_client_resources(self):
+        """Initialise les ressources graphiques côté client"""
+        if self.animator is not None:
+            return  # Déjà initialisé
+
+        # pour les animations
+        self.animator = Animator(
+            size=(self.size * 5, self.size * 5), animation_speed=10 / 60
+        )
+
+        pnj_type = ""
+        match self.color:
+            case (255, 255, 0):
+                pnj_type = "Paysan"
+            case (148, 148, 148):
+                pnj_type = "Boulangere"
+            case _:
+                pnj_type = "Marchand"
+
+        # Chemin vers la racine du projet
+        PROJECT_ROOT = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..")
+        )
+
+        self.animator.state_manager.add_state(
+            "idle",
+            os.path.join(
+                PROJECT_ROOT,
+                "client",
+                "ressources",
+                "Village",
+                "Villagers",
+                pnj_type,
+                "idle",
+            ),
+        )
+
+
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
         x_diff = self.target_x - self.display_x
@@ -150,6 +196,7 @@ class PNJ(Serializable):
             self.display_y = self.target_y
 
     def draw(self, surface, offset: tuple[float, float]):
+        #self._init_client_resources()
         # Interpolation vers la position cible
         # Permet d'eviter les mouvements sacadé
         self.interpolate_position()
@@ -165,6 +212,9 @@ class PNJ(Serializable):
             (int(cx - half), int(cy)),  # gauche
         ]
         pygame.draw.polygon(surface, self.color, points)
+
+        #pos = (self.display_x + offset[0], self.display_y + offset[1])
+        #self.animator.blit_sprite(surface, pos)
         self.hitbox.draw(surface, offset)
 
     def set_target_position(self, x, y):

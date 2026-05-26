@@ -280,22 +280,22 @@ def spawn_element_at_start():
         PNJ(
             -50,
             50,
-            (255, 0, 255),
+            (255, 255, 0),
             text=[
                 {
                     "name": "Le joueur",
                     "text": "Bonjour, sauriez vous comment apprendre un nouveau sort ?",
                 },
                 {
-                    "name": "Boulanger",
+                    "name": "Paysan",
                     "text": "Je ne sais pas… Mais je crois me souvenir qu’un sorcier autrefois m'avait donné un parchemin que je n’ai jamais pu déchiffrer, peut-être qu’il t'intéressera.",
                 },
                 {
-                    "name": "Boulanger",
+                    "name": "Paysan",
                     "text": "Si tu arrives à trouver un moyen de le traduire, je te le donnerai",
                 },
                 {
-                    "name": "Boulanger",
+                    "name": "Paysan",
                     "text": "Enfonce toi dans le labyrinthe de la tour, déchiffre le message et ramène moi les indices qui t'ont aidé. Alors peut-être tu développera de nouvelles compétences.",
                 },
                 {
@@ -303,7 +303,7 @@ def spawn_element_at_start():
                     "text": "Ça semble dangereux… mais je suis prêt.",
                 },
                 {
-                    "name": "Boulanger",
+                    "name": "Paysan",
                     "text": "Bien. Fais preuve de courage et de sagesse.",
                 },
             ],
@@ -314,22 +314,22 @@ def spawn_element_at_start():
         PNJ(
             -250,
             10,
-            (255, 0, 255),
+            (148, 148, 148),
             text=[
                 {
                     "name": "Le joueur",
                     "text": "Bonjour, sauriez vous comment apprendre un nouveau sort ?",
                 },
                 {
-                    "name": "Boulanger",
+                    "name": "Boulangère",
                     "text": "Je ne sais pas… Mais je crois me souvenir qu’un sorcier autrefois m'avait donné un parchemin que je n’ai jamais pu déchiffrer, peut-être qu’il t'intéressera.",
                 },
                 {
-                    "name": "Boulanger",
+                    "name": "Boulangère",
                     "text": "Si tu arrives à trouver un moyen de le traduire, je te le donnerai",
                 },
                 {
-                    "name": "Boulanger",
+                    "name": "Boulangère",
                     "text": "Enfonce toi dans le labyrinthe de la tour, déchiffre le message et ramène moi les indices qui t'ont aidé. Alors peut-être tu développera de nouvelles compétences.",
                 },
                 {
@@ -337,7 +337,7 @@ def spawn_element_at_start():
                     "text": "Ça semble dangereux… mais je suis prêt.",
                 },
                 {
-                    "name": "Boulanger",
+                    "name": "Boulangère",
                     "text": "Bien. Fais preuve de courage et de sagesse.",
                 },
             ],
