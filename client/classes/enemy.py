@@ -18,7 +18,6 @@ from client.layerList import Layer
 from server.classes.serializable import Serializable
 from client.classes.hitbox import HitBox
 
-
 class EnemyList(Enum):
     GOBELIN_MASSUE = 1
     GOBELIN_POIGNARD = 2

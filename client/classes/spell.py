@@ -40,6 +40,8 @@ class Spell(Serializable):
         speed: float = 20.0,
         world_layer: int | Layer = Layer.OVERWORLD,
         is_server: bool = False,
+        effect_time: float = 0,
+        effect_strenght: float = 0,
     ):
         self.id = id
         self.x = float(x)
@@ -87,19 +89,11 @@ class Spell(Serializable):
             case _:
                 self.spell_type = SpellList.BASIC
 
+        self.effect = (effect_time, effect_strenght)
+
         # pour les animations
         # si l'anim existe
         self.animator = None
-        self.spell_type = None
-        match color:
-            case (255, 0, 0):
-                self.spell_type = SpellList.FIREBALL
-            case (200, 200, 200):
-                self.spell_type = SpellList.PUNCH
-            case (0, 0, 255):
-                self.spell_type = SpellList.ICE
-            case _:
-                self.spell_type = SpellList.BASIC
 
         # init l'animator côté client seulement
         self.sprite_base_angle = 180  # 0 si regarde à droite, 180 si regarde à gauche
@@ -227,7 +221,7 @@ class Spell(Serializable):
             case SpellList.FIREBALL:
                 return Spell(radius=10, color=(255, 0, 0), dmg=10 * dmg_mult, **keyargs)
             case SpellList.ICE:
-                return Spell(radius=15, color=(0, 0, 255), **keyargs)
+                return Spell(radius=15, color=(0, 0, 255), dmg=dmg_mult, effect_time=3, effect_strenght=0.5/dmg_mult**0.5, **keyargs)
             case SpellList.PUNCH:
                 return Spell(
                     radius=15,

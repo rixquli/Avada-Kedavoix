@@ -93,6 +93,9 @@ class Player(Serializable):
 
         self.invinsibility_timer = 2
 
+        self.slow_effect: float = 1
+        self.time_effect: float = 0
+
     def is_dead(self) -> bool:
         return self.hp <= 0
 
@@ -195,6 +198,8 @@ class Player(Serializable):
     def server_update(self):
         if self.invinsibility_timer > 0:
             self.invinsibility_timer -= 1 / 30
+        if self.time_effect > 0:
+            self.time_effect -= 1/30
 
     def update(self, keys=None):
         self.handle_input(keys)
@@ -273,6 +278,9 @@ class Player(Serializable):
             return
 
         self._init_client_resources()
+        modif_speed = 1
+        if self.time_effect > 0:
+            modif_speed = self.slow_effect
 
         self.vx = 0
         self.vy = 0
@@ -280,13 +288,13 @@ class Player(Serializable):
         import pygame
 
         if keys[pygame.K_UP] or keys[pygame.K_z]:
-            self.vy = -self.vitesse
+            self.vy = -self.vitesse*modif_speed
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            self.vy = self.vitesse
+            self.vy = self.vitesse*modif_speed
         if keys[pygame.K_LEFT] or keys[pygame.K_q]:
-            self.vx = -self.vitesse
+            self.vx = -self.vitesse*modif_speed
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            self.vx = self.vitesse
+            self.vx = self.vitesse*modif_speed
 
         if self.vx > 0:
             self.animator.flip_y("right")

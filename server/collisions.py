@@ -5,7 +5,7 @@ CollisionsList contient la liste des evenements quand entity1 touche entity2 cel
 
 from typing import TYPE_CHECKING
 from client.classes.enemy import Enemy
-from client.classes.spell import Spell
+from client.classes.spell import Spell, SpellList
 from client.classes.player import Player
 from client.classes.wall import Wall
 
@@ -22,6 +22,10 @@ def spell_other(collision_manager: "CollisionManager", spell: Spell, other):
             collision_manager.game_state.spells.remove(spell.id)
             other.take_dmg(spell.dmg)
             print(other.hp)
+
+            if spell.spell_type == SpellList.ICE and hasattr(other, "time_effect") and hasattr(other, "slow_effect"):
+                other.time_effect, other.slow_effect = spell.effect
+                print(other.time_effect, other.slow_effect)
     else:
         collision_manager.game_state.spells.remove(spell.id)
 
