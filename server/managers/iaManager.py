@@ -157,15 +157,20 @@ class ListIa:
                 sy = -1
             enemy.next_pos_vect = (dx, dy)
             enemy.next_pos_sign = (sx, sy)
+
+        modif_speed = 1
+        if enemy.time_effect > 0:
+            modif_speed = enemy.slow_effect
+
         d = (enemy.next_pos_vect[0] ** 2 + enemy.next_pos_vect[1] ** 2) ** 0.5
         if d == 0:
             enemy.vx, enemy.vy = (0, 0)
         else:
             enemy.vx = (
-                enemy.next_pos_vect[0] / d * enemy.vitesse * 5 * enemy.next_pos_sign[0]
+                enemy.next_pos_vect[0] / d * enemy.vitesse * 5 * enemy.next_pos_sign[0] * modif_speed
             )
             enemy.vy = (
-                enemy.next_pos_vect[1] / d * enemy.vitesse * 5 * enemy.next_pos_sign[1]
+                enemy.next_pos_vect[1] / d * enemy.vitesse * 5 * enemy.next_pos_sign[1] * modif_speed
             )
             vect_x = enemy.next_pos_vect[0] - abs(enemy.vx)
             vect_y = enemy.next_pos_vect[1] - abs(enemy.vy)
