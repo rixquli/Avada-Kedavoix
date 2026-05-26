@@ -27,9 +27,9 @@ class Player(Serializable):
         radius: int = 10,
         vx: float = 0,
         vy: float = 0,
-        vitesse: int = 4,
+        vitesse: int = 5,
         id: int = None,
-        hp: int = 100,
+        hp: int = 10000000,
         world_layer: int | Layer = Layer.OVERWORLD,
         is_server: bool = False,
     ):

@@ -5,19 +5,19 @@ from client.classes.enemy import EnemyList
 
 DungeonEnemyList: List[List[Tuple[int, EnemyList, Dict[str, Any]]]] = [
     # Etage 1
-    [(10, EnemyList.GOBELIN_MASSUE, {}), (10, EnemyList.DRAGON, {})],
+    [(10, EnemyList.GOBELIN_MASSUE, {}), (10, EnemyList.GOBELIN_POIGNARD, {})],
     # Etage 2
-    [(20, EnemyList.GOBELIN_MASSUE, {})],
+    [(10, EnemyList.GOBELIN_MASSUE, {}), (10, EnemyList.GOBELIN_POIGNARD, {})],
     # Etage 3
-    [(20, EnemyList.DRAGON, {})],
+    [(5, EnemyList.GOBELIN_MASSUE, {}), (5, EnemyList.GOBELIN_POIGNARD, {}), (10, EnemyList.SKELETON, {})],
     # Etage 4
-    [(20, EnemyList.DRAGON, {})],
+    [(5, EnemyList.GOBELIN_POIGNARD, {}), (5, EnemyList.SKELETON, {}), (20, EnemyList.DRAGON, {})],
     # Etage 5
-    [(20, EnemyList.DRAGON, {})],
+    [(10, EnemyList.SKELETON, {}), (10, EnemyList.DRAGON, {})],
     # Etage 6
-    [(20, EnemyList.DRAGON, {})],
+    [(10, EnemyList.SKELETON, {}), (10, EnemyList.DRAGON, {})],
     # Etage 7
-    [(20, EnemyList.DRAGON, {})],
+    [(10, EnemyList.SKELETON, {}), (10, EnemyList.DRAGON, {})],
     # Etage 8
     [(20, EnemyList.DRAGON, {})],
     # Etage 9
