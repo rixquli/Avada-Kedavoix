@@ -20,13 +20,14 @@ class PNJ(Serializable):
         x: float,
         y: float,
         color: tuple[int, int, int],
-        size: int = 10,
+        size: int = 8,
         vx: float = 0,
         vy: float = 0,
         id: int = None,
         hp: int = 1,
         text="",
         name="",
+        home_pos: tuple = (0, 0),
         world_layer: int | Layer = Layer.OVERWORLD,
         is_server: bool = False,
     ):
@@ -61,19 +62,22 @@ class PNJ(Serializable):
         self.dist = 0
         self.dir_x = 0
         self.dir_y = 0
+        self.home_pos = home_pos
+        self.vitesse = 2
+        self.timer=0
 
-        self.hitbox_size = (10, 10)
+        self.hitbox_size = (size * 5, size * 5)
         self.hitbox = HitBox(
             int(x), int(y), self.hitbox_size[0], self.hitbox_size[1], world_layer
         )
+
+        self.animator = None
 
         # Pour gerer le systeme vie/degat
         self.hp = hp
         self.world_layer = (
             world_layer.value if isinstance(world_layer, Layer) else int(world_layer)
         )
-
-        self.animator = None
 
         self.text = text
         self.name = name
@@ -84,7 +88,7 @@ class PNJ(Serializable):
             self.game_manager = GameManager()
             self._init_client_resources()
 
-        
+
         self.distance_trigger = 50
         self.shown = False
 
@@ -130,7 +134,7 @@ class PNJ(Serializable):
         self.hitbox.update(int(self.x + self.vx), int(self.y), self.world_layer)
 
         # Vérifier les collisions horizontales
-        collided = self.hitbox.get_server_collided()
+        collided = self.hitbox.get_local_collided()
         if not collided:
             self.x += self.vx
 
@@ -138,26 +142,15 @@ class PNJ(Serializable):
         self.hitbox.update(int(self.x), int(self.y + self.vy), self.world_layer)
 
         # Vérifier les collisions verticales
-        collided = self.hitbox.get_server_collided()
+        collided = self.hitbox.get_local_collided()
         if not collided:
             self.y += self.vy
 
         # Mettre à jour la hitbox à la position finale
         self.hitbox.update(int(self.x), int(self.y), self.world_layer)
 
-    def interpolate_position(self):
-        """Interpolation du mouvement vers le point cible"""
-        x_diff = self.target_x - self.display_x
-        y_diff = self.target_y - self.display_y
 
-        if abs(x_diff) > self.min_threshold:
-            self.display_x += x_diff * self.interpolation_speed
-        else:
-            self.display_x = self.target_x
-        if abs(y_diff) > self.min_threshold:
-            self.display_y += y_diff * self.interpolation_speed
-        else:
-            self.display_y = self.target_y
+
 
     def _init_client_resources(self):
         """Initialise les ressources graphiques côté client"""
@@ -171,13 +164,12 @@ class PNJ(Serializable):
 
         pnj_type = ""
         match self.color:
-            case (0, 255, 0):
-                pnj_type = "Boulangere"
-            case (255, 0, 0):
-                pnj_type = "Marchand"
-            case _:
+            case (255, 255, 0):
                 pnj_type = "Paysan"
-
+            case (148, 148, 148):
+                pnj_type = "Boulangere"
+            case _:
+                pnj_type = "Marchand"
 
         # Chemin vers la racine du projet
         PROJECT_ROOT = os.path.abspath(
@@ -197,7 +189,23 @@ class PNJ(Serializable):
             ),
         )
 
+
+    def interpolate_position(self):
+        """Interpolation du mouvement vers le point cible"""
+        x_diff = self.target_x - self.display_x
+        y_diff = self.target_y - self.display_y
+
+        if abs(x_diff) > self.min_threshold:
+            self.display_x += x_diff * self.interpolation_speed
+        else:
+            self.display_x = self.target_x
+        if abs(y_diff) > self.min_threshold:
+            self.display_y += y_diff * self.interpolation_speed
+        else:
+            self.display_y = self.target_y
+
     def draw(self, surface, offset: tuple[float, float]):
+        self._init_client_resources()
         # Interpolation vers la position cible
         # Permet d'eviter les mouvements sacadé
         self._init_client_resources()

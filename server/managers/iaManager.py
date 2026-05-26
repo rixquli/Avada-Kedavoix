@@ -105,7 +105,7 @@ class BasicIaUtility:
 
     @staticmethod
     def is_dest_reached(x, y, dest_x, dest_y, precision):
-        return abs(dest_x - x) <= precision and abs(dest_y - y) < precision
+        return abs(dest_x - x) <= precision and abs(dest_y - y) <= precision
 
 
 class ListIa:
@@ -182,9 +182,10 @@ class ListIa:
     @staticmethod
     def pnj_ia(pnj: PNJ) -> None:
         """ia des pnj: deplacement aleatoires (wandering)"""
-        if BasicIaUtility.is_dest_reached(pnj.x, pnj.y, pnj.target_x, pnj.target_y, 1):
-            pnj.x_target = randint(int(pnj.x - 100), int(pnj.x + 100))
-            pnj.y_target = randint(int(pnj.y - 100), int(pnj.y + 100))
+        if pnj.timer <= 0:
+            pnj.timer = 2
+            pnj.x_target = randint(int(pnj.home_pos[0] - 300), int(pnj.home_pos[0] + 300))
+            pnj.y_target = randint(int(pnj.home_pos[1] - 300), int(pnj.home_pos[1] + 300))
             pnj.dist = (
                 (pnj.x_target - pnj.x) ** 2 + (pnj.y_target - pnj.y) ** 2
             ) ** 0.5
@@ -194,3 +195,10 @@ class ListIa:
             else:
                 pnj.vx = (pnj.x_target - pnj.x) / pnj.dist
                 pnj.vy = (pnj.y_target - pnj.y) / pnj.dist
+
+        pnj.timer -=1/30
+        pnj.dist = (
+                           (pnj.x_target - pnj.x) ** 2 + (pnj.y_target - pnj.y) ** 2
+                   ) ** 0.5
+        pnj.vx = (pnj.x_target - pnj.x) / pnj.dist * pnj.vitesse
+        pnj.vy = (pnj.y_target - pnj.y) / pnj.dist * pnj.vitesse

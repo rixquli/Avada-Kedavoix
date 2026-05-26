@@ -29,6 +29,7 @@ from client.classes.mapBackground import MapBackground
 from client.classes.player import Player
 from client.classes.pnj import PNJ
 from client.classes.wall import Wall
+from client.classes.house import House
 from client.layerList import Layer
 from client.sound.soundManager import SoundManager
 from client.spellsManager import SpellsManager
@@ -338,6 +339,14 @@ class GameManager:
             self.screen,
             offset,
             self.client_manager.game_state.pnjs.get_list(),
+            active_world_layer=self.world_layer,
+        )
+        
+        #Dessine les maisons
+        House.draw_all(
+            self.screen,
+            offset,
+            self.client_manager.game_state.houses.get_list(),
             active_world_layer=self.world_layer,
         )
 

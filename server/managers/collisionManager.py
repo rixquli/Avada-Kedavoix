@@ -39,7 +39,10 @@ class CollisionManager:
             entity_list = entity.get_list()
             if entity_list:
                 for e in entity_list:
-                    group.add(e)
+                    if isinstance(e, pygame.sprite.Sprite):
+                        group.add(e)
+                    elif hasattr(e, 'hitbox'):
+                        group.add(e.hitbox)
 
     def add_collision(self, entity1_type, entity2_type, handler):
         self.handled_collisions.append((entity1_type, entity2_type, handler))

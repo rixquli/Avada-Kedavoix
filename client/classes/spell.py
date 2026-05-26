@@ -22,6 +22,7 @@ class SpellList(Enum):
     TELEPORTATION = 4
     PUNCH = 5
     BASIC = 6
+    DARK_FIREBALL = 7
 
 
 class Spell(Serializable):
@@ -86,6 +87,8 @@ class Spell(Serializable):
                 self.spell_type = SpellList.PUNCH
             case (0, 0, 255):
                 self.spell_type = SpellList.ICE
+            case (0, 0, 0):
+                self.spell_type = SpellList.DARK_FIREBALL
             case _:
                 self.spell_type = SpellList.BASIC
 
@@ -94,10 +97,22 @@ class Spell(Serializable):
         # pour les animations
         # si l'anim existe
         self.animator = None
+        self.spell_type = None
+        match color:
+            case (255, 0, 0):
+                self.spell_type = SpellList.FIREBALL
+            case (200, 200, 200):
+                self.spell_type = SpellList.PUNCH
+            case (0, 0, 255):
+                self.spell_type = SpellList.ICE
+            case (0, 0, 0):
+                self.spell_type = SpellList.DARK_FIREBALL
+            case _:
+                self.spell_type = SpellList.BASIC
 
         # init l'animator côté client seulement
         self.sprite_base_angle = 180  # 0 si regarde à droite, 180 si regarde à gauche
-        if not is_server and self.spell_type in [SpellList.FIREBALL, SpellList.ICE]:
+        if not is_server and self.spell_type in [SpellList.FIREBALL, SpellList.ICE, SpellList.DARK_FIREBALL]:
             self._init_client_resources()
 
     def _init_client_resources(self):
@@ -110,7 +125,7 @@ class Spell(Serializable):
             os.path.join(os.path.dirname(__file__), "..", "..")
         )
         self.animator = Animator(
-            size=(self.radius * 5, self.radius * 5), animation_speed=10 / 60
+            size=(self.radius *2 , self.radius *2), animation_speed=10 / 60
         )
         self.animator.state_manager.add_state(
             "idle",
@@ -220,6 +235,8 @@ class Spell(Serializable):
         match spell_type:
             case SpellList.FIREBALL:
                 return Spell(radius=10, color=(255, 0, 0), dmg=10 * dmg_mult, **keyargs)
+            case SpellList.DARK_FIREBALL:
+                return Spell(radius=10, color=(0, 0, 0), dmg=12 * dmg_mult, **keyargs)
             case SpellList.ICE:
                 return Spell(radius=15, color=(0, 0, 255), dmg=dmg_mult, effect_time=3, effect_strenght=0.5/dmg_mult**0.5, **keyargs)
             case SpellList.PUNCH:

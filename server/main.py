@@ -26,6 +26,7 @@ from client.classes.pnj import PNJ
 from client.classes.enemy import Enemy, EnemyList
 from client.classes.player import Player
 from client.classes.spell import Spell
+from client.classes.house import House
 from server.NetworkManager import NetworkManager
 from server.message import Message, MessageType
 
@@ -258,130 +259,33 @@ def generate_all_dungeon():
         network.enemySpawner.dungeon_generate(Layer.DUNGEON_BASE.value + i, i)
 
 
+# TODO: Enlever cette fonction elle ne doit rester que en développement ou etre adapté
 def spawn_element_at_start():
-    # enemy1 = network.game_state.enemies.addEntity(
-    #     Enemy.get_enemy_type(
-    #         EnemyList.GOBELIN_MASSUE, x=200, y=200, world_layer=1, is_server=True
-    #     )
-    # )
-    # enemy2 = network.game_state.enemies.addEntity(
-    #     Enemy.get_enemy_type(
-    #         EnemyList.BOSS, x=350, y=350, world_layer=1, is_server=True
-    #     )
-    # )
-    # enemy2 = network.game_state.enemies.addEntity(
-    #     Enemy(350, 350, (0, 255, 255), world_layer=2, is_server=True)
-    # )
+    house1 = House(-80, -100, 20, 1, True)
+    network.game_state.houses.addEntity(
+        house1
+    )
+    network.game_state.collision_manager.client_collider_groups["obstacle"].add(house1.hitbox)
 
-    pnj1 = network.game_state.pnjs.addEntity(
-        PNJ(
-            -150,
-            150,
-            (0, 255, 0),
-            text=[
-                {
-                    "name": "Le joueur",
-                    "text": "Bonjour, sauriez vous comment apprendre un nouveau sort ?",
-                },
-                {
-                    "name": "Boulanger",
-                    "text": "Je ne sais pas… Mais je crois me souvenir qu’un sorcier autrefois m'avait donné un parchemin que je n’ai jamais pu déchiffrer, peut-être qu’il t'intéressera.",
-                },
-                {
-                    "name": "Boulanger",
-                    "text": "Si tu arrives à trouver un moyen de le traduire, je te le donnerai",
-                },
-                {
-                    "name": "Boulanger",
-                    "text": "Enfonce toi dans le labyrinthe de la tour, déchiffre le message et ramène moi les indices qui t'ont aidé. Alors peut-être tu développera de nouvelles compétences.",
-                },
-                {
-                    "name": "Le joueur",
-                    "text": "Ça semble dangereux… mais je suis prêt.",
-                },
-                {
-                    "name": "Boulanger",
-                    "text": "Bien. Fais preuve de courage et de sagesse.",
-                },
-            ],
-            is_server=True,
-        )
+    house2 = House(-300, -120, 20, 1, True)
+    network.game_state.houses.addEntity(
+        house2
     )
-    pnj2 = network.game_state.pnjs.addEntity(
-        PNJ(
-            -100,
-            -100,
-            (255, 0, 0),
-            text=[
-                {
-                    "name": "Le joueur",
-                    "text": "Bonjour, sauriez vous comment apprendre un nouveau sort ?",
-                },
-                {
-                    "name": "Marchand",
-                    "text": "Je ne sais pas… Mais je crois me souvenir qu’un sorcier autrefois m'avait donné un parchemin que je n’ai jamais pu déchiffrer, peut-être qu’il t'intéressera.",
-                },
-                {
-                    "name": "Marchand",
-                    "text": "Si tu arrives à trouver un moyen de le traduire, je te le donnerai",
-                },
-                {
-                    "name": "Marchand",
-                    "text": "Enfonce toi dans le labyrinthe de la tour, déchiffre le message et ramène moi les indices qui t'ont aidé. Alors peut-être tu développera de nouvelles compétences.",
-                },
-                {
-                    "name": "Le joueur",
-                    "text": "Ça semble dangereux… mais je suis prêt.",
-                },
-                {
-                    "name": "Marchand",
-                    "text": "Bien. Fais preuve de courage et de sagesse.",
-                },
-            ],
-            is_server=True,
-        )
-    )
+    network.game_state.collision_manager.client_collider_groups["obstacle"].add(house2.hitbox)
 
-    pnj3 = network.game_state.pnjs.addEntity(
-        PNJ(
-            -100,
-            100,
-            (0, 0, 255),
-            text=[
-                {
-                    "name": "Le joueur",
-                    "text": "Bonjour, sauriez vous comment apprendre un nouveau sort ?",
-                },
-                {
-                    "name": "Paysan",
-                    "text": "Je ne sais pas… Mais je crois me souvenir qu’un sorcier autrefois m'avait donné un parchemin que je n’ai jamais pu déchiffrer, peut-être qu’il t'intéressera.",
-                },
-                {
-                    "name": "Paysan",
-                    "text": "Si tu arrives à trouver un moyen de le traduire, je te le donnerai",
-                },
-                {
-                    "name": "Paysan",
-                    "text": "Enfonce toi dans le labyrinthe de la tour, déchiffre le message et ramène moi les indices qui t'ont aidé. Alors peut-être tu développera de nouvelles compétences.",
-                },
-                {
-                    "name": "Le joueur",
-                    "text": "Ça semble dangereux… mais je suis prêt.",
-                },
-                {
-                    "name": "Paysan",
-                    "text": "Bien. Fais preuve de courage et de sagesse.",
-                },
-            ],
-            is_server=True,
-        )
+    house3 = House(400, 150, 20, 1, True)
+    network.game_state.houses.addEntity(
+        house3
     )
+    network.game_state.collision_manager.client_collider_groups["obstacle"].add(house3.hitbox)
+
 
     walls = [
         Wall(-500, -500, 1000, 50, texture_path=None),
         Wall(-500, 500, 1050, 50, texture_path=None),
         Wall(-500, -500, 50, 1000, texture_path=None),
         Wall(500, -500, 50, 1000, texture_path=None),
+        Wall(100, 100, 100, 50, texture_path=None),
     ]
     for wall in walls:
         network.game_state.walls.addEntity(wall)
@@ -390,6 +294,112 @@ def spawn_element_at_start():
         )
     start_new_thread(generate_all_dungeon, ())
 
+    pnj1 = network.game_state.pnjs.addEntity(
+        PNJ(
+            -50,
+            50,
+            (255, 255, 0),
+            text=[
+                {
+                    "name": "Le joueur",
+                    "text": "Bonjour, sauriez vous comment apprendre un nouveau sort ?",
+                },
+                {
+                    "name": "Paysan",
+                    "text": "Je ne sais pas… Mais je crois me souvenir qu’un sorcier autrefois m'avait donné un parchemin que je n’ai jamais pu déchiffrer, peut-être qu’il t'intéressera.",
+                },
+                {
+                    "name": "Paysan",
+                    "text": "Si tu arrives à trouver un moyen de le traduire, je te le donnerai",
+                },
+                {
+                    "name": "Paysan",
+                    "text": "Enfonce toi dans le labyrinthe de la tour, déchiffre le message et ramène moi les indices qui t'ont aidé. Alors peut-être tu développera de nouvelles compétences.",
+                },
+                {
+                    "name": "Le joueur",
+                    "text": "Ça semble dangereux… mais je suis prêt.",
+                },
+                {
+                    "name": "Paysan",
+                    "text": "Bien. Fais preuve de courage et de sagesse.",
+                },
+            ],
+            home_pos= (house1.x, house1.y),
+            is_server=True,
+        )
+    )
+    pnj2 = network.game_state.pnjs.addEntity(
+        PNJ(
+            -250,
+            10,
+            (148, 148, 148),
+            text=[
+                {
+                    "name": "Le joueur",
+                    "text": "Bonjour, sauriez vous comment apprendre un nouveau sort ?",
+                },
+                {
+                    "name": "Boulangère",
+                    "text": "Je ne sais pas… Mais je crois me souvenir qu’un sorcier autrefois m'avait donné un parchemin que je n’ai jamais pu déchiffrer, peut-être qu’il t'intéressera.",
+                },
+                {
+                    "name": "Boulangère",
+                    "text": "Si tu arrives à trouver un moyen de le traduire, je te le donnerai",
+                },
+                {
+                    "name": "Boulangère",
+                    "text": "Enfonce toi dans le labyrinthe de la tour, déchiffre le message et ramène moi les indices qui t'ont aidé. Alors peut-être tu développera de nouvelles compétences.",
+                },
+                {
+                    "name": "Le joueur",
+                    "text": "Ça semble dangereux… mais je suis prêt.",
+                },
+                {
+                    "name": "Boulangère",
+                    "text": "Bien. Fais preuve de courage et de sagesse.",
+                },
+            ],
+            home_pos=(house2.x, house2.y),
+            is_server=True,
+        )
+    )
+
+    pnj3 = network.game_state.pnjs.addEntity(
+        PNJ(
+            150,
+            10,
+            (48, 0, 0),
+            text=[
+                {
+                    "name": "Le joueur",
+                    "text": "Bonjour, sauriez vous comment apprendre un nouveau sort ?",
+                },
+                {
+                    "name": "Marchand",
+                    "text": "Je ne sais pas… Mais je crois me souvenir qu’un sorcier autrefois m'avait donné un parchemin que je n’ai jamais pu déchiffrer, peut-être qu’il t'intéressera.",
+                },
+                {
+                    "name": "Marchand",
+                    "text": "Si tu arrives à trouver un moyen de le traduire, je te le donnerai",
+                },
+                {
+                    "name": "Marchand",
+                    "text": "Enfonce toi dans le labyrinthe de la tour, déchiffre le message et ramène moi les indices qui t'ont aidé. Alors peut-être tu développera de nouvelles compétences.",
+                },
+                {
+                    "name": "Le joueur",
+                    "text": "Ça semble dangereux… mais je suis prêt.",
+                },
+                {
+                    "name": "Marchand",
+                    "text": "Bien. Fais preuve de courage et de sagesse.",
+                },
+            ],
+            home_pos= (house3.x, house3.y),
+            is_server=True,
+        )
+    )
 
 
 def start_game_server(

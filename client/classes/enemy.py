@@ -18,12 +18,14 @@ from client.layerList import Layer
 from server.classes.serializable import Serializable
 from client.classes.hitbox import HitBox
 
+
 class EnemyList(Enum):
     GOBELIN_MASSUE = 1
-    GOBELIN_POIGNARD = 2
-    SKELETON = 3
-    DRAGON = 4
-    BOSS = 5
+    SKELETON = 2
+    DRAGON = 3
+    BOSS = 4
+    DARK_MAGE = 5
+    GOBELIN_POIGNARD = 6
 
 
 class Enemy(Serializable):
@@ -37,7 +39,7 @@ class Enemy(Serializable):
         vy: float = 0,
         id: int = None,
         hp: int = 20,
-        vitesse: int = 1,
+        vitesse: float = 1,
         attack_delay: float = 5.0,
         world_layer: int | Layer = Layer.OVERWORLD,
         spell_type: SpellList = SpellList.PUNCH,
@@ -124,7 +126,7 @@ class Enemy(Serializable):
         self.debug = debug
 
         if self.is_boss:
-            self.list_attack = [SpellList.FIREBALL, SpellList.ICE, SpellList.TELEPORTATION]
+            self.list_attack = [SpellList.FIREBALL, SpellList.ICE, SpellList.TELEPORTATION, SpellList.DARK_FIREBALL]
             self.nb_attack = 0
             self.regen_delay = 40
             self.preck_regen = time.time()
@@ -159,7 +161,7 @@ class Enemy(Serializable):
                 ennemy_type = "Squelette"
             case (255, 0, 0):
                 ennemy_type = "Dragon"
-            case (255, 255, 255):
+            case (255, 255, 255)|(0, 0, 255):
                 ennemy_type = "Mage_noir"
             case _:
                 ennemy_type = "Gobelin_poignard"
@@ -359,18 +361,19 @@ class Enemy(Serializable):
                     reach=500,
                     dist_from=50,
                     attack_delay=2,
-                    vitesse=3,
+                    vitesse=2.5,
+                    dmg_mult=0.3,
                     **keyargs,
                 )
             case EnemyList.GOBELIN_POIGNARD:
                 return Enemy(
-                    color=(0, 254, 0),
+                    color=(20, 100, 0),
                     spell_type=SpellList.PUNCH,
                     reach=500,
-                    dist_from=50,
+                    dist_from=40,
                     attack_delay=1,
-                    vitesse=4,
-                    dmg_mult=0.5,
+                    vitesse=2.5,
+                    dmg_mult=0.1,
                     **keyargs,
                 )
             case EnemyList.DRAGON:
@@ -388,6 +391,15 @@ class Enemy(Serializable):
                     spell_type=SpellList.ICE,
                     reach=500,
                     dist_from=100,
+                    vitesse=2,
+                    **keyargs,
+                )
+            case EnemyList.DARK_MAGE:
+                return Enemy(
+                    color=(0, 0, 255),
+                    spell_type=SpellList.DARK_FIREBALL,
+                    reach=500,
+                    dist_from=75,
                     **keyargs,
                 )
             case EnemyList.BOSS:
