@@ -29,7 +29,7 @@ class Player(Serializable):
         vy: float = 0,
         vitesse: int = 5,
         id: int = None,
-        hp: int = 10000000,
+        hp: int = 100,
         world_layer: int | Layer = Layer.OVERWORLD,
         is_server: bool = False,
     ):
