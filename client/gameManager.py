@@ -361,7 +361,7 @@ class GameManager:
             active_world_layer=self.world_layer,
         )
 
-        if self.world_layer > Layer.OVERWORLD.value and 0:
+        if self.world_layer > Layer.OVERWORLD.value:
             self.cameraBlackFade.draw(
                 self.screen,
                 (self.screen.get_width() // 2, self.screen.get_height() // 2),
