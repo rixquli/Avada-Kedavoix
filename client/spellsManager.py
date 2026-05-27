@@ -6,12 +6,13 @@ from client.Utils.ImageTool import ImageTool
 from client.classes.spell import Spell, SpellList
 from client.layerList import Layer
 
-throwableSpells = [SpellList.FIREBALL, SpellList.ICE]
+throwableSpells = [SpellList.FIREBALL, SpellList.ICE, SpellList.DARK_FIREBALL]
 
 spells_img = {
     SpellList.FIREBALL: "client/ressources/Sorts/FIREBALL/idle_1.png",
-    SpellList.ICE: "client/ressources/Sorts/ICE/idle_1.png",
+    SpellList.ICE: "client/ressources/Sorts/ICE/icon/icon.png",
     SpellList.DARK_FIREBALL: "client/ressources/Sorts/DARK_FIREBALL/idle_0.png",
+    SpellList.HEAL: "client/ressources/Sorts/Heal/icon.png",
 }
 
 
