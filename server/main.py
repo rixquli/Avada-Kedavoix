@@ -336,19 +336,19 @@ def spawn_element_at_start():
             text=[
                 {
                     "name": "Le joueur",
-                    "text": "Bonjour, sauriez vous comment apprendre un nouveau sort ?",
+                    "text": "Bonjour, comment allez vous?",
                 },
                 {
                     "name": "Boulangère",
-                    "text": "Je ne sais pas… Mais je crois me souvenir qu’un sorcier autrefois m'avait donné un parchemin que je n’ai jamais pu déchiffrer, peut-être qu’il t'intéressera.",
+                    "text": "Bien et vous ?.",
                 },
                 {
                     "name": "Boulangère",
-                    "text": "Si tu arrives à trouver un moyen de le traduire, je te le donnerai",
+                    "text": "Bien, mais j'aurais la conscience plus tranquile si j'était sûr de pouvoir battre les monstres. Il me faudrait apprendre d'autre sorts.",
                 },
                 {
                     "name": "Boulangère",
-                    "text": "Enfonce toi dans le labyrinthe de la tour, déchiffre le message et ramène moi les indices qui t'ont aidé. Alors peut-être tu développera de nouvelles compétences.",
+                    "text": "Entre dans le labyrithe et tente de vaincre tous les ennemis. Alors peut-être tu développera de nouvelles compétences.",
                 },
                 {
                     "name": "Le joueur",
@@ -356,12 +356,11 @@ def spawn_element_at_start():
                 },
                 {
                     "name": "Boulangère",
-                    "text": "Bien. Fais preuve de courage et de sagesse.",
+                    "text": "Bien. Je te souhaite bon courage jeune sorcier.",
                 },
             ],
             home_pos=(house2.x, house2.y),
             is_server=True,
-            spell_given=SpellList.ICE.value,
         )
     )
 
@@ -377,25 +376,22 @@ def spawn_element_at_start():
                 },
                 {
                     "name": "Marchand",
-                    "text": "Je ne sais pas… Mais je crois me souvenir qu’un sorcier autrefois m'avait donné un parchemin que je n’ai jamais pu déchiffrer, peut-être qu’il t'intéressera.",
+                    "text": "Quand je vivait dans une contrée glaciale, j'en ai entendu un.",
                 },
                 {
                     "name": "Marchand",
-                    "text": "Si tu arrives à trouver un moyen de le traduire, je te le donnerai",
+                    "text": "Ma mémoire me fait quelque peut défaut mais il me semble que c'était soit Ice, boule de neige, glace pilée ou pick de glace.",
                 },
                 {
                     "name": "Marchand",
-                    "text": "Enfonce toi dans le labyrinthe de la tour, déchiffre le message et ramène moi les indices qui t'ont aidé. Alors peut-être tu développera de nouvelles compétences.",
+                    "text": "Enfonce toi dans le labyrinthe de la tour, teste les et reviens me dire lequel fonctionne.",
                 },
                 {
                     "name": "Le joueur",
-                    "text": "Ça semble dangereux… mais je suis prêt.",
-                },
-                {
-                    "name": "Marchand",
-                    "text": "Bien. Fais preuve de courage et de sagesse.",
+                    "text": "Merci pour vos conseils.",
                 },
             ],
+            spell_given=SpellList.ICE.value,
             home_pos=(house3.x, house3.y),
             is_server=True,
         )
