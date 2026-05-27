@@ -30,6 +30,7 @@ class PNJ(Serializable):
         home_pos: tuple = (0, 0),
         world_layer: int | Layer = Layer.OVERWORLD,
         is_server: bool = False,
+        spell_given=None,
     ):
         self.id = id
         self.color = tuple(color)
@@ -64,7 +65,7 @@ class PNJ(Serializable):
         self.dir_y = 0
         self.home_pos = home_pos
         self.vitesse = 2
-        self.timer=0
+        self.timer = 0
 
         self.hitbox_size = (size * 5, size * 5)
         self.hitbox = HitBox(
@@ -85,9 +86,10 @@ class PNJ(Serializable):
         self.game_manager = None
         if not is_server:
             from client.gameManager import GameManager
+
             self.game_manager = GameManager()
             self._init_client_resources()
-
+        self.spell_given = spell_given
 
         self.distance_trigger = 50
         self.shown = False
@@ -100,7 +102,7 @@ class PNJ(Serializable):
     def local_update(self):
         if self.game_manager is None:
             return
-        
+
         current_player = self.game_manager.client_manager.game_state.players.get(
             self.game_manager.client_manager.my_player_id
         )
@@ -149,9 +151,6 @@ class PNJ(Serializable):
         # Mettre à jour la hitbox à la position finale
         self.hitbox.update(int(self.x), int(self.y), self.world_layer)
 
-
-
-
     def _init_client_resources(self):
         """Initialise les ressources graphiques côté client"""
         if self.animator is not None:
@@ -188,7 +187,6 @@ class PNJ(Serializable):
                 "idle",
             ),
         )
-
 
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
@@ -229,7 +227,6 @@ class PNJ(Serializable):
 
         self.hitbox.draw(surface, offset)
 
-
         if self.debug:
             if self.path is not None:
                 for pos in self.path:
@@ -239,8 +236,6 @@ class PNJ(Serializable):
                         (pos[0] + offset[0], pos[1] + offset[1]),
                         2,
                     )
-
-
 
     def set_target_position(self, x, y):
         """
@@ -277,7 +272,7 @@ class PNJ(Serializable):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
             if self.game_manager is None:
                 return
-            
+
             current_player = self.game_manager.client_manager.game_state.players.get(
                 self.game_manager.client_manager.my_player_id
             )
@@ -298,5 +293,7 @@ class PNJ(Serializable):
             ):
                 # Passer le nom et le texte du NPC au dialogue avant de l'afficher
                 # Convertir self.text en liste si c'est une string
-                self.game_manager.ui.set_dialog_data("dialog", self.text)
+                self.game_manager.ui.set_dialog_data(
+                    "dialog", self.text, self.spell_given
+                )
                 self.game_manager.ui.show("dialog")

@@ -49,9 +49,10 @@ class Menu:
 
 
 class UI:
-    def __init__(self, screen=None):
+    def __init__(self, screen=None, game_manager=None):
         self.menus = {}
         self.screen = screen
+        self.game_manager = game_manager
         from client.menus import Menus
 
         self.imported_menus = Menus
@@ -78,7 +79,7 @@ class UI:
         if menu_name not in self.menus.keys():
             raise ValueError(menu_name, ": this menu do not exist")
         self.menus[menu_name].is_showing = False
-    
+
     def hide_all(self):
         """
         Désaffiche les menus
@@ -170,7 +171,7 @@ class UI:
         for menu_name in self.get_visible_menus():
             self.menus[menu_name].handle_event(event)
 
-    def set_dialog_data(self, dialog_name, text_list):
+    def set_dialog_data(self, dialog_name, text_list, spell_given):
         """
         Met à jour les données du DialogBox (nom du NPC et texte du dialogue)
         """
@@ -186,6 +187,12 @@ class UI:
                 component.textIndex = 0
                 component.nameComp.change_text(text_list[0].get("name", ""))
                 component.textComp.change_text(text_list[0].get("text", ""))
+                if hasattr(component, "close_callback2"):
+
+                    def give_the_spell():
+                        self.game_manager.spellManager.unlock(spell_given)
+
+                    component.close_callback2 = give_the_spell
                 break
 
     def import_menus(self, menus):

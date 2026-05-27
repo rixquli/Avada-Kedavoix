@@ -25,7 +25,7 @@ from client.classes.wall import Wall
 from client.classes.pnj import PNJ
 from client.classes.enemy import Enemy, EnemyList
 from client.classes.player import Player
-from client.classes.spell import Spell
+from client.classes.spell import Spell, SpellList
 from client.classes.house import House
 from server.NetworkManager import NetworkManager
 from server.message import Message, MessageType
@@ -262,23 +262,22 @@ def generate_all_dungeon():
 # TODO: Enlever cette fonction elle ne doit rester que en développement ou etre adapté
 def spawn_element_at_start():
     house1 = House(-80, -100, 20, 1, True)
-    network.game_state.houses.addEntity(
-        house1
+    network.game_state.houses.addEntity(house1)
+    network.game_state.collision_manager.client_collider_groups["obstacle"].add(
+        house1.hitbox
     )
-    network.game_state.collision_manager.client_collider_groups["obstacle"].add(house1.hitbox)
 
     house2 = House(-300, -120, 20, 1, True)
-    network.game_state.houses.addEntity(
-        house2
+    network.game_state.houses.addEntity(house2)
+    network.game_state.collision_manager.client_collider_groups["obstacle"].add(
+        house2.hitbox
     )
-    network.game_state.collision_manager.client_collider_groups["obstacle"].add(house2.hitbox)
 
     house3 = House(400, 150, 20, 1, True)
-    network.game_state.houses.addEntity(
-        house3
+    network.game_state.houses.addEntity(house3)
+    network.game_state.collision_manager.client_collider_groups["obstacle"].add(
+        house3.hitbox
     )
-    network.game_state.collision_manager.client_collider_groups["obstacle"].add(house3.hitbox)
-
 
     walls = [
         Wall(-500, -500, 1000, 50, texture_path=None),
@@ -325,7 +324,7 @@ def spawn_element_at_start():
                     "text": "Bien. Fais preuve de courage et de sagesse.",
                 },
             ],
-            home_pos= (house1.x, house1.y),
+            home_pos=(house1.x, house1.y),
             is_server=True,
         )
     )
@@ -362,6 +361,7 @@ def spawn_element_at_start():
             ],
             home_pos=(house2.x, house2.y),
             is_server=True,
+            spell_given=SpellList.ICE.value,
         )
     )
 
@@ -396,7 +396,7 @@ def spawn_element_at_start():
                     "text": "Bien. Fais preuve de courage et de sagesse.",
                 },
             ],
-            home_pos= (house3.x, house3.y),
+            home_pos=(house3.x, house3.y),
             is_server=True,
         )
     )

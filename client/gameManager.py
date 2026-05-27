@@ -89,7 +89,7 @@ class GameManager:
         self.spellManager = SpellsManager(self)
 
         # Setup ui/menus
-        self.ui = UI(self.screen)
+        self.ui = UI(self.screen, self)
 
     def setup_server(self):
         """
@@ -234,6 +234,9 @@ class GameManager:
                         self.windowed_size, pygame.RESIZABLE
                     )
                 self.ui.on_resize()
+            # DEBUG
+            elif event.key == pygame.K_F1:
+                self.spellManager.unlock_all()
 
         self.ui.handle_event(event)  # Gere les evenement des elements des interfaces
 

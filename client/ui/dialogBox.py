@@ -21,6 +21,7 @@ class DialogBox:
         self.position = position
         self.anchor = anchor
         self.close_callback = close_callback
+        self.close_callback2 = None
         # self.shown = True
 
         project_root = os.path.abspath(
@@ -93,6 +94,10 @@ class DialogBox:
         else:
             if self.close_callback is not None:
                 self.close_callback()
+            if self.close_callback2 is not None:
+                self.close_callback2()
+            else:
+                print("pas de close_callback2")
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:

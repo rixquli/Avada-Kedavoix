@@ -11,6 +11,7 @@ throwableSpells = [SpellList.FIREBALL, SpellList.ICE]
 spells_img = {
     SpellList.FIREBALL: "client/ressources/Sorts/FIREBALL/idle_1.png",
     SpellList.ICE: "client/ressources/Sorts/ICE/idle_1.png",
+    SpellList.DARK_FIREBALL: "client/ressources/Sorts/DARK_FIREBALL/idle_0.png",
 }
 
 
@@ -25,6 +26,17 @@ class SpellsManager:
         for key, val in spells_img.items():
             self.unlockSpell[key]["img"] = ImageTool.load(val, (48, 48))
 
+        self.hotbar_items = self.get_items()
+
+    def unlock(self, spell):
+        for k in self.unlockSpell.keys():
+            if spell == k or spell == k.value:
+                self.unlockSpell[k]["unlock"] = True
+        self.hotbar_items = self.get_items()
+
+    def unlock_all(self):
+        for k in self.unlockSpell.keys():
+            self.unlockSpell[k]["unlock"] = True
         self.hotbar_items = self.get_items()
 
     def get_items(self):
