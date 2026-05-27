@@ -178,7 +178,7 @@ class ClientManager:
         self.server_ready = False
 
         def run_server():
-            try:
+            #try:
                 print("Démarrage du serveur privé...")
                 server_main(
                     adress=adress,
@@ -188,9 +188,9 @@ class ClientManager:
                     newGame=newGame,
                 )
                 self.server_ready = True
-            except Exception as e:
-                print(f"Erreur lors du démarrage du serveur: {e}")
-                self.server_ready = True
+            #except Exception as e:
+            #    print(f"Erreur lors du démarrage du serveur: {e}")
+             #   self.server_ready = True
 
         # Démarrer le serveur dans un thread
         start_new_thread(run_server, ())

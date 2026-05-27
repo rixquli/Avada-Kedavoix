@@ -1,5 +1,6 @@
 import pygame
-
+from client.enums.anchor import Anchor
+from client.ui.uiUtils import UIUtils
 
 class Hotbar:
     def __init__(self, screen_width, screen_height):
@@ -7,14 +8,20 @@ class Hotbar:
         self.slot_size = 64
         self.spacing = 6
 
-        total_width = (
+        self.total_width = (
             self.slot_count * self.slot_size + (self.slot_count - 1) * self.spacing
         )
         from client.gameManager import GameManager
 
         self.game_manager = GameManager()
-        self.start_x = (screen_width - total_width) // 2
-        self.y = screen_height - self.slot_size - 20
+        self.anchor = Anchor.MIDBOTTOM
+        self.position = (0, -50)
+
+        self.start_x, self.y = UIUtils.calculate_position_with_anchor(
+            self.total_width, self.slot_size, self.anchor, self.position
+        )
+        #self.start_x = (screen_width - self.total_width) // 2
+        #self.y = screen_height - self.slot_size - 20
 
         self.selected_index = 0
 
@@ -37,9 +44,16 @@ class Hotbar:
             img = pygame.transform.scale(img, (48, 48))
             self.items[index] = img
 
+    def update_position(self):
+        self.start_x, self.y = UIUtils.calculate_position_with_anchor(
+            self.total_width, self.slot_size, self.anchor, self.position
+        )
+        self.create_slots()
+
+
     def on_resize(self):
-        #! TODO le plus simple est juste de faire comme le reste des composant et d'utiliser la fonction pour recalcluer dynamiquement la position en fonction de la taille de l'ecran
-        pass
+        self.update_position()
+
 
     def draw(self, window):
         long = len(self.game_manager.spellManager.hotbar_items)

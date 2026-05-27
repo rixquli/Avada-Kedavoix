@@ -5,7 +5,7 @@ from client.classes.enemy import EnemyList
 
 DungeonEnemyList: List[List[Tuple[int, EnemyList, Dict[str, Any]]]] = [
     # Etage 1
-    [(5, EnemyList.GOBELIN_MASSUE, {}), (5, EnemyList.GOBELIN_POIGNARD, {})],
+    [(5, EnemyList.GOBELIN_MASSUE, {}), (5, EnemyList.GOBELIN_POIGNARD, {}), (1, EnemyList.BOSS, {})],
     # Etage 2
     [(10, EnemyList.GOBELIN_MASSUE, {}), (7, EnemyList.GOBELIN_POIGNARD, {})],
     # Etage 3
