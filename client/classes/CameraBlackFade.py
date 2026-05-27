@@ -4,7 +4,7 @@ import pygame
 class CameraBlackFade:
     def __init__(
         self,
-        vision_radius: int = 200,
+        vision_radius: int = 300,
         softness: int = 95,
         darkness_alpha: int = 255,
     ):
