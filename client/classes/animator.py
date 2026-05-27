@@ -1,3 +1,4 @@
+import math
 import time
 import os
 import pygame
@@ -104,7 +105,8 @@ class Animator(Serializable):
         animation_speed=15 / 60,
         size: tuple[int, int] = (0, 0),
         sprite_offset: tuple[float, float] = (0, 0),
-        base_dir = -1 # la direction que regarde le personnage de base -1 pour la gauche et 1 pour la droite
+        base_dir=-1,  # la direction que regarde le personnage de base -1 pour la gauche et 1 pour la droite
+        look_target=False,
     ):
         self.size = (int(size[0]), int(size[1]))
         self.animation_speed = animation_speed
@@ -116,6 +118,8 @@ class Animator(Serializable):
         )
 
         self.orientation = 1
+
+        self.look_target = look_target
 
     def set_state(self, state_name):
         self.state_manager.set_state(state_name)
@@ -141,9 +145,18 @@ class Animator(Serializable):
         )
         rect = sprite.get_rect(center=position_with_sprite_offset)
 
-        if self.orientation == 1:
-            surface.blit(sprite, rect)
+        if self.look_target:
+            angle = (
+                -math.degrees(math.atan2(self.dir[1], self.dir[0]))
+                + self.sprite_base_angle
+            )
+            rotated_sprite = pygame.transform.rotate(sprite, angle)
+            rect = rotated_sprite.get_rect(center=position)
+            surface.blit(rotated_sprite, rect)
         else:
-            surface.blit(pygame.transform.flip(sprite, True, False), rect)
+            if self.orientation == 1:
+                surface.blit(sprite, rect)
+            else:
+                surface.blit(pygame.transform.flip(sprite, True, False), rect)
 
     # def _setup_state_sprites(self, state_name, folder_path):

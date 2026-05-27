@@ -48,8 +48,19 @@ SPELLS = {
         "message": "Boule de feu lancée",
         "action": SpellList.FIREBALL,
     },
+    "feusombre": {
+        "keywords": ["feu obscur"],
+        "message": "Boule de feu noir lancée",
+        "action": SpellList.DARK_FIREBALL,
+    },
     "glace": {
-        "keywords": ["pic de glace", "pic de classe"],
+        "keywords": [
+            "pic de gloss",
+            "pic de glace",
+            "pic de classe",
+            "big de galce",
+            "pic de gloire",
+        ],
         "message": "Jet de glace lancé",
         "action": SpellList.ICE,
     },
