@@ -97,6 +97,8 @@ class Player(Serializable):
         self.slow_effect: float = 1
         self.time_effect: float = 0
 
+        self.is_healing = 0
+
     def is_dead(self) -> bool:
         return self.hp <= 0
 
@@ -161,6 +163,14 @@ class Player(Serializable):
             ),
         )
 
+        self.heal_animator = Animator(
+            size=(self.radius * 5, self.radius * 5), animation_speed=0.5, base_dir=1
+        )
+        self.heal_animator.state_manager.add_state(
+            "heal",
+            os.path.join(PROJECT_ROOT, "client", "ressources", "heal_anim"),
+        )
+
         if self.healthBar is None:
             self.healthBar = HealthBar(y_offset=20)
 
@@ -186,6 +196,7 @@ class Player(Serializable):
         if heal_amount is None:
             heal_amount = self.heal_amount
         self.hp = min(self.max_hp, heal_amount + self.hp)
+        self.is_healing = 20
 
     def heal_max(self):
         self.hp = self.max_hp
@@ -323,6 +334,9 @@ class Player(Serializable):
         pos = (self.display_x + offset[0], self.display_y + offset[1])
 
         self.animator.blit_sprite(surface, pos)
+        if self.is_healing > 0:
+            self.heal_animator.blit_sprite(surface, pos)
+            self.is_healing -= 1
 
         self.hitbox.draw(surface, offset)
         self.healthBar.draw(surface, pos[0], pos[1], self.hp, self.max_hp)
