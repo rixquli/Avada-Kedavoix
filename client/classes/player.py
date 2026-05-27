@@ -196,7 +196,7 @@ class Player(Serializable):
         if heal_amount is None:
             heal_amount = self.heal_amount
         self.hp = min(self.max_hp, heal_amount + self.hp)
-        self.is_healing = 20
+        self.is_healing = 1
 
     def heal_max(self):
         self.hp = self.max_hp
@@ -212,6 +212,8 @@ class Player(Serializable):
             self.invinsibility_timer -= 1 / 30
         if self.time_effect > 0:
             self.time_effect -= 1 / 30
+        if self.is_healing > 0:
+            self.is_healing -= 1 / 30
 
     def update(self, keys=None):
         self.handle_input(keys)
@@ -336,7 +338,7 @@ class Player(Serializable):
         self.animator.blit_sprite(surface, pos)
         if self.is_healing > 0:
             self.heal_animator.blit_sprite(surface, pos)
-            self.is_healing -= 1
+            # self.is_healing -= 1
 
         self.hitbox.draw(surface, offset)
         self.healthBar.draw(surface, pos[0], pos[1], self.hp, self.max_hp)

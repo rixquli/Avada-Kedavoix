@@ -35,7 +35,7 @@ class NetworkManager:
         from server.world_elements.dungeonWalls import Dungeon
 
         self.enemySpawner = EnemySpawner(self)
-        self.Dungeon = Dungeon(nb_level=2)
+        self.Dungeon = Dungeon(nb_level=10)
 
         self.night_spawned_surface = False
 
