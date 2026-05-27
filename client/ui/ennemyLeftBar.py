@@ -28,6 +28,10 @@ class HealthBarGUI:
         self.actual_position = UIUtils.calculate_position_with_anchor(
             self.width, self.height, self.anchor, self.position
         )
+    def on_resize(self):
+        self.actual_position = UIUtils.calculate_position_with_anchor(
+            self.width, self.height, self.anchor, self.position
+        )
 
     def draw(
         self,
@@ -99,7 +103,7 @@ class EnnemyLeftBar:
             (0, 100), width=500, height=25, anchor=Anchor.MIDTOP
         )
         self.boss_name = Text(
-            f"SMAUG",
+            f"Roi des Ténèbres",
             (0, 50),
             color=(255, 50, 50),
             anchor=self.anchor,
@@ -112,8 +116,13 @@ class EnnemyLeftBar:
         if current_player:
             self.current_val = len(self.game_manager.game_state.enemies.get_list())
             self.floor_enemy_left.change_text(
-                f"Floor {current_player.world_layer-1}\nEnemy left: {self.current_val}"
+                f"Étage {current_player.world_layer-1}\nEnemis restant : {self.current_val}"
             )
+
+    def on_resize(self):
+        self.boss_bar.on_resize()
+        self.boss_name.on_resize()
+        self.floor_enemy_left.on_resize()
 
     def draw(
         self,
