@@ -7,23 +7,57 @@ DungeonEnemyList: List[List[Tuple[int, EnemyList, Dict[str, Any]]]] = [
     # Etage 1
     [(5, EnemyList.GOBELIN_MASSUE, {}), (5, EnemyList.GOBELIN_POIGNARD, {})],
     # Etage 2
-    [(10, EnemyList.GOBELIN_MASSUE, {}), (7, EnemyList.GOBELIN_POIGNARD, {})],
+    [
+        (10, EnemyList.GOBELIN_MASSUE, {}),
+        (7, EnemyList.GOBELIN_POIGNARD, {}),
+        (1, EnemyList.BOSS, {}),
+    ],
     # Etage 3
-    [(12, EnemyList.GOBELIN_MASSUE, {}), (7, EnemyList.GOBELIN_POIGNARD, {}), (5, EnemyList.SKELETON, {})],
+    [
+        (12, EnemyList.GOBELIN_MASSUE, {}),
+        (7, EnemyList.GOBELIN_POIGNARD, {}),
+        (5, EnemyList.SKELETON, {}),
+    ],
     # Etage 4
-    [(14, EnemyList.GOBELIN_MASSUE, {}), (10, EnemyList.GOBELIN_POIGNARD, {}), (7, EnemyList.SKELETON, {})],
+    [
+        (14, EnemyList.GOBELIN_MASSUE, {}),
+        (10, EnemyList.GOBELIN_POIGNARD, {}),
+        (7, EnemyList.SKELETON, {}),
+    ],
     # Etage 5
-    [(14, EnemyList.GOBELIN_MASSUE, {}), (5, EnemyList.DARK_MAGE, {}), (11, EnemyList.SKELETON, {})],
+    [
+        (14, EnemyList.GOBELIN_MASSUE, {}),
+        (5, EnemyList.DARK_MAGE, {}),
+        (11, EnemyList.SKELETON, {}),
+    ],
     # Etage 6
-    [(5, EnemyList.GOBELIN_MASSUE, {}), (5, EnemyList.GOBELIN_POIGNARD, {}), (10, EnemyList.SKELETON, {}), (7, EnemyList.DARK_MAGE, {})],
+    [
+        (5, EnemyList.GOBELIN_MASSUE, {}),
+        (5, EnemyList.GOBELIN_POIGNARD, {}),
+        (10, EnemyList.SKELETON, {}),
+        (7, EnemyList.DARK_MAGE, {}),
+    ],
     # Etage 7
-    [(5, EnemyList.GOBELIN_MASSUE, {}), (5, EnemyList.GOBELIN_POIGNARD, {}), (10, EnemyList.SKELETON, {}), (10, EnemyList.DARK_MAGE, {})],
+    [
+        (5, EnemyList.GOBELIN_MASSUE, {}),
+        (5, EnemyList.GOBELIN_POIGNARD, {}),
+        (10, EnemyList.SKELETON, {}),
+        (10, EnemyList.DARK_MAGE, {}),
+    ],
     # Etage 8
-    [(5, EnemyList.SKELETON, {}), (7, EnemyList.DARK_MAGE, {}), (3, EnemyList.DRAGON, {})],
+    [
+        (5, EnemyList.SKELETON, {}),
+        (7, EnemyList.DARK_MAGE, {}),
+        (3, EnemyList.DRAGON, {}),
+    ],
     # Etage 9
-    [(7, EnemyList.SKELETON, {}), (9, EnemyList.DARK_MAGE, {}), (6, EnemyList.DRAGON, {})],
+    [
+        (7, EnemyList.SKELETON, {}),
+        (9, EnemyList.DARK_MAGE, {}),
+        (6, EnemyList.DRAGON, {}),
+    ],
     # Etage Boss
-    [(8, EnemyList.DRAGON, {}), (1, EnemyList.BOSS, {})],
+    [(8, EnemyList.DRAGON, {})],
 ]
 
 

@@ -341,8 +341,8 @@ class GameManager:
             self.client_manager.game_state.pnjs.get_list(),
             active_world_layer=self.world_layer,
         )
-        
-        #Dessine les maisons
+
+        # Dessine les maisons
         House.draw_all(
             self.screen,
             offset,
@@ -358,7 +358,7 @@ class GameManager:
             active_world_layer=self.world_layer,
         )
 
-        if self.world_layer > Layer.OVERWORLD.value:
+        if self.world_layer > Layer.OVERWORLD.value and 0:
             self.cameraBlackFade.draw(
                 self.screen,
                 (self.screen.get_width() // 2, self.screen.get_height() // 2),

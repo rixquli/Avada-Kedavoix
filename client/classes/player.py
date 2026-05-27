@@ -77,7 +77,7 @@ class Player(Serializable):
         # Pour les animations - uniquement côté client
         self.animator = None
         self.healthBar = None
-        
+
         if not is_server:
             self._init_client_resources()
 
@@ -87,6 +87,7 @@ class Player(Serializable):
         self.game_manager = None
         if not is_server:
             from client.gameManager import GameManager
+
             self.game_manager = GameManager()
 
         self.pending_network_event = None
@@ -103,10 +104,10 @@ class Player(Serializable):
         """Initialise les ressources graphiques côté client"""
         if self.animator is not None:
             return  # Déjà initialisé
-        
+
         # Pour les animations
         self.animator = Animator(
-            size=(self.radius * 5, self.radius * 5), animation_speed=10 / 60, base_dir= 1
+            size=(self.radius * 5, self.radius * 5), animation_speed=10 / 60, base_dir=1
         )
 
         self.wizard_type = ""
@@ -199,7 +200,7 @@ class Player(Serializable):
         if self.invinsibility_timer > 0:
             self.invinsibility_timer -= 1 / 30
         if self.time_effect > 0:
-            self.time_effect -= 1/30
+            self.time_effect -= 1 / 30
 
     def update(self, keys=None):
         self.handle_input(keys)
@@ -216,12 +217,16 @@ class Player(Serializable):
         #     self.serveur_pos = None
 
         collided = self.hitbox.get_server_collided()
-        if collided: # si l'entitée est deja dans un mur on ignore les collision jusqu'a qu'elle sorte 
-            # Appliquer les mouvement sans vérifier collision 
-            self.hitbox.update(int(self.x + self.vx), int(self.y + self.vy), self.world_layer)
+        if (
+            collided
+        ):  # si l'entitée est deja dans un mur on ignore les collision jusqu'a qu'elle sorte
+            # Appliquer les mouvement sans vérifier collision
+            self.hitbox.update(
+                int(self.x + self.vx), int(self.y + self.vy), self.world_layer
+            )
             self.x += self.vx
             self.y += self.vy
-        else :
+        else:
             # Appliquer le mouvement horizontal
             self.hitbox.update(int(self.x + self.vx), int(self.y), self.world_layer)
 
@@ -250,7 +255,7 @@ class Player(Serializable):
     def interpolate_position(self):
         """Interpolation du mouvement vers le point cible"""
         self._init_client_resources()
-        
+
         x_diff = self.target_x - self.display_x
         y_diff = self.target_y - self.display_y
 
@@ -288,13 +293,13 @@ class Player(Serializable):
         import pygame
 
         if keys[pygame.K_UP] or keys[pygame.K_z]:
-            self.vy = -self.vitesse*modif_speed
+            self.vy = -self.vitesse * modif_speed
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            self.vy = self.vitesse*modif_speed
+            self.vy = self.vitesse * modif_speed
         if keys[pygame.K_LEFT] or keys[pygame.K_q]:
-            self.vx = -self.vitesse*modif_speed
+            self.vx = -self.vitesse * modif_speed
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            self.vx = self.vitesse*modif_speed
+            self.vx = self.vitesse * modif_speed
 
         if self.vx > 0:
             self.animator.flip_y("right")

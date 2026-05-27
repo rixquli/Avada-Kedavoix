@@ -63,7 +63,7 @@ class Credit:
                 anchor=Anchor.MIDBOTTOM,
             ),
             Text(
-                "Theo Privat - Developpeur en chef",
+                "Theo Privat - Développeur en chef",
                 self.position,
                 color=(255, 255, 255),
                 font_size=34,
@@ -101,7 +101,7 @@ class Credit:
             ),
             Text("", self.position, color=(255, 255, 255), anchor=Anchor.MIDBOTTOM),
             Text(
-                "Merci d'avoir joue !",
+                "Merci d'avoir joué !",
                 self.position,
                 color=(255, 255, 255),
                 font_bold=True,
@@ -135,5 +135,7 @@ class Credit:
             line.draw(surface)
 
     def handle_event(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+        if event.type == pygame.MOUSEBUTTONDOWN or (
+            event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE
+        ):
             self.call_back()

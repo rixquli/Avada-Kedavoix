@@ -50,8 +50,10 @@ join_menu_state = {"error_message": ""}
 # Etat UI du Credit Menu conservé entre les refresh.
 credit_menu_state = {"credit": None}
 
+
 def back():
     game_manager.ui.show("MainMenu")
+
 
 # fonction auxiliaire utilisé plus bas
 def close_and_exec(menu_name, function, *params):
@@ -107,7 +109,7 @@ def main_menu(menu_name):
         bg_border=False,
     )
     start_single_player = Button(
-        "SOLO",
+        "Solo",
         250,
         50,
         (0, -125),
@@ -115,7 +117,7 @@ def main_menu(menu_name):
         anchor=Anchor.CENTER,
     )
     start_hosting_player = Button(
-        "HOST",
+        "Héberger",
         250,
         50,
         (0, -25),
@@ -123,7 +125,7 @@ def main_menu(menu_name):
         anchor=Anchor.CENTER,
     )
     start_join_player = Button(
-        "JOIN",
+        "Rejoindre",
         250,
         50,
         (0, 75),
@@ -131,7 +133,7 @@ def main_menu(menu_name):
         anchor=Anchor.CENTER,
     )
     start_settings = Button(
-        "SETTINGS",
+        "Paramètres",
         250,
         50,
         (0, 175),
@@ -140,7 +142,7 @@ def main_menu(menu_name):
     )
 
     credit_btn = Button(
-        "CREDIT",
+        "Crédit",
         250,
         50,
         (0, 275),
@@ -148,7 +150,7 @@ def main_menu(menu_name):
         anchor=Anchor.CENTER,
     )
     quit_btn = Button(
-        "EXIT",
+        "Quitter",
         250,
         50,
         (0, 375),
@@ -229,7 +231,7 @@ def continue_new_game_menu(menu_name):
             bg_border=False,
         ),
         Button(
-            "CONTINUE GAME",
+            "Continuer la partie",
             300,
             50,
             position=(0, -50),
@@ -237,7 +239,7 @@ def continue_new_game_menu(menu_name):
             anchor=Anchor.CENTER,
         ),
         Button(
-            "CREATE NEW GAME",
+            "Nouvelle partie",
             300,
             50,
             position=(0, 50),
@@ -245,7 +247,7 @@ def continue_new_game_menu(menu_name):
             anchor=Anchor.CENTER,
         ),
         Button(
-            "BACK",
+            "Retour",
             300,
             50,
             (0, 150),
@@ -321,7 +323,7 @@ def join_menu(menu_name):
         ),
         # adress_input
         TextInput(
-            "Ip Address",
+            "Adresse Ip",
             (0, -100),
             200,
             50,
@@ -341,7 +343,7 @@ def join_menu(menu_name):
         ),
         # join_button
         Button(
-            "JOIN",
+            "Rejoindre",
             100,
             50,
             (0, 50),
@@ -349,7 +351,7 @@ def join_menu(menu_name):
             anchor=Anchor.CENTER,
         ),
         Button(
-            "BACK",
+            "Retour",
             100,
             50,
             (0, 100),
@@ -364,13 +366,14 @@ def join_menu(menu_name):
 def press_e(menu_name):
     return [
         Text(
-            "PRESS E",
+            "Appuyer sur E",
             (0, -150),
             font_size=50,
             color=(255, 255, 255),
             anchor=Anchor.MIDBOTTOM,
         ),
     ]
+
 
 def hud(menu_name):
     print("Updating HUD")  # Debug print to check if the function is called
@@ -471,9 +474,12 @@ def settings(menu_name):
             anchor=Anchor.CENTER,
         ),
         DropDownMenu(
-            "EXIT",
+            "Quitter",
             position=(0, 0),
-            values=[("MENU", game_manager.back_to_main_menu), ("EXIT", game_manager.set_to_quit)],
+            values=[
+                ("Menu", game_manager.back_to_main_menu),
+                ("Fermer", game_manager.set_to_quit),
+            ],
             width=250,
             heigth=75,
             values_width=250,
@@ -482,12 +488,14 @@ def settings(menu_name):
         ),
     ]
 
+
 def open_settings():
     if game_manager.ui.menus["hud"].is_showing:
         game_manager.ui.show("settings")
         print("Opening settings menu")
     else:
         print("is not in game")
+
 
 def settings_menu(menu_name):
 
@@ -515,58 +523,51 @@ def settings_menu(menu_name):
             background=True,
             bg_border=False,
         ),
-
         Text(
-            "SETTINGS",
+            "Paramètre",
             (0, 50),
             font_size=50,
             color=(0, 0, 0),
             anchor=Anchor.MIDTOP,
         ),
-
         Text(
-            "MOVE UP : Z OR UP",
+            "Aller en haut : Z OU HAUT",
             (0, -100),
             font_size=30,
             color=(0, 0, 0),
             anchor=Anchor.CENTER,
         ),
-
         Text(
-            "MOVE DOWN : S OR DOWN",
+            "Aller en bas : S OU BAS",
             (0, -50),
             font_size=30,
             color=(0, 0, 0),
             anchor=Anchor.CENTER,
         ),
-
         Text(
-            "MOVE LEFT : Q OR LEFT",
+            "Aller à gauche : Q OU GAUCHE",
             (0, 0),
             font_size=30,
             color=(0, 0, 0),
             anchor=Anchor.CENTER,
         ),
-
         Text(
-            "MOVE RIGHT : D OR RIGHT",
+            "Aller à droite : D OU DROITE",
             (0, 50),
             font_size=30,
             color=(0, 0, 0),
             anchor=Anchor.CENTER,
         ),
-
         Button(
-            "BACK",
+            "Retour",
             250,
             50,
             (0, 150),
             onclickFunction=game_manager.back_to_main_menu,
             anchor=Anchor.CENTER,
         ),
-
         Button(
-            "EXIT",
+            "Quitter",
             250,
             50,
             (0, 225),
@@ -623,7 +624,7 @@ Menus = [
         "is_showing": False,
     },
     {
-    "name": "SettingsMenu",
-    "content": settings_menu("SettingsMenu"),
+        "name": "SettingsMenu",
+        "content": settings_menu("SettingsMenu"),
     },
 ]
